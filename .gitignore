@@ -1,0 +1,15 @@
+# ===== Backend (Spring Boot) =====
+/backend/target/
+/backend/.idea/
+/backend/*.iml
+
+# ===== Frontend =====
+/frontend/node_modules/
+/frontend/dist/
+/frontend/.env
+
+# ===== Common =====
+.env
+.idea/
+.vscode/
+*.log
