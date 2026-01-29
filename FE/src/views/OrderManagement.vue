@@ -20,12 +20,15 @@
           <td>{{ order.maDonHang }}</td>
 
           <td>
-            <span class="status-pill">
-              {{ mapTrangThai(order.trangThai) }}
+            <span
+              class="status-pill"
+              :class="statusInfo(order.trangThai).class"
+            >
+              {{ statusInfo(order.trangThai).text }}
             </span>
           </td>
 
-          <td>{{ order.tenKhachHang }}</td>
+          <td>{{ order.hoTenNguoiNhan }}</td>
 
           <td>{{ order.sanPhamTomTat }}</td>
 
@@ -63,25 +66,18 @@ const fetchOrder = async () => {
 
 onMounted(fetchOrder);
 
-const mapTrangThai = (value) => {
-  switch (value) {
-    case 0:
-      return "Chờ xác nhận";
-    case 1:
-      return "Đã xác nhận";
-    case 2:
-      return "Đang đóng gói";
-    case 3:
-      return "Đang giao hàng";
-    case 4:
-      return "Giao thành công";
-    case 5:
-      return "Hủy";
-    case 6:
-      return "Hoàn trả";
-    default:
-      return "Không xác định";
-  }
+const STATUS_MAP = {
+  0: { text: "Chờ xác nhận", class: "status-pending" },
+  1: { text: "Đã xác nhận", class: "status-confirmed" },
+  2: { text: "Đang đóng gói", class: "status-packing" },
+  3: { text: "Đang giao hàng", class: "status-shipping" },
+  4: { text: "Giao thành công", class: "status-success" },
+  5: { text: "Hủy", class: "status-cancel" },
+  6: { text: "Hoàn trả", class: "status-return" },
+};
+
+const statusInfo = (value) => {
+  return STATUS_MAP[value] || { text: "Không xác định", class: "" };
 };
 
 const formatMoney = (value) => new Intl.NumberFormat("vi-VN").format(value);
@@ -114,8 +110,33 @@ const editOrder = (id) => {
 .status-pill {
   padding: 4px 10px;
   border-radius: 12px;
-  background: #f1f1f1;
   font-size: 13px;
+  font-weight: 500;
+  color: #fff;
+}
+
+.status-pending {
+  background: #6c757d;
+}
+.status-confirmed {
+  background: #0d6efd;
+}
+.status-packing {
+  background: #0dcaf0;
+}
+.status-shipping {
+  background: #ffc107;
+  color: #000;
+}
+.status-success {
+  background: #198754;
+}
+.status-cancel {
+  background: #dc3545;
+}
+.status-return {
+  background: #adb5bd;
+  color: #000;
 }
 
 .btn-edit {

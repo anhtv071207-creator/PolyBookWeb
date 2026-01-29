@@ -219,6 +219,7 @@ INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
 ('staff1@gmail.com', '123456', N'Triệu Vô Cực', 'STAFF', '0933333333', 1)
 Go
+
 INSERT INTO Address (user_id, type, ho_ten, phone, dia_chi, thanh_pho, quoc_gia)
 VALUES
 (2, 'HOME', N'Dương Đỉnh Thiên ', '0911111111', N'123 Lê Lợi', N'Hà Nội', N'Việt Nam'),
@@ -353,3 +354,5 @@ VALUES
 SELECT * FROM Books;
 SELECT * FROM Orders;
 SELECT * FROM Order_Items;
+
+DELETE From Orders;

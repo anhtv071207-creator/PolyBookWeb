@@ -1,11 +1,12 @@
-package com.example.polybookbe.dto;
+package com.example.polybookbe.dto.Order;
 
+import com.example.polybookbe.dto.Order.OrderItemRequest;
 import lombok.Data;
 import java.util.List;
 
 @Data
 public class CreateOrderRequest {
-    private Integer userId; // null nếu guest
+    private Integer userId;
     private String hoTenNguoiNhan;
     private String email;
     private String phone;

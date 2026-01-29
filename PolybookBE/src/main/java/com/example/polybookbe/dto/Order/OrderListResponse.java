@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto;
+package com.example.polybookbe.dto.Order;
 
 import com.example.polybookbe.entity.Order;
 import lombok.AllArgsConstructor;

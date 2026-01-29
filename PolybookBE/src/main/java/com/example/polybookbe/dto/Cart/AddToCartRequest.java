@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto;
+package com.example.polybookbe.dto.Cart;
 
 import lombok.Data;
 
@@ -6,5 +6,5 @@ import lombok.Data;
 public class AddToCartRequest {
     private Integer bookId;
     private Integer quantity;
-    private String sessionId; // dùng cho guest
+    private String sessionId; 
 }

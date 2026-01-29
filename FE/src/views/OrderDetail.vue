@@ -2,7 +2,7 @@
   <div class="order-detail container">
     <h3 class="mb-4">Chi tiết đơn hàng &gt; {{ order.maDonHang }}</h3>
 
-    <div class="card mb-4">
+    <div class="card mb-4 kh-info">
       <div class="card-body">
         <p><strong>Tên khách hàng:</strong> {{ order.hoTenNguoiNhan }}</p>
         <p><strong>Số điện thoại:</strong> {{ order.phone }}</p>
@@ -23,12 +23,18 @@
       </div>
       <div class="card-body">
         <div v-if="orderItems.length" class="product-list">
-          <div v-for="item in orderItems" :key="item.id" class="product-item">
-            <img :src="item.book.imageUrl" alt="" class="product-image" />
+          <div
+            v-for="item in orderItems"
+            :key="item.bookId"
+            class="product-item"
+          >
+            <img :src="item.anhBia" alt="" class="product-image" />
+
             <div class="product-info">
-              <div class="product-name">{{ item.book.tenSach }}</div>
+              <div class="product-name">{{ item.tieuDe }}</div>
+
               <div class="product-price">
-                {{ formatMoney(item.giaBan) }} x {{ item.soLuong }}
+                {{ formatMoney(item.donGia) }} x {{ item.soLuong }}
               </div>
             </div>
           </div>
@@ -127,43 +133,11 @@ const order = ref({
 const orderItems = ref([]);
 
 const fetchOrderDetail = async () => {
-  order.value = {
-    id: 1,
-    maDonHang: "DH001",
-    hoTenNguoiNhan: "Nguyễn Văn A",
-    phone: "0123456789",
-    email: "a@gmail.com",
-    tongTien: 199000,
-    diaChiNhanHang: "123 Lê Lợi",
-    phuongXa: "Phường 1",
-    quanHuyen: "Quận 1",
-    tinhThanh: "TP.HCM",
-    quocGia: "Việt Nam",
-    trangThai: 0,
-  };
+  const id = route.params.id;
 
-  orderItems.value = [
-    {
-      id: 1,
-      soLuong: 1,
-      giaBan: 110000,
-      book: {
-        id: 10,
-        tenSach: "Đắc Nhân Tâm",
-        imageUrl: "/images/dac-nhan-tam.jpg",
-      },
-    },
-    {
-      id: 2,
-      soLuong: 1,
-      giaBan: 89000,
-      book: {
-        id: 11,
-        tenSach: "Nhà Giả Kim",
-        imageUrl: "/images/nha-gia-kim.jpg",
-      },
-    },
-  ];
+  const res = await api.get(`/management/orders/${id}`);
+  order.value = res.data;
+  orderItems.value = res.data.items || [];
 };
 
 onMounted(fetchOrderDetail);
@@ -178,8 +152,15 @@ const canCancel = computed(() => ![4, 5, 6].includes(order.value.trangThai));
 const canReturn = computed(() => order.value.trangThai === 4);
 
 const changeStatus = async (newStatus) => {
+  const id = order.value.id;
+
+  await api.put(`/management/orders/${id}/status`, {
+    trangThai: newStatus,
+  });
+
   order.value.trangThai = newStatus;
 };
+
 
 const deleteOrder = async (id) => {
   await api.delete(`/management/orders/${id}`);
@@ -201,7 +182,9 @@ const formatMoney = (value) => {
   gap: 16px;
   flex-wrap: wrap;
 }
-
+.kh-info{
+  text-align: left;
+}
 .product-item {
   display: flex;
   gap: 12px;

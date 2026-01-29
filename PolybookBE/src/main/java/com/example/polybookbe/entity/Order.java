@@ -66,6 +66,6 @@ public class Order {
     @Column(name = "ngay_tao")
     private Date ngayTao;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items;
 }

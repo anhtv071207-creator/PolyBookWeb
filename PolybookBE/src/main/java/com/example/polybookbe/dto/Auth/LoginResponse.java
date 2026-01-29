@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto;
+package com.example.polybookbe.dto.Auth;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

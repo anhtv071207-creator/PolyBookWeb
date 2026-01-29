@@ -1,7 +1,7 @@
-package com.example.polybookbe.dto;
+package com.example.polybookbe.dto.Order;
 
+import com.example.polybookbe.dto.Order.OrderItemResponse;
 import com.example.polybookbe.entity.Order;
-import com.example.polybookbe.entity.OrderItem;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,7 +29,7 @@ public class OrderDetailResponse {
     private String phuongXa;
     private String diaChiNhanHang;
 
-    private Integer trangThai; // 0 -> 6
+    private Integer trangThai;
     private BigDecimal tongTien;
 
     private LocalDateTime ngayTao;
