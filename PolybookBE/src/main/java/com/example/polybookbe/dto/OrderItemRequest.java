@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto.Order;
+package com.example.polybookbe.dto;
 
 import lombok.Data;
 

@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto.Book;
+package com.example.polybookbe.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

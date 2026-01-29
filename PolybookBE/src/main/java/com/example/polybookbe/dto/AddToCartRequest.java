@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto.Cart;
+package com.example.polybookbe.dto;
 
 import lombok.Data;
 

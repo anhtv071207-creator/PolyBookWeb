@@ -1,7 +1,7 @@
 package com.example.polybookbe.service;
 
-import com.example.polybookbe.dto.Auth.LoginRequest;
-import com.example.polybookbe.dto.Auth.LoginResponse;
+import com.example.polybookbe.dto.LoginRequest;
+import com.example.polybookbe.dto.LoginResponse;
 import com.example.polybookbe.entity.User;
 import com.example.polybookbe.repository.UserRepository;
 import com.example.polybookbe.security.JwtUtil;

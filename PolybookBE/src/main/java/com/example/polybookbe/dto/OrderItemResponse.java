@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto.Order;
+package com.example.polybookbe.dto;
 
 import com.example.polybookbe.entity.BookImage;
 import com.example.polybookbe.entity.OrderItem;

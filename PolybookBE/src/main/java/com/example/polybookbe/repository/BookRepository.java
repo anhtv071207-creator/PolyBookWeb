@@ -1,6 +1,6 @@
 package com.example.polybookbe.repository;
 
-import com.example.polybookbe.dto.Book.BookHomeDTO;
+import com.example.polybookbe.dto.BookHomeDTO;
 import com.example.polybookbe.entity.Book;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

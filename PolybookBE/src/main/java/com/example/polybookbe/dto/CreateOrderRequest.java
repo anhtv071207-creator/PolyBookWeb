@@ -1,6 +1,6 @@
-package com.example.polybookbe.dto.Order;
+package com.example.polybookbe.dto;
 
-import com.example.polybookbe.dto.Order.OrderItemRequest;
+import com.example.polybookbe.dto.OrderItemRequest;
 import lombok.Data;
 import java.util.List;
 

@@ -1,8 +1,8 @@
 package com.example.polybookbe.service;
 
-import com.example.polybookbe.dto.Order.CreateOrderRequest;
-import com.example.polybookbe.dto.Order.OrderDetailResponse;
-import com.example.polybookbe.dto.Order.OrderListResponse;
+import com.example.polybookbe.dto.CreateOrderRequest;
+import com.example.polybookbe.dto.OrderDetailResponse;
+import com.example.polybookbe.dto.OrderListResponse;
 import com.example.polybookbe.entity.Order;
 
 import java.util.List;

@@ -1,7 +1,7 @@
 package com.example.polybookbe.controller;
 
-import com.example.polybookbe.dto.Book.BookDetailResponse;
-import com.example.polybookbe.dto.Book.BookHomeDTO;
+import com.example.polybookbe.dto.BookDetailResponse;
+import com.example.polybookbe.dto.BookHomeDTO;
 import com.example.polybookbe.entity.Book;
 import com.example.polybookbe.entity.BookImage;
 import com.example.polybookbe.repository.BookImageRepository;

@@ -1,6 +1,6 @@
 package com.example.polybookbe.service.impl;
 
-import com.example.polybookbe.dto.Cart.AddToCartRequest;
+import com.example.polybookbe.dto.AddToCartRequest;
 import com.example.polybookbe.entity.Book;
 import com.example.polybookbe.entity.Cart;
 import com.example.polybookbe.entity.CartItem;

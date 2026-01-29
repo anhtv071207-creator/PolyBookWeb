@@ -1,6 +1,6 @@
-package com.example.polybookbe.dto.Order;
+package com.example.polybookbe.dto;
 
-import com.example.polybookbe.dto.Order.OrderItemResponse;
+import com.example.polybookbe.dto.OrderItemResponse;
 import com.example.polybookbe.entity.Order;
 import lombok.Getter;
 import lombok.NoArgsConstructor;

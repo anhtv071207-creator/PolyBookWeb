@@ -1,4 +1,4 @@
-package com.example.polybookbe.dto.Auth;
+package com.example.polybookbe.dto;
 
 import lombok.Data;
 

@@ -1,6 +1,6 @@
 package com.example.polybookbe.controller;
 
-import com.example.polybookbe.dto.Order.CreateOrderRequest;
+import com.example.polybookbe.dto.CreateOrderRequest;
 import com.example.polybookbe.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
