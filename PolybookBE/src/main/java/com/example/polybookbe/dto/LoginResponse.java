@@ -1,4 +1,4 @@
-package com.example.polybookbe.Response;
+package com.example.polybookbe.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -118,6 +118,47 @@ CREATE TABLE Orders (
         FOREIGN KEY (dia_chi_nhan) REFERENCES Address(id)
 )
 GO
+ALTER TABLE Orders
+DROP CONSTRAINT FK_Orders_Address;
+GO
+ALTER TABLE Orders
+DROP COLUMN dia_chi_nhan;
+GO
+ALTER TABLE Orders
+ADD ho_ten_nguoi_nhan NVARCHAR(100);
+GO
+Select * from Orders
+go
+ALTER TABLE Orders
+DROP CONSTRAINT FK_Orders_Users;
+GO
+ALTER TABLE Orders
+ALTER COLUMN user_id INT NULL;
+GO
+ALTER TABLE Orders
+ADD CONSTRAINT FK_Orders_Users
+FOREIGN KEY (user_id) REFERENCES Users(id);
+GO
+ALTER TABLE Orders
+ADD
+    quoc_gia NVARCHAR(100),
+    tinh_thanh NVARCHAR(100),
+    quan_huyen NVARCHAR(100),
+    phuong_xa NVARCHAR(100),
+    dia_chi_nhan_hang NVARCHAR(255),
+    email NVARCHAR(100),
+    phone NVARCHAR(20);
+GO
+ALTER TABLE Orders
+ALTER COLUMN trang_thai SMALLINT;
+GO
+ALTER TABLE Orders
+ADD ngay_tao DATETIME;
+GO
+ALTER TABLE Orders
+ADD CONSTRAINT DF_Orders_NgayTao
+DEFAULT GETDATE() FOR ngay_tao;
+GO
 
 CREATE TABLE Order_Items (
     id INT IDENTITY PRIMARY KEY,
@@ -164,16 +205,16 @@ GO
 SELECt * From Users
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
-('admin@gmail.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiZ4W0JX0d8z1J8vLwKQ1X4z4k5O6nK', N'Admin', 'ADMIN', '0900000000', 1),
-('user1@gmail.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiZ4W0JX0d8z1J8vLwKQ1X4z4k5O6nK', N'Dương Đỉnh Thiên', 'USER', '0911111111', 1),
-('user2@gmail.com', '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiZ4W0JX0d8z1J8vLwKQ1X4z4k5O6nK', N'Lưu Vũ Nguyệt', 'USER', '0922222222', 1)
+('admin@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Admin', 'ADMIN', '0900000000', 1),
+('user1@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Dương Đỉnh Thiên', 'USER', '0911111111', 1),
+('user2@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Lưu Vũ Nguyệt', 'USER', '0922222222', 1)
 Go
 
-update Users set password = '$2a$10$7EqJtq98hPqEX7fNZaFWoOHiZ4W0JX0d8z1J8vLwKQ1X4z4k5O6nK' where id =1;
+update Users set password = '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa' where id =2;
 UPDATE [Users]
 SET [password] = '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa'
 WHERE [email] = 'admin@gmail.com';
-
+SELECT * FROM Users
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
 ('staff1@gmail.com', '123456', N'Triệu Vô Cực', 'STAFF', '0933333333', 1)
@@ -300,5 +341,15 @@ INSERT INTO Book_Categories (book_id, category_id)
 SELECT 6, id FROM Categories WHERE url = 'tieu-thuyet';
 Go
 
+INSERT INTO Book_Images (book_id, url, bia_sach)
+VALUES 
+(1, '/books/nha-gia-kim.jpg', 1),
+(2, '/books/dac-nhan-tam.jpg', 1),
+(3, '/books/tu-duy-nhanh-va-cham.jpg', 1),
+(4, '/books/luoc-su-thoi-gian.jpg', 1),
+(5, '/books/nguoi-ban-hang-vi-dai-nhat-the-gioi.jpg', 1),
+(6, '/books/giet-con-chim-nhai.jpg', 1)
 
-
+SELECT * FROM Books;
+SELECT * FROM Orders;
+SELECT * FROM Order_Items;

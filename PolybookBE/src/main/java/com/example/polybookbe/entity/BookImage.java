@@ -1,10 +1,12 @@
 package com.example.polybookbe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 
 @Entity
 @Table(name = "Book_Images")
@@ -19,7 +21,8 @@ public class BookImage {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
+    @JoinColumn(name = "book_id")
+    @JsonIgnore
     private Book book;
 
     @Column(length = 255)

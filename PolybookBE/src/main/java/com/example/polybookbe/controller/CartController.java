@@ -1,5 +1,6 @@
 package com.example.polybookbe.controller;
 
+import com.example.polybookbe.dto.AddToCartRequest;
 import com.example.polybookbe.entity.Cart;
 import com.example.polybookbe.entity.User;
 import com.example.polybookbe.service.CartService;
@@ -17,12 +18,27 @@ public class CartController {
     }
 
     @GetMapping("/user/{userId}")
-    public Cart getCartByUser(@PathVariable User user) {
+    public Cart getCartByUser(@PathVariable Integer userId) {
+        User user = new User();
+        user.setId(userId);
         return cartService.getCartByUser(user);
     }
 
     @GetMapping("/session/{sessionId}")
     public Cart getCartBySession(@PathVariable String sessionId) {
         return cartService.getCartBySessionId(sessionId);
+    }
+
+    @PostMapping("/items")
+    public Cart addToCart(
+            @RequestBody AddToCartRequest request,
+            @RequestParam(required = false) Integer userId
+    ) {
+        User user = null;
+        if (userId != null) {
+            user = new User();
+            user.setId(userId);
+        }
+        return cartService.addToCart(user, request);
     }
 }

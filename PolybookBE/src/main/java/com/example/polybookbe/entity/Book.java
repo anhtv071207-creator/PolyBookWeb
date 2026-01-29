@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Entity
 @Table(name = "Books")
@@ -41,4 +42,8 @@ public class Book {
 
     @Column(name = "total_reviews")
     private Integer totalReviews;
+
+    @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
+    private List<BookImage> images;
+
 }

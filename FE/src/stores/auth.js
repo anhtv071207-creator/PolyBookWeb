@@ -1,43 +1,42 @@
-import { defineStore } from 'pinia'
+import { defineStore } from "pinia"
+import { jwtDecode } from "jwt-decode"
 
-export const useAuthStore = defineStore('auth', {
+export const useAuthStore = defineStore("auth", {
   state: () => ({
-    token: localStorage.getItem('token') || null,
-    email: localStorage.getItem('email') || null,
-    role: localStorage.getItem('role') || null,
-
-    // thêm user object để header dùng
-    user: localStorage.getItem('hoTen')
-      ? { name: localStorage.getItem('hoTen') }
+    token: localStorage.getItem("token"),
+    email: localStorage.getItem("email"),
+    role: localStorage.getItem("role"),
+    user: localStorage.getItem("hoTen")
+      ? { name: localStorage.getItem("hoTen") }
       : null,
-
-    isLoggedIn: !!localStorage.getItem('token')
+    isLoggedIn: !!localStorage.getItem("token"),
   }),
 
   actions: {
     setAuth(payload) {
+      const decoded = jwtDecode(payload.token)
+
+      const rawRole =
+        decoded.role ||
+        decoded.authorities?.[0] ||
+        decoded.scope ||
+        null
+
       this.token = payload.token
-      this.email = payload.email
-      this.role = payload.role
-      this.user = {
-        name: payload.hoTen
-      }
+      this.email = decoded.sub
+      this.role = rawRole
+      this.user = { name: payload.hoTen || decoded.sub }
       this.isLoggedIn = true
 
-      localStorage.setItem('token', payload.token)
-      localStorage.setItem('email', payload.email)
-      localStorage.setItem('role', payload.role)
-      localStorage.setItem('hoTen', payload.hoTen)
+      localStorage.setItem("token", payload.token)
+      localStorage.setItem("email", this.email)
+      localStorage.setItem("role", rawRole)
+      localStorage.setItem("hoTen", this.user.name)
     },
 
     logout() {
-      this.token = null
-      this.email = null
-      this.role = null
-      this.user = null
-      this.isLoggedIn = false
-
+      this.$reset()
       localStorage.clear()
-    }
-  }
+    },
+  },
 })

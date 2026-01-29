@@ -1,30 +1,33 @@
 <script setup>
-import { computed } from "vue"
-import { useRouter } from "vue-router"
-import { useAuthStore } from "@/stores/auth"
+import { computed } from "vue";
+import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+const canSeeAdminBar = computed(() =>
+  isAdmin.value || isStaff.value
+);
 
-const auth = useAuthStore()
-const router = useRouter()
+const auth = useAuthStore();
+const router = useRouter();
+console.log("isLoggedIn:", auth.isLoggedIn);
+console.log("role:", auth.role);
 
-const isLoggedIn = computed(() => auth.isLoggedIn)
-const role = computed(() => auth.role)
-const userName = computed(() => auth.user?.name || "ho_ten")
+const isLoggedIn = computed(() => auth.isLoggedIn);
+const role = computed(() => auth.role);
+const userName = computed(() => auth.user?.name || "ho_ten");
 
-const isAdmin = computed(() => role.value === "ADMIN")
-const isStaff = computed(() => role.value === "STAFF")
-const isUser = computed(() => role.value === "USER")
+const isAdmin = computed(() => role.value === "ADMIN");
+const isStaff = computed(() => role.value === "STAFF");
+const isUser = computed(() => role.value === "USER");
 
 const logout = () => {
-  auth.logout()
-  router.push("/login")
-}
+  auth.logout();
+  router.push("/login");
+};
 </script>
 
 <template>
   <header class="header bg-white shadow-sm">
-    <!-- TOP HEADER -->
     <div class="container d-flex align-items-center py-2">
-      <!-- Logo -->
       <router-link
         to="/"
         class="d-flex align-items-center gap-2 text-decoration-none"
@@ -32,7 +35,6 @@ const logout = () => {
         <img src="/images/logo.png" alt="Logo" class="logo" />
       </router-link>
 
-      <!-- Search -->
       <div class="search-box flex-grow-1 mx-4">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Tìm sách" />
@@ -42,9 +44,7 @@ const logout = () => {
         </div>
       </div>
 
-      <!-- RIGHT ACTIONS -->
       <div class="d-flex align-items-center gap-3">
-        <!-- Category -->
         <div class="dropdown">
           <button
             class="btn btn-light dropdown-toggle"
@@ -59,11 +59,10 @@ const logout = () => {
           </ul>
         </div>
 
-        <!-- Cart -->
-        <button class="btn btn-outline-danger">
+        <router-link to="/cart" class="btn btn-outline-danger">
           <i class="bi bi-cart"></i>
           Giỏ hàng
-        </button>
+        </router-link>
 
         <!-- GUEST -->
         <template v-if="!isLoggedIn">
@@ -75,7 +74,6 @@ const logout = () => {
           </router-link>
         </template>
 
-        <!-- USER / ADMIN / STAFF -->
         <template v-else>
           <div class="dropdown">
             <button
@@ -109,20 +107,39 @@ const logout = () => {
       </div>
     </div>
 
-    <!-- ADMIN / STAFF CONTROL BAR -->
-    <div
-      v-if="isAdmin || isStaff"
-      class="admin-bar border-top bg-light"
-    >
-      <div class="container d-flex justify-content-center gap-4 py-2">
-        <div class="admin-item">📚 Quản lý sản phẩm</div>
-        <div class="admin-item">📦 Quản lý đơn hàng</div>
-        <div class="admin-item">📊 Thống kê</div>
-        <div class="admin-item">💰 Khuyến mãi</div>
+    <div v-if="canSeeAdminBar" class="admin-bar border-top">
+      <div class="container d-flex justify-content-center gap-5 py-3">
+        <router-link to="/management/product" class="admin-item">
+          <i class="bi bi-book"></i>
+          <span>Quản lý sản phẩm</span>
+        </router-link>
+        <router-link to="/management/catagory" class="admin-item">
+          <i class="bi bi-book"></i>
+          <span>Quản lý danh mục</span>
+        </router-link>
+        <router-link to="/management/orders" class="admin-item">
+          <i class="bi bi-box-seam"></i>
+          <span>Quản lý đơn hàng</span>
+        </router-link>
 
-        <div v-if="isAdmin" class="admin-item">
-          👤 Quản lý tài khoản
-        </div>
+        <router-link to="/reports" class="admin-item">
+          <i class="bi bi-bar-chart"></i>
+          <span>Thống kê báo cáo</span>
+        </router-link>
+
+        <router-link to="/promotions" class="admin-item">
+          <i class="bi bi-cash-stack"></i>
+          <span>Quản lý khuyến mãi</span>
+        </router-link>
+
+        <router-link
+          v-if="isAdmin"
+          to="/managements/account"
+          class="admin-item"
+        >
+          <i class="bi bi-people"></i>
+          <span>Quản lý tài khoản</span>
+        </router-link>
       </div>
     </div>
   </header>

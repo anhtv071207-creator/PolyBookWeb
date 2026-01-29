@@ -23,27 +23,49 @@ public class Order {
     private Integer id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(name = "user_id", nullable = true)
     private User user;
 
     @Column(name = "ma_don_hang", length = 50)
     private String maDonHang;
 
     @Column(name = "trang_thai")
-    private Boolean trangThai;
+    private Integer trangThai;
 
     @Column(name = "tong_tien", precision = 10, scale = 2)
     private BigDecimal tongTien;
-
-    @ManyToOne
-    @JoinColumn(name = "dia_chi_nhan")
-    private Address diaChiNhan;
 
     @Temporal(TemporalType.TIMESTAMP)
     @Column(name = "thoi_gian_nhan")
     private Date thoiGianNhan;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL)
-    private List<OrderItem> items;
+    @Column(name = "ho_ten_nguoi_nhan", length = 100)
+    private String hoTenNguoiNhan;
 
+    @Column(name = "quoc_gia", length = 100)
+    private String quocGia;
+
+    @Column(name = "tinh_thanh", length = 100)
+    private String tinhThanh;
+
+    @Column(name = "quan_huyen", length = 100)
+    private String quanHuyen;
+
+    @Column(name = "phuong_xa", length = 100)
+    private String phuongXa;
+
+    @Column(name = "dia_chi_nhan_hang", length = 255)
+    private String diaChiNhanHang;
+
+    @Column(name = "email", length = 100)
+    private String email;
+
+    @Column(name = "phone", length = 20)
+    private String phone;
+    @Temporal(TemporalType.TIMESTAMP)
+    @Column(name = "ngay_tao")
+    private Date ngayTao;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<OrderItem> items;
 }

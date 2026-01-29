@@ -20,14 +20,13 @@
         :key="b.id"
         class="col-6 col-md-3"
       >
-        <!-- CLICK TO DETAIL -->
         <router-link
           :to="`/book/${b.id}`"
           class="text-decoration-none text-dark"
         >
           <div class="card h-100 border-0 book-card">
             <img
-              src="/books/dac-nhan-tam.jpg"
+              :src="b.url || '/books/default.jpg'"
               class="card-img-top book-img rounded"
               alt=""
             />
@@ -36,10 +35,6 @@
               <h5 class="book-title mb-1">
                 {{ b.tieuDe }}
               </h5>
-
-              <p class="book-author mb-1">
-                {{ b.tacGia }}
-              </p>
 
               <div class="book-price">
                 {{ formatPrice(b.gia) }} đ
@@ -54,24 +49,23 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
-import axios from "axios";
+import api from "@/services/api";
 
 const books = ref([]);
 
 onMounted(async () => {
   try {
-    const res = await axios.get("http://localhost:8080/api/books");
+    const res = await api.get("/books/home");
     books.value = res.data;
-  } catch (error) {
-    console.error("Lỗi khi load danh sách sách:", error);
+  } catch (e) {
+    console.error("Load homepage books failed", e);
   }
 });
 
-const formatPrice = (price) => {
-  if (!price) return 0;
-  return Number(price).toLocaleString("vi-VN");
-};
+const formatPrice = (price) =>
+  price ? Number(price).toLocaleString("vi-VN") : "0";
 </script>
+
 
 <style scoped>
 .banner {
@@ -102,12 +96,15 @@ const formatPrice = (price) => {
 .cta-btn:hover {
   background-color: #ff3b30;
   color: #fff;
-  box-shadow: 0 8px 20px rgba(217, 48, 42, 0.35),
+  box-shadow:
+    0 8px 20px rgba(217, 48, 42, 0.35),
     0 0 0 6px rgba(217, 48, 42, 0.15);
 }
 
 .book-card {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .book-card:hover {
