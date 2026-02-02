@@ -63,7 +63,7 @@ public class Order {
     @Column(name = "phone", length = 20)
     private String phone;
     @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "ngay_tao")
+    @Column(name = "ngay_tao", insertable = false, updatable = false)
     private Date ngayTao;
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)

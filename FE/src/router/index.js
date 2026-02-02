@@ -7,6 +7,7 @@ import Order from "../views/Order.vue";
 import OrderManagement from "../views/OrderManagement.vue";
 import OrderDetail from "../views/OrderDetail.vue";
 import AccountManagement from "../views/AccountManagement.vue";
+import ViewOrder from "../views/ViewOrder.vue";
 const routes = [
   {
     path: "/",
@@ -48,6 +49,11 @@ const routes = [
     name: "accountmanagement",
     component: AccountManagement,
   },
+  {
+  path: "/orders/view",
+  name: "vieworder",
+  component: ViewOrder
+}
 ];
 
 const router = createRouter({

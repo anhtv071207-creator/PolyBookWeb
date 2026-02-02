@@ -35,8 +35,8 @@ public class OrderServiceImpl implements OrderService {
     private UserRepository userRepository;
 
     @Override
-    public List<Order> getOrdersByUser(Integer user) {
-        return orderRepository.findByUserId(user);
+    public List<Order> getOrdersByUser(Integer userId) {
+        return orderRepository.findByUserId(userId);
     }
 
     @Override
@@ -69,6 +69,7 @@ public class OrderServiceImpl implements OrderService {
         List<OrderItem> items = new ArrayList<>();
 
         for (OrderItemRequest itemReq : request.getItems()) {
+
             Book book = bookRepository.findById(itemReq.getBookId())
                     .orElseThrow(() -> new RuntimeException("Book not found"));
 
@@ -95,6 +96,7 @@ public class OrderServiceImpl implements OrderService {
 
     @Override
     public void updateTrangThai(Integer orderId, Integer newTrangThai) {
+
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
@@ -109,7 +111,7 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
 
-        if (newTrangThai != current + 1) {
+        if (!newTrangThai.equals(current + 1)) {
             throw new RuntimeException("Trạng thái không hợp lệ");
         }
 
@@ -131,16 +133,40 @@ public class OrderServiceImpl implements OrderService {
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
+        return buildOrderDetailResponse(order);
+    }
+
+    @Override
+    public OrderDetailResponse getDetailByMaDonHang(String maDonHang) {
+
+        Order order = orderRepository.findByMaDonHang(maDonHang)
+                .orElseThrow(() -> new RuntimeException("Order not found"));
+
+        return buildOrderDetailResponse(order);
+    }
+
+    @Override
+    public List<OrderListResponse> findByEmailOrPhone(String keyword) {
+
+        List<Order> orders = orderRepository.findByEmailOrPhone(keyword);
+
+        return orders.stream()
+                .map(OrderListResponse::new)
+                .toList();
+    }
+
+    private OrderDetailResponse buildOrderDetailResponse(Order order) {
+
         OrderDetailResponse res = new OrderDetailResponse();
 
         res.setId(order.getId());
         res.setTrangThai(order.getTrangThai());
-
         res.setTongTien(
                 order.getTongTien() != null
                         ? order.getTongTien()
                         : BigDecimal.ZERO
         );
+
         res.setHoTenNguoiNhan(order.getHoTenNguoiNhan());
         res.setEmail(order.getEmail());
         res.setPhone(order.getPhone());
@@ -178,7 +204,6 @@ public class OrderServiceImpl implements OrderService {
     public void deleteOrder(Integer id) {
         orderRepository.deleteById(id);
     }
-
 
     @Override
     public void cancelOrder(Integer id) {

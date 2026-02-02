@@ -23,4 +23,8 @@ public interface OrderService {
 
     public void deleteOrder(Integer id);
 
+    OrderDetailResponse getDetailByMaDonHang(String maDonHang);
+
+    List<OrderListResponse> findByEmailOrPhone(String keyword);
+
 }

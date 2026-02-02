@@ -1,30 +1,45 @@
 package com.example.polybookbe.controller;
 
 import com.example.polybookbe.dto.CreateOrderRequest;
+import com.example.polybookbe.dto.OrderDetailResponse;
+import com.example.polybookbe.dto.OrderListResponse;
+import com.example.polybookbe.entity.Order;
 import com.example.polybookbe.service.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/orders")
 @RequiredArgsConstructor
 public class OrderController {
-    @Autowired
-    private OrderService orderService;
+
+    private final OrderService orderService;
 
     @PostMapping
     public ResponseEntity<?> create(@RequestBody CreateOrderRequest request) {
-        orderService.createOrder(request);
+
+        Order order = orderService.createOrder(request);
+
         return ResponseEntity.ok(
                 Map.of(
-                        "message", "Đặt hàng thành công"
+                        "message", "Đặt hàng thành công",
+                        "maDonHang", order.getMaDonHang()
                 )
         );
     }
 
+    @GetMapping("/by-code/{maDonHang}")
+    public OrderDetailResponse getByMaDonHang(@PathVariable String maDonHang) {
+        return orderService.getDetailByMaDonHang(maDonHang);
+    }
+
+    @GetMapping("/lookup")
+    public List<OrderListResponse> lookup(@RequestParam String keyword) {
+        return orderService.findByEmailOrPhone(keyword);
+    }
 
 }

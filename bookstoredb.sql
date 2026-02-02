@@ -159,6 +159,12 @@ ALTER TABLE Orders
 ADD CONSTRAINT DF_Orders_NgayTao
 DEFAULT GETDATE() FOR ngay_tao;
 GO
+ALTER TABLE Orders
+ALTER COLUMN ma_don_hang VARCHAR(50) NOT NULL;
+go
+ALTER TABLE Orders
+ADD CONSTRAINT UQ_Orders_MaDonHang UNIQUE (ma_don_hang);
+Go
 
 CREATE TABLE Order_Items (
     id INT IDENTITY PRIMARY KEY,
@@ -202,22 +208,24 @@ CREATE TABLE Review (
         FOREIGN KEY (book_id) REFERENCES Books(id)
 )
 GO
+
 SELECt * From Users
+
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
 ('admin@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Admin', 'ADMIN', '0900000000', 1),
 ('user1@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Dương Đỉnh Thiên', 'USER', '0911111111', 1),
 ('user2@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Lưu Vũ Nguyệt', 'USER', '0922222222', 1)
 Go
-
-update Users set password = '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa' where id =2;
+<--password = 123456-->
+update Users set password = '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa' where id =4;
 UPDATE [Users]
 SET [password] = '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa'
 WHERE [email] = 'admin@gmail.com';
 SELECT * FROM Users
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
-('staff1@gmail.com', '123456', N'Triệu Vô Cực', 'STAFF', '0933333333', 1)
+('staff1@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Triệu Vô Cực', 'STAFF', '0933333333', 1)
 Go
 
 INSERT INTO Address (user_id, type, ho_ten, phone, dia_chi, thanh_pho, quoc_gia)
@@ -355,4 +363,27 @@ SELECT * FROM Books;
 SELECT * FROM Orders;
 SELECT * FROM Order_Items;
 
-DELETE From Orders;
+SELECT 
+    c.name AS column_name,
+    dc.name AS default_name,
+    dc.definition AS default_definition
+FROM sys.columns c
+LEFT JOIN sys.default_constraints dc 
+    ON c.default_object_id = dc.object_id
+WHERE c.object_id = OBJECT_ID('Orders')
+  AND c.name = 'ngay_tao';
+
+  SELECT 
+    name, 
+    is_nullable
+FROM sys.columns
+WHERE object_id = OBJECT_ID('Orders')
+AND name = 'ngay_tao';
+go
+UPDATE Orders
+SET ngay_tao = GETDATE()
+WHERE ngay_tao IS NULL;
+go
+ALTER TABLE Orders
+ALTER COLUMN ngay_tao DATETIME NOT NULL;
+go

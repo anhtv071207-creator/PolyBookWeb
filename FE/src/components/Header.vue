@@ -2,9 +2,7 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-const canSeeAdminBar = computed(() =>
-  isAdmin.value || isStaff.value
-);
+const canSeeAdminBar = computed(() => isAdmin.value || isStaff.value);
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -35,7 +33,7 @@ const logout = () => {
         <img src="/images/logo.png" alt="Logo" class="logo" />
       </router-link>
 
-      <div class="search-box flex-grow-1 mx-4">
+      <div class="search-box mx-4">
         <div class="input-group">
           <input type="text" class="form-control" placeholder="Tìm sách" />
           <span class="input-group-text bg-light">
@@ -63,8 +61,11 @@ const logout = () => {
           <i class="bi bi-cart"></i>
           Giỏ hàng
         </router-link>
+        <router-link to="/orders/view" class="btn btn-outline-secondary">
+          <i class="bi bi-receipt"></i>
+          Đơn hàng
+        </router-link>
 
-        <!-- GUEST -->
         <template v-if="!isLoggedIn">
           <router-link to="/register" class="btn btn-outline-primary">
             Sign Up
@@ -150,23 +151,21 @@ const logout = () => {
   width: 100%;
 }
 
-/* Logo */
 .logo {
   width: 42px;
   height: 42px;
   object-fit: contain;
   cursor: pointer;
 }
-
-/* Search */
 .search-box input {
+  width: 320px; /* chỉnh số này theo ý bạn */
+  max-width: 100%;
   border-radius: 20px 0 0 20px;
 }
 .search-box .input-group-text {
   border-radius: 0 20px 20px 0;
 }
 
-/* Buttons */
 .btn {
   white-space: nowrap;
 }
@@ -181,7 +180,6 @@ const logout = () => {
   border-color: var(--bs-primary);
 }
 
-/* Admin bar */
 .admin-bar {
   font-size: 14px;
 }
