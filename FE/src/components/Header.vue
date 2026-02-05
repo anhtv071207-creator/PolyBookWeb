@@ -131,7 +131,7 @@ onMounted(() => {
 
               <li v-if="isAdmin || isStaff">
                 <router-link class="dropdown-item" to="/admin">
-                  Trang quản trị
+                  Quản lý người dùng
                 </router-link>
               </li>
 
