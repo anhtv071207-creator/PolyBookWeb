@@ -22,6 +22,16 @@ public class CategoryServiceImpl implements CategoryService {
     }
 
     @Override
+    public List<Category> getRootCategories() {
+        return categoryRepository.findByDanhMucChaIsNull();
+    }
+
+    @Override
+    public List<Category> getByParentId(Integer parentId) {
+        return categoryRepository.findByDanhMucCha_Id(parentId);
+    }
+
+    @Override
     public Category getById(Integer id) {
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Category not found"));
@@ -32,3 +42,4 @@ public class CategoryServiceImpl implements CategoryService {
         return categoryRepository.save(category);
     }
 }
+

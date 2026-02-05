@@ -2,12 +2,18 @@
 import { computed } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
+import { ref, onMounted } from "vue";
+import api from "@/services/api";
+
 const canSeeAdminBar = computed(() => isAdmin.value || isStaff.value);
 
 const auth = useAuthStore();
 const router = useRouter();
 console.log("isLoggedIn:", auth.isLoggedIn);
 console.log("role:", auth.role);
+const parentCategories = ref([]);
+const childCategories = ref([]);
+const selectedParentId = ref(null);
 
 const isLoggedIn = computed(() => auth.isLoggedIn);
 const role = computed(() => auth.role);
@@ -21,6 +27,21 @@ const logout = () => {
   auth.logout();
   router.push("/login");
 };
+const fetchParentCategories = async () => {
+  const res = await api.get("http://localhost:8080/api/categories/root");
+  parentCategories.value = res.data;
+};
+
+const fetchChildCategories = async (parentId) => {
+  selectedParentId.value = parentId;
+  const res = await api.get(
+    `http://localhost:8080/api/categories/parent/${parentId}`,
+  );
+  childCategories.value = res.data;
+};
+onMounted(() => {
+  fetchParentCategories();
+});
 </script>
 
 <template>
@@ -50,10 +71,28 @@ const logout = () => {
           >
             Danh mục
           </button>
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item">Tiểu thuyết</a></li>
-            <li><a class="dropdown-item">Kỹ năng</a></li>
-            <li><a class="dropdown-item">Truyện tranh</a></li>
+          <ul class="dropdown-menu category-mega p-3">
+            <div class="row">
+              <div class="col-4 border-end category-parent">
+                <li
+                  v-for="parent in parentCategories"
+                  :key="parent.id"
+                  class="category-parent-item"
+                  @mouseenter="fetchChildCategories(parent.id)"
+                >
+                  {{ parent.tenDanhMuc }}
+                </li>
+              </div>
+              <div class="col-8 category-child">
+                <li
+                  v-for="child in childCategories"
+                  :key="child.id"
+                  class="category-child-item"
+                >
+                  {{ child.tenDanhMuc }}
+                </li>
+              </div>
+            </div>
           </ul>
         </div>
 
@@ -114,7 +153,7 @@ const logout = () => {
           <i class="bi bi-book"></i>
           <span>Quản lý sản phẩm</span>
         </router-link>
-        <router-link to="/management/catagory" class="admin-item">
+        <router-link to="/management/category" class="admin-item">
           <i class="bi bi-book"></i>
           <span>Quản lý danh mục</span>
         </router-link>
@@ -191,4 +230,58 @@ const logout = () => {
 .admin-item:hover {
   background: #e9ecef;
 }
+
+.category-mega {
+  width: 70vw;
+  max-width: 900px;
+  left: 50%;
+  transform: translateX(-50%);
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
+}
+
+.category-parent,
+.category-child {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+.category-parent-item {
+  padding: 10px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #333;
+  transition: all 0.2s ease;
+}
+
+.category-parent-item:hover {
+  background-color: #f1f3f5;
+  color: var(--bs-primary);
+}
+
+.category-child-item {
+  padding: 8px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #555;
+  transition: all 0.15s ease;
+}
+
+.category-child-item:hover {
+  background-color: #f8f9fa;
+  color: var(--bs-danger);
+}
+
+.category-parent::-webkit-scrollbar,
+.category-child::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-parent::-webkit-scrollbar-thumb,
+.category-child::-webkit-scrollbar-thumb {
+  background-color: #ced4da;
+  border-radius: 4px;
+}
+
 </style>

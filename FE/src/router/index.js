@@ -8,6 +8,7 @@ import OrderManagement from "../views/OrderManagement.vue";
 import OrderDetail from "../views/OrderDetail.vue";
 import AccountManagement from "../views/AccountManagement.vue";
 import ViewOrder from "../views/ViewOrder.vue";
+import ViewOrderDetail from "../views/ViewOrderDetail.vue";
 const routes = [
   {
     path: "/",
@@ -50,10 +51,15 @@ const routes = [
     component: AccountManagement,
   },
   {
-  path: "/orders/view",
-  name: "vieworder",
-  component: ViewOrder
-}
+    path: "/orders/view",
+    name: "vieworder",
+    component: ViewOrder,
+  },
+  {
+    path: "/orders/view/:id",
+    name: "vieworderdetail",
+    component: ViewOrderDetail,
+  }
 ];
 
 const router = createRouter({

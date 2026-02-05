@@ -2,26 +2,34 @@ package com.example.polybookbe.controller;
 
 import com.example.polybookbe.entity.Category;
 import com.example.polybookbe.repository.CategoryRepository;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import com.example.polybookbe.service.CategoryService;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 @RequestMapping("/api/categories")
+@CrossOrigin(origins = "http://localhost:5173")
 public class CategoryController {
 
-    private final CategoryRepository categoryRepository;
+    private final CategoryService categoryService;
 
-    public CategoryController(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
+    public CategoryController(CategoryService categoryService) {
+        this.categoryService = categoryService;
     }
 
     @GetMapping
-    public List<Category> getAllCategories() {
-        return categoryRepository.findAll();
+    public List<Category> getAll() {
+        return categoryService.getAll();
+    }
+
+    @GetMapping("/root")
+    public List<Category> getRootCategories() {
+        return categoryService.getRootCategories();
+    }
+
+    @GetMapping("/parent/{id}")
+    public List<Category> getByParent(@PathVariable Integer id) {
+        return categoryService.getByParentId(id);
     }
 }

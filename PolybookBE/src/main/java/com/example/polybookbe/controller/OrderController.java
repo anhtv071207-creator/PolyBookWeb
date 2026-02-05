@@ -32,14 +32,13 @@ public class OrderController {
         );
     }
 
-    @GetMapping("/by-code/{maDonHang}")
-    public OrderDetailResponse getByMaDonHang(@PathVariable String maDonHang) {
-        return orderService.getDetailByMaDonHang(maDonHang);
-    }
-
     @GetMapping("/lookup")
     public List<OrderListResponse> lookup(@RequestParam String keyword) {
         return orderService.findByEmailOrPhone(keyword);
     }
 
+    @GetMapping("/{id}")
+    public OrderDetailResponse getDetail(@PathVariable Integer id) {
+        return orderService.getDetail(id);
+    }
 }
