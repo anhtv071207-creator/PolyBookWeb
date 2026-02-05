@@ -1,6 +1,9 @@
 package com.example.polybookbe.service.impl;
 
+import com.example.polybookbe.dto.UserInfo;
+import com.example.polybookbe.entity.Address;
 import com.example.polybookbe.entity.User;
+import com.example.polybookbe.repository.AddressRepository;
 import com.example.polybookbe.repository.UserRepository;
 import com.example.polybookbe.service.UserService;
 import org.springframework.security.core.Authentication;
@@ -15,11 +18,14 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final AddressRepository addressRepository;
 
     public UserServiceImpl(UserRepository userRepository,
-                           PasswordEncoder passwordEncoder) {
+                           PasswordEncoder passwordEncoder,
+                           AddressRepository addressRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.addressRepository = addressRepository;
     }
 
     @Override
@@ -61,5 +67,26 @@ public class UserServiceImpl implements UserService {
     @Override
     public User findByEmail(String email) {
         return userRepository.findByEmail(email).orElse(null);
+    }
+
+    @Override
+    public UserInfo getUserInfo(Integer userId) {
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        Address address = addressRepository.findFirstByUserId(userId);
+
+        return UserInfo.builder()
+                .userId(user.getId())
+                .hoTenNguoiNhan(user.getHoTen())
+                .email(user.getEmail())
+                .phone(user.getPhone())
+                .quocGia(address != null ? address.getQuocGia() : "Việt Nam")
+                .tinhThanh(address != null ? address.getTinhThanh() : "")
+                .quanHuyen(address != null ? address.getQuanHuyen() : "")
+                .phuongXa(address != null ? address.getPhuongXa() : "")
+                .diaChi(address != null ? address.getDiaChi() : "")
+                .build();
     }
 }

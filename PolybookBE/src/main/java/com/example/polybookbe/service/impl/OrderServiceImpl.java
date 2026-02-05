@@ -50,7 +50,7 @@ public class OrderServiceImpl implements OrderService {
             order.setUser(user);
         }
 
-        order.setMaDonHang("DH" + System.currentTimeMillis());
+        order.setMaDonHang("DH" + System.currentTimeMillis() + (int)(Math.random() * 1000));
         order.setTrangThai(0);
         order.setHoTenNguoiNhan(request.getHoTenNguoiNhan());
         order.setEmail(request.getEmail());
@@ -60,9 +60,9 @@ public class OrderServiceImpl implements OrderService {
         order.setQuanHuyen(request.getQuanHuyen());
         order.setPhuongXa(request.getPhuongXa());
         order.setDiaChiNhanHang(request.getDiaChiNhanHang());
-        order.setThoiGianNhan(new Date());
 
         BigDecimal tongTien = BigDecimal.ZERO;
+        BigDecimal SHIPPING_FEE = BigDecimal.valueOf(10000);
 
         Order savedOrder = orderRepository.save(order);
 
@@ -77,6 +77,17 @@ public class OrderServiceImpl implements OrderService {
             item.setOrder(savedOrder);
             item.setBook(book);
             item.setSoLuong(itemReq.getSoLuong());
+            if (itemReq.getSoLuong() <= 0) {
+                throw new RuntimeException("Số lượng không hợp lệ");
+            }
+            if (book.getHangTon() < itemReq.getSoLuong()) {
+                throw new RuntimeException("Sản phẩm không đủ tồn kho");
+            }
+            bookRepository.save(book);
+
+
+            book.setHangTon(book.getHangTon() - itemReq.getSoLuong());
+
             item.setDonGia(book.getGia());
 
             tongTien = tongTien.add(
@@ -88,9 +99,8 @@ public class OrderServiceImpl implements OrderService {
 
         orderItemRepository.saveAll(items);
 
-        savedOrder.setTongTien(tongTien);
+        savedOrder.setTongTien(tongTien.add(SHIPPING_FEE));
         savedOrder.setItems(items);
-
         return orderRepository.save(savedOrder);
     }
 

@@ -33,7 +33,6 @@ public class OrderDetailResponse {
     private BigDecimal tongTien;
 
     private LocalDateTime ngayTao;
-    private LocalDateTime thoiGianDatHang;
 
     private List<OrderItemResponse> items;
 
@@ -64,7 +63,6 @@ public class OrderDetailResponse {
                     .toLocalDateTime();
 
             this.ngayTao = time;
-            this.thoiGianDatHang = time;
         }
 
         this.items = order.getItems()

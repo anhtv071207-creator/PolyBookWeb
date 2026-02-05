@@ -197,7 +197,7 @@ onMounted(() => {
   cursor: pointer;
 }
 .search-box input {
-  width: 320px; /* chỉnh số này theo ý bạn */
+  width: 320px; 
   max-width: 100%;
   border-radius: 20px 0 0 20px;
 }

@@ -1,6 +1,6 @@
 <template>
   <footer class="footer">
-    <p>© 2026 Book Store</p>
+    <p>© Polybook Store</p>
   </footer>
 </template>
 

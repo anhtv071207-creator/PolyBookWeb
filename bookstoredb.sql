@@ -2,6 +2,7 @@
 GO
 USE BookStoreDB
 GO
+
 CREATE TABLE Users (
     id INT IDENTITY PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
@@ -16,17 +17,32 @@ GO
 CREATE TABLE Address (
     id INT IDENTITY PRIMARY KEY,
     user_id INT NOT NULL,
-    type NVARCHAR(50),
-    ho_ten NVARCHAR(255),
-    phone VARCHAR(50),
     dia_chi NVARCHAR(255),
-    thanh_pho NVARCHAR(100),
+    tinh_thanh NVARCHAR(100),
     quoc_gia NVARCHAR(100),
-
+quan_huyen NVARCHAR(100),
+phuong_xa NVARCHAR(100),
     CONSTRAINT FK_Address_Users
         FOREIGN KEY (user_id) REFERENCES Users(id)
 )
 GO
+
+EXEC sp_rename 'Address.thanh_pho', 'tinh_thanh', 'COLUMN';
+GO
+
+ALTER TABLE Address
+ADD quan_huyen NVARCHAR(100);
+GO
+
+ALTER TABLE Address
+ADD phuong_xa NVARCHAR(100);
+GO
+ALTER TABLE Address
+DROP COLUMN phone, type;
+go
+ALTER TABLE Address
+DROP COLUMN ho_ten;
+go
 
 CREATE TABLE Categories (
     id INT IDENTITY PRIMARY KEY,
@@ -192,6 +208,23 @@ CREATE TABLE Payment (
         FOREIGN KEY (user_id) REFERENCES Users(id)
 )
 GO
+ALTER TABLE Payment
+DROP CONSTRAINT FK_Payment_Users;
+GO
+ALTER TABLE Payment
+DROP COLUMN user_id;
+GO
+ALTER TABLE Payment
+ADD order_id INT NOT NULL;
+GO
+ALTER TABLE Payment
+ADD CONSTRAINT FK_Payment_Orders
+FOREIGN KEY (order_id) REFERENCES Orders(id);
+GO
+ALTER TABLE Payment
+ADD ma_giao_dich VARCHAR(100) NOT NULL;
+GO
+
 
 CREATE TABLE Review (
     id INT IDENTITY PRIMARY KEY,
@@ -228,11 +261,10 @@ VALUES
 ('staff1@gmail.com', '$2a$10$618VhxEtwtnuyedIv4UzVebdUru.V68hIrOIrSluc./RDm3j5/QVa', N'Triệu Vô Cực', 'STAFF', '0933333333', 1)
 Go
 
-INSERT INTO Address (user_id, type, ho_ten, phone, dia_chi, thanh_pho, quoc_gia)
-VALUES
-(2, 'HOME', N'Dương Đỉnh Thiên ', '0911111111', N'123 Lê Lợi', N'Hà Nội', N'Việt Nam'),
-(3, 'HOME', N'Lưu Vũ Nguyệt', '0922222222', N'456 Nguyễn Huệ', N'Hồ Chí Minh', N'Việt Nam')
-GO
+INSERT INTO Address (user_id,dia_chi, tinh_thanh, quoc_gia, quan_huyen, phuong_xa )
+Values 
+(2,N'123 Lý Thường Kiệt',N'Thành phố Hà Nội', N'Việt Nam', N'Quận Hoàn Kiếm', N'Phường Cửa Nam');
+select * from Address;
 SELECT * FROM Categories
 GO
 INSERT INTO Categories (ten_danh_muc, url, danh_muc_cha)
@@ -387,3 +419,7 @@ go
 ALTER TABLE Orders
 ALTER COLUMN ngay_tao DATETIME NOT NULL;
 go
+ALTER TABLE Orders
+DROP COLUMN thoi_gian_nhan;
+GO
+

@@ -31,7 +31,9 @@
           <div class="right-wrapper">
             <div class="right-box top-box">
               <h3 class="book-title">{{ book.tieuDe }}</h3>
-              <div class="meta">Tác giả: <b>{{ book.tacGia }}</b></div>
+              <div class="meta">
+                Tác giả: <b>{{ book.tacGia }}</b>
+              </div>
               <div class="meta">Hình thức: Bìa mềm</div>
 
               <div class="rating-line">★★★★★ <span>(2 đánh giá)</span></div>
@@ -43,10 +45,10 @@
             <div class="right-box bottom-box">
               <div class="option-row">
                 <span class="label">Số lượng</span>
-                <div class="qty">
-                  <button @click="quantity--" :disabled="quantity <= 1">-</button>
-                  <input type="text" :value="quantity" readonly />
-                  <button @click="quantity++">+</button>
+                <div class="qty-wrapper">
+                  <button class="qty-btn" @click="decrease">−</button>
+                  <span class="qty-number">{{ quantity }}</span>
+                  <button class="qty-btn" @click="increase">+</button>
                 </div>
               </div>
 
@@ -55,9 +57,7 @@
                   🛒 Thêm vào giỏ hàng
                 </button>
 
-                <button class="btn-buy" @click="buyNow">
-                  Mua ngay
-                </button>
+                <button class="btn-buy" @click="buyNow">Mua ngay</button>
               </div>
             </div>
           </div>
@@ -84,8 +84,7 @@ onMounted(async () => {
   book.value = res.data;
 });
 
-const formatPrice = v =>
-  v ? Number(v).toLocaleString("vi-VN") : "0";
+const formatPrice = (v) => (v ? Number(v).toLocaleString("vi-VN") : "0");
 
 const addToCart = () => {
   addItem(book.value, quantity.value);
@@ -199,19 +198,36 @@ const buyNow = () => {
   font-weight: 600;
 }
 
-.qty {
+.qty-wrapper {
   display: flex;
   align-items: center;
+  gap: 6px;
 }
 
-.qty button {
-  width: 32px;
-  height: 32px;
+.qty-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid #ccc;
+  background: #f5f5f5;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0;
 }
 
-.qty input {
-  width: 40px;
-  text-align: center;
+.qty-btn:hover {
+  background: #e0e0e0;
+}
+
+.qty-number {
+  min-width: 40px;
+  height: 28px;
+  border: 1px solid #ccc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  background: #fff;
 }
 
 .actions {

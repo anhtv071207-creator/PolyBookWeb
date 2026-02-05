@@ -40,7 +40,7 @@ public class AuthController {
             throw new RuntimeException("Sai email hoặc mật khẩu");
         }
 
-        String token = jwtUtil.generateToken(user.getEmail(), user.getRole());
+        String token = jwtUtil.generateToken(user.getId(),user.getEmail(), user.getRole());
         return Map.of("token", token);
     }
 }

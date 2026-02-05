@@ -1,5 +1,6 @@
 package com.example.polybookbe.service;
 
+import com.example.polybookbe.dto.UserInfo;
 import com.example.polybookbe.entity.User;
 
 public interface UserService {
@@ -10,4 +11,7 @@ public interface UserService {
     User getCurrentUser();
 
     User findByEmail(String email);
+
+    UserInfo getUserInfo(Integer userId);
+
 }
