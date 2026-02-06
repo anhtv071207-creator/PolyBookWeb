@@ -35,10 +35,6 @@ public class Order {
     @Column(name = "tong_tien", precision = 10, scale = 2)
     private BigDecimal tongTien;
 
-    @Temporal(TemporalType.TIMESTAMP)
-    @Column(name = "thoi_gian_nhan")
-    private Date thoiGianNhan;
-
     @Column(name = "ho_ten_nguoi_nhan", length = 100)
     private String hoTenNguoiNhan;
 

@@ -261,16 +261,7 @@ const paymentMethods = [
   { value: "MOMO", label: "Ví Momo" },
   { value: "VNPAY", label: "Ví VNPay" },
 ];
-
 const placeOrder = async () => {
-  const error = validateOrder();
-  if (error) {
-    toastMessage.value = error;
-    showToast.value = true;
-    setTimeout(() => (showToast.value = false), 2000);
-    return;
-  }
-
   const payload = {
     userId: auth.user?.id || null,
     hoTenNguoiNhan: orderForm.value.fullName,
@@ -296,42 +287,83 @@ const placeOrder = async () => {
     cartItems.value = [];
     setTimeout(() => (showToast.value = false), 2000);
   } catch (err) {
-    toastMessage.value = err.response?.data?.message || "Đặt hàng thất bại";
+    toastMessage.value =
+      err.response?.data?.message || "Đặt hàng thất bại";
     showToast.value = true;
     setTimeout(() => (showToast.value = false), 2000);
   }
 };
 
-const validateOrder = () => {
-  if (!orderForm.value.fullName?.trim())
-    return "Vui lòng nhập họ tên người nhận";
+// const placeOrder = async () => {
+//   const error = validateOrder();
+//   if (error) {
+//     toastMessage.value = error;
+//     showToast.value = true;
+//     setTimeout(() => (showToast.value = false), 2000);
+//     return;
+//   }
 
-  if (!orderForm.value.email?.trim()) return "Vui lòng nhập email";
+//   const payload = {
+//     userId: auth.user?.id || null,
+//     hoTenNguoiNhan: orderForm.value.fullName,
+//     email: orderForm.value.email,
+//     phone: orderForm.value.phone,
+//     quocGia: orderForm.value.quocGia,
+//     tinhThanh: orderForm.value.tinhThanh,
+//     quanHuyen: orderForm.value.quanHuyen,
+//     phuongXa: orderForm.value.phuongXa,
+//     diaChiNhanHang: orderForm.value.address,
+//     paymentMethod: orderForm.value.paymentMethod,
+//     items: cartItems.value.map((i) => ({
+//       bookId: i.id,
+//       soLuong: i.qty,
+//     })),
+//   };
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(orderForm.value.email)) return "Email không hợp lệ";
+//   try {
+//     await api.post("/orders", payload);
+//     toastMessage.value = "Đặt hàng thành công";
+//     showToast.value = true;
+//     localStorage.removeItem("cart");
+//     cartItems.value = [];
+//     setTimeout(() => (showToast.value = false), 2000);
+//   } catch (err) {
+//     toastMessage.value = err.response?.data?.message || "Đặt hàng thất bại";
+//     showToast.value = true;
+//     setTimeout(() => (showToast.value = false), 2000);
+//   }
+// };
 
-  if (!orderForm.value.phone?.trim()) return "Vui lòng nhập số điện thoại";
+// const validateOrder = () => {
+//   if (!orderForm.value.fullName?.trim())
+//     return "Vui lòng nhập họ tên người nhận";
 
-  const phoneRegex = /^(0|\+84)[0-9]{9}$/;
-  if (!phoneRegex.test(orderForm.value.phone))
-    return "Số điện thoại không hợp lệ";
+//   if (!orderForm.value.email?.trim()) return "Vui lòng nhập email";
 
-  if (!orderForm.value.tinhThanh) return "Vui lòng chọn tỉnh / thành";
+//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+//   if (!emailRegex.test(orderForm.value.email)) return "Email không hợp lệ";
 
-  if (!orderForm.value.quanHuyen) return "Vui lòng chọn quận / huyện";
+//   if (!orderForm.value.phone?.trim()) return "Vui lòng nhập số điện thoại";
 
-  if (!orderForm.value.phuongXa) return "Vui lòng chọn phường / xã";
+//   const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+//   if (!phoneRegex.test(orderForm.value.phone))
+//     return "Số điện thoại không hợp lệ";
 
-  if (!orderForm.value.address?.trim())
-    return "Vui lòng nhập địa chỉ nhận hàng";
+//   if (!orderForm.value.tinhThanh) return "Vui lòng chọn tỉnh / thành";
 
-  if (!cartItems.value.length) return "Giỏ hàng trống";
+//   if (!orderForm.value.quanHuyen) return "Vui lòng chọn quận / huyện";
 
-  if (!agree.value) return "Bạn phải đồng ý điều khoản";
+//   if (!orderForm.value.phuongXa) return "Vui lòng chọn phường / xã";
 
-  return null;
-};
+//   if (!orderForm.value.address?.trim())
+//     return "Vui lòng nhập địa chỉ nhận hàng";
+
+//   if (!cartItems.value.length) return "Giỏ hàng trống";
+
+//   if (!agree.value) return "Bạn phải đồng ý điều khoản";
+
+//   return null;
+// };
 
 const loadUserInfo = async (userId) => {
   try {
