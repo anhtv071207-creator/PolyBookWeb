@@ -87,35 +87,36 @@
       </div>
 
       <div class="tab-content">
-        <!-- INFO -->
         <div v-if="activeTab === 'info'" class="info-box">
           <div>
             <h4>THÔNG TIN SẢN PHẨM</h4>
             <table class="info-table">
-              <tr>
-                <td>Tác giả</td>
-                <td>{{ book.tacGia }}</td>
-              </tr>
-              <tr>
-                <td>Danh mục</td>
-                <td>Kỹ năng</td>
-              </tr>
-              <tr>
-                <td>Nhà xuất bản</td>
-                <td>NXB Trẻ</td>
-              </tr>
-              <tr>
-                <td>Năm xuất bản</td>
-                <td>2023</td>
-              </tr>
-              <tr>
-                <td>Hình thức</td>
-                <td>Bìa mềm</td>
-              </tr>
-              <tr>
-                <td>Số trang</td>
-                <td>320</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <td>Tác giả</td>
+                  <td>{{ book.tacGia }}</td>
+                </tr>
+                <tr>
+                  <td>Danh mục</td>
+                  <td>Kỹ năng</td>
+                </tr>
+                <tr>
+                  <td>Nhà xuất bản</td>
+                  <td>NXB Trẻ</td>
+                </tr>
+                <tr>
+                  <td>Năm xuất bản</td>
+                  <td>2023</td>
+                </tr>
+                <tr>
+                  <td>Hình thức</td>
+                  <td>Bìa mềm</td>
+                </tr>
+                <tr>
+                  <td>Số trang</td>
+                  <td>320</td>
+                </tr>
+              </tbody>
             </table>
           </div>
 
@@ -125,7 +126,6 @@
           </div>
         </div>
 
-        <!-- REVIEW -->
         <div v-if="activeTab === 'review'" class="review-box">
           <div class="review-summary">
             <div class="score">
@@ -532,7 +532,6 @@ const decrease = () => {
   color: #444;
 }
 
-/* ===== Responsive ===== */
 @media (max-width: 900px) {
   .book-detail {
     grid-template-columns: 1fr;
@@ -574,6 +573,4 @@ const decrease = () => {
     0 0 6px rgba(255, 80, 80, 0.9),
     0 0 12px rgba(255, 80, 80, 0.9);
 }
-
-
 </style>
