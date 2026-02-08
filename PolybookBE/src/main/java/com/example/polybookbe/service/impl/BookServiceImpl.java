@@ -48,6 +48,7 @@ public class BookServiceImpl implements BookService {
         Book book = new Book();
         book.setTieuDe(request.getTieuDe());
         book.setTacGia(request.getTacGia());
+        book.setIsbn(request.getIsbn());
         book.setGia(request.getGia());
         book.setHangTon(request.getHangTon());
         book.setMoTa(request.getMoTa());

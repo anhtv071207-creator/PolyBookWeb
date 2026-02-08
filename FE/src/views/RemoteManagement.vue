@@ -45,13 +45,17 @@
         />
         <span>Quản lý khuyến mãi</span>
       </router-link>
-      <router-link to="/managements/account" class="admin-card horizontal">
+      <router-link
+        v-if="isAdmin"
+        to="/managements/account"
+        class="admin-card horizontal"
+      >
         <img
           src="/images/account.png"
-          alt="Quản lý tài khoản"
+          alt="Quản lý người dùng"
           class="admin-image"
         />
-        <span>Quản lý tài khoản</span>
+        <span>Quản lý người dùng</span>
       </router-link>
     </div>
   </div>
@@ -100,7 +104,6 @@ const canSeeAdminBar = computed(() => isAdmin.value || isStaff.value);
 
   transition: all 0.25s ease;
 }
-
 
 .admin-image {
   width: 72px;

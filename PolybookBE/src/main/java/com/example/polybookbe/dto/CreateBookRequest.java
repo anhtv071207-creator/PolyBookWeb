@@ -22,6 +22,8 @@ public class CreateBookRequest {
     private BigDecimal gia;
 
     @NotNull
+    private String isbn;
+    @NotNull
     @Min(0)
     private Integer hangTon;
 

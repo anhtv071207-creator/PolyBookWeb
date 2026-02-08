@@ -42,7 +42,8 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="header bg-white shadow-sm">
+  <header class="header  shadow-sm"> 
+    <!-- bg-white -->
     <div class="container header-row py-2">
       <div class="header-left">
         <router-link
@@ -164,8 +165,9 @@ onMounted(() => {
 </template>
 
 <style scoped>
-.header {
+/* .header {
   width: 100%;
+  
 }
 
 .logo {
@@ -287,5 +289,280 @@ onMounted(() => {
   margin-left: auto;
   display: flex;
   align-items: center;
+} */
+/* ===== HEADER BASE ===== */
+.header {
+  width: 100%;
+  background: linear-gradient(90deg, #243447, #2c3e50);
+  color: #e5edf5;
+  position: sticky;
+  top: 0;
+  z-index: 1000;
 }
+
+.header a {
+  text-decoration: none;
+  color: inherit;
+}
+
+/* ===== LOGO ===== */
+.logo {
+  width: 42px;
+  height: 42px;
+  object-fit: contain;
+}
+
+/* ===== LAYOUT ===== */
+.header-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.header-left {
+  flex: 0 0 auto;
+}
+
+.header-center {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.header-right {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+}
+
+.header-actions {
+  gap: 10px;
+}
+
+/* ===== SEARCH ===== */
+.search-box input {
+  width: 340px;
+  max-width: 100%;
+  border-radius: 999px 0 0 999px;
+  border: none;
+  padding-left: 14px;
+}
+
+.search-box input:focus {
+  box-shadow: none;
+}
+
+.search-box .input-group-text {
+  border-radius: 0 999px 999px 0;
+  background-color: #e9ecef;
+  border: none;
+  cursor: pointer;
+}
+
+/* ===== BUTTONS ===== */
+.btn {
+  white-space: nowrap;
+  border-radius: 999px;
+  font-size: 14px;
+  padding: 6px 14px;
+}
+
+/* primary */
+.btn-primary {
+  background-color: #4a6fa5;
+  border-color: #4a6fa5;
+}
+.btn-primary:hover {
+  background-color: #3d5f90;
+  border-color: #3d5f90;
+}
+
+/* light (Danh mục) */
+.btn-light {
+  background-color: #3b5166;
+  color: #e5edf5;
+  border-color: #3b5166;
+}
+.btn-light:hover {
+  background-color: #466078;
+  border-color: #466078;
+}
+
+/* outline */
+.btn-outline-danger,
+.btn-outline-secondary {
+  color: #e5edf5;
+  border-color: #b6c2cf;
+}
+.btn-outline-danger:hover,
+.btn-outline-secondary:hover {
+  background-color: #3b5166;
+  border-color: #3b5166;
+}
+
+/* account */
+.btn-dark {
+  background-color: #3b5166;
+  border-color: #3b5166;
+}
+.btn-dark:hover {
+  background-color: #466078;
+}
+
+/* ===== DROPDOWN COMMON ===== */
+.dropdown-menu {
+  background-color: #2c3e50;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+  padding: 6px;
+}
+
+.dropdown-item {
+  color: #e5edf5;
+  border-radius: 8px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.dropdown-item:hover {
+  background-color: #3b5166;
+  color: #ffffff;
+}
+
+.dropdown-divider {
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+/* ===== CATEGORY MEGA MENU ===== */
+.category-mega {
+  width: 72vw;
+  max-width: 920px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 12px;
+}
+
+.category-parent,
+.category-child {
+  max-height: 360px;
+  overflow-y: auto;
+}
+
+/* parent */
+.category-parent-item {
+  padding: 10px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  color: #2c3e50;
+  transition: background 0.2s, color 0.2s;
+}
+
+.category-parent-item:hover {
+  background-color: #e9eef3;
+  color: #4a6fa5;
+}
+
+/* child */
+.category-child-item {
+  padding: 8px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 14px;
+  color: #444;
+  transition: background 0.15s, color 0.15s;
+}
+
+.category-child-item:hover {
+  background-color: #f1f3f5;
+  color: #dc3545;
+}
+
+/* ===== SCROLLBAR ===== */
+.category-parent::-webkit-scrollbar,
+.category-child::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-parent::-webkit-scrollbar-thumb,
+.category-child::-webkit-scrollbar-thumb {
+  background-color: #c2c9d1;
+  border-radius: 4px;
+}
+
+/* ===== ACCOUNT FIX ===== */
+.account-fixed {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+}
+
+/* dropdown account – mặc định chữ sáng */
+.dropdown-menu .dropdown-item {
+  color: #e5edf5;              /* chữ sáng mặc định */
+  background-color: transparent;
+}
+
+/* hover / focus */
+.dropdown-menu .dropdown-item:hover,
+.dropdown-menu .dropdown-item:focus {
+  background-color: #3b5166;   /* nền nổi bật hơn */
+  color: #ffffff;              /* trắng rõ */
+}
+
+/* item nguy hiểm (Đăng xuất) */
+.dropdown-menu .dropdown-item.text-danger {
+  color: #ff6b6b;              /* đỏ sáng trên nền tối */
+}
+
+.dropdown-menu .dropdown-item.text-danger:hover {
+  background-color: rgba(220, 53, 69, 0.15);
+  color: #ff8787;
+}
+/* ===== CATEGORY DROPDOWN ===== */
+.category-mega {
+  background-color: #2c3e50;
+}
+
+/* ===== CỘT CHA ===== */
+.category-parent {
+  border-right: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.category-parent-item {
+  color: #ffffff;                 /* chữ trắng mặc định */
+  background-color: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.category-parent-item:hover {
+  background-color: #ffffff;      /* nền trắng khi hover */
+  color: #2c3e50;                  /* chữ = màu nền cũ */
+}
+
+/* ===== CỘT CON ===== */
+.category-child-item {
+  color: #ffffff;                 /* chữ trắng mặc định */
+  background-color: transparent;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.category-child-item:hover {
+  background-color: #ffffff;      /* nền trắng */
+  color: #2c3e50;                  /* chữ tối */
+}
+
+/* ===== SCROLLBAR ===== */
+.category-parent::-webkit-scrollbar,
+.category-child::-webkit-scrollbar {
+  width: 6px;
+}
+
+.category-parent::-webkit-scrollbar-thumb,
+.category-child::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.35);
+  border-radius: 4px;
+}
+
 </style>

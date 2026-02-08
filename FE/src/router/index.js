@@ -14,6 +14,7 @@ import AccountManagementDetail from "../views/AccountManagementDetail.vue";
 import RemoteManagement from "../views/RemoteManagement.vue";
 import Register from "../views/Register.vue";
 import Infomation from "../views/Infomation.vue";
+import ProductManagement from "../views/ProductManagement.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -23,13 +24,22 @@ const routes = [
   { path: "/order", component: Order },
   { path: "/management/orders", component: OrderManagement },
   { path: "/management/orders/:id", component: OrderDetail, props: true },
-  { path: "/managements/account", component: AccountManagement },
-  { path: "/admin/users/:id", component: AccountManagementDetail },
+  {
+    path: "/managements/account",
+    component: AccountManagement,
+    meta: { requiresAuth: true, roles: ["ADMIN"] },
+  },
+  {
+    path: "/admin/users/:id",
+    component: AccountManagementDetail,
+    meta: { requiresAuth: true, roles: ["ADMIN"] },
+  },
   { path: "/orders/view", component: ViewOrder },
   { path: "/orders/view/:id", component: ViewOrderDetail },
   { path: "/managements", component: RemoteManagement },
   { path: "/register", component: Register },
   { path: "/info", component: Infomation },
+  { path: "/management/product", component: ProductManagement },
 ];
 
 const router = createRouter({
