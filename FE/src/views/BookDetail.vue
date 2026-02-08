@@ -14,14 +14,12 @@
 
           <div class="thumb-list">
             <img
-              v-for="(img, index) in book.thumbnails"
+              v-for="(img, index) in book.thumbnails?.slice(0, 6)"
               :key="index"
               :src="img"
+              @click="book.mainImage = img"
             />
-            <div
-              v-if="book.thumbnails && book.thumbnails.length > 6"
-              class="more-thumb"
-            >
+            <div v-if="book.thumbnails?.length > 6" class="more-thumb">
               +{{ book.thumbnails.length - 6 }}
             </div>
           </div>
@@ -36,10 +34,13 @@
               </div>
               <div class="meta">Hình thức: Bìa mềm</div>
 
-              <div class="rating-line">★★★★★ <span>(2 đánh giá)</span></div>
+              <div class="rating-line">
+                ★★★★★
+                <span>({{ book.totalReviews || 0 }} đánh giá)</span>
+              </div>
 
               <div class="price">{{ formatPrice(book.gia) }} đ</div>
-              <div class="stock-text">Hàng tồn: {{ book.hangTon ?? 100 }}</div>
+              <div class="stock-text">Hàng tồn: {{ book.hangTon }}</div>
             </div>
 
             <div class="right-box bottom-box">
@@ -64,6 +65,98 @@
         </div>
       </div>
     </div>
+    <div class="book-extra mt-4">
+      <div class="tab-header">
+        <div
+          class="tab-item"
+          :class="{ active: activeTab === 'info' }"
+          @click="activeTab = 'info'"
+        >
+          THÔNG TIN SẢN PHẨM
+        </div>
+        <div
+          class="tab-item"
+          :class="{ active: activeTab === 'review' }"
+          @click="activeTab = 'review'"
+        >
+          ĐÁNH GIÁ SẢN PHẨM
+        </div>
+      </div>
+
+      <div class="tab-content">
+        <!-- INFO -->
+        <div v-if="activeTab === 'info'" class="info-box">
+          <div>
+            <h4>THÔNG TIN SẢN PHẨM</h4>
+            <table class="info-table">
+              <tr>
+                <td>Tác giả</td>
+                <td>{{ book.tacGia }}</td>
+              </tr>
+              <tr>
+                <td>Danh mục</td>
+                <td>Kỹ năng</td>
+              </tr>
+              <tr>
+                <td>Nhà xuất bản</td>
+                <td>NXB Trẻ</td>
+              </tr>
+              <tr>
+                <td>Năm xuất bản</td>
+                <td>2023</td>
+              </tr>
+              <tr>
+                <td>Hình thức</td>
+                <td>Bìa mềm</td>
+              </tr>
+              <tr>
+                <td>Số trang</td>
+                <td>320</td>
+              </tr>
+            </table>
+          </div>
+
+          <div>
+            <h4>MÔ TẢ SẢN PHẨM</h4>
+            <p class="desc-text">{{ book.moTa }}</p>
+          </div>
+        </div>
+
+        <!-- REVIEW -->
+        <div v-if="activeTab === 'review'" class="review-box">
+          <div class="review-summary">
+            <div class="score">
+              <div class="point">
+                {{ book.avgRating || 0 }}
+              </div>
+              <div class="star">★★★★★</div>
+              <div>({{ book.totalReviews || 0 }} đánh giá)</div>
+            </div>
+
+            <div class="rating-bars">
+              <div class="bar" v-for="i in 5" :key="i">
+                <span>{{ 6 - i }} sao</span>
+                <div class="line">
+                  <div class="fill" style="width: 0%"></div>
+                </div>
+                <span>0%</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="empty-review">Chưa có đánh giá nào cho sản phẩm này</div>
+        </div>
+      </div>
+    </div>
+    <div v-if="showToast" class="toast-overlay">
+      <div class="toast-box" :class="toastType">
+        <div class="toast-icon">
+          <span v-if="toastType === 'success'">✔</span>
+          <span v-else>✕</span>
+        </div>
+        <div class="toast-text">{{ toastMessage }}</div>
+      </div>
+    </div>
   </section>
 </template>
 
@@ -72,7 +165,9 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
 import { addItem } from "@/utils/cart";
+import { useAuthStore } from "@/stores/auth";
 
+const auth = useAuthStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -85,14 +180,70 @@ onMounted(async () => {
 });
 
 const formatPrice = (v) => (v ? Number(v).toLocaleString("vi-VN") : "0");
+const addToCart = async () => {
+  const stock = book.value.hangTon ?? 0;
 
-const addToCart = () => {
-  addItem(book.value, quantity.value);
+  if (stock <= 0 || quantity.value > stock) {
+    showToastMsg("error", "Sản phẩm đã hết hàng");
+    return false;
+  }
+
+  try {
+    if (auth.isLoggedIn && auth.role === "USER") {
+      await api.post(
+        "/cart/add",
+        {
+          bookId: book.value.id,
+          quantity: quantity.value,
+        },
+        {
+          params: { userId: auth.user.id },
+        }
+      );
+
+      showToastMsg("success", "Đã thêm vào giỏ hàng");
+      return true;
+    }
+
+    addItem(book.value, quantity.value);
+    showToastMsg("success", "Đã thêm vào giỏ hàng");
+    return true;
+  } catch (e) {
+    showToastMsg("error", e.response?.data?.message || "Không đủ hàng tồn");
+    return false;
+  }
 };
 
-const buyNow = () => {
-  addItem(book.value, quantity.value);
-  router.push("/cart");
+const activeTab = ref("info");
+
+const buyNow = async () => {
+  const ok = await addToCart();
+  if (ok) router.push("/order");
+};
+
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
+
+const showToastMsg = (type, message) => {
+  toastType.value = type;
+  toastMessage.value = message;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 1800);
+};
+const increase = () => {
+  if (quantity.value < book.value.hangTon) {
+    quantity.value++;
+  }
+};
+
+const decrease = () => {
+  if (quantity.value > 1) {
+    quantity.value--;
+  }
 };
 </script>
 
@@ -249,4 +400,154 @@ const buyNow = () => {
   border: none;
   padding: 10px 24px;
 }
+.toast-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.toast-box {
+  width: 360px;
+  background: #222;
+  color: #fff;
+  padding: 24px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.toast-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  font-size: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 12px;
+}
+
+.toast-box.success .toast-icon {
+  background: #4caf50;
+}
+
+.toast-box.error .toast-icon {
+  background: #f44336;
+}
+
+.toast-text {
+  font-size: 15px;
+  font-weight: 500;
+}
+
+
+.thumbnail:hover {
+  border-color: #333;
+}
+
+
+.rating-line {
+  color: #f5a623;
+  font-size: 15px;
+}
+
+.rating-line span {
+  color: #555;
+  margin-left: 6px;
+  font-size: 14px;
+}
+
+.book-price {
+  font-size: 28px;
+  font-weight: 700;
+  color: #e53935;
+}
+
+.stock {
+  font-size: 14px;
+}
+
+.stock.in {
+  color: #2e7d32;
+}
+
+.stock.out {
+  color: #c62828;
+}
+
+.book-tabs {
+  grid-column: 1 / -1;
+  margin-top: 40px;
+}
+
+.tab-header {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.tab-item {
+  padding: 12px 20px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #666;
+  border-bottom: 3px solid transparent;
+}
+
+.tab-item.active {
+  color: #111;
+  border-color: #111;
+}
+
+.tab-content {
+  padding: 24px 0;
+  line-height: 1.7;
+  color: #333;
+}
+
+.book-description {
+  white-space: pre-line;
+}
+
+.review-item {
+  padding: 16px 0;
+  border-bottom: 1px solid #eee;
+}
+
+.review-name {
+  font-weight: 600;
+}
+
+.review-stars {
+  color: #f5a623;
+  font-size: 14px;
+}
+
+.review-text {
+  margin-top: 6px;
+  font-size: 14px;
+  color: #444;
+}
+
+/* ===== Responsive ===== */
+@media (max-width: 900px) {
+  .book-detail {
+    grid-template-columns: 1fr;
+  }
+
+  .main-image {
+    height: 420px;
+  }
+
+  .book-images {
+    flex-direction: column-reverse;
+  }
+
+  .thumbnail-list {
+    flex-direction: row;
+  }
+}
+
 </style>

@@ -2,42 +2,45 @@
   <div class="login-wrapper">
     <div class="login-card">
       <div class="breadcrumb">
-        Trang chủ &gt; Đăng nhập/Đăng ký
+        Trang chủ &gt; Đăng ký
       </div>
 
       <div class="tabs">
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'login' }"
-          @click="activeTab = 'login'"
-        >
+        <router-link to="/login" class="tab tab-link">
           Login
-        </button>
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'register' }"
-          @click="activeTab = 'register'"
-        >
+        </router-link>
+        <button class="tab active">
           Register
         </button>
       </div>
 
-      <form v-if="activeTab === 'login'" @submit.prevent="login">
+      <form @submit.prevent="register">
+        <div class="form-group">
+          <label>Họ tên</label>
+          <input type="text" v-model="hoTen" required />
+        </div>
+
         <div class="form-group">
           <label>Email</label>
-          <input type="email" v-model="email" />
+          <input type="email" v-model="email" required />
+        </div>
+
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <input type="tel" v-model="phone" required />
         </div>
 
         <div class="form-group">
           <label>Mật khẩu</label>
-          <input type="password" v-model="password" />
+          <input type="password" v-model="password" required />
         </div>
 
-        <div class="forgot">
-          <a href="#">Quên mật khẩu?</a>
+        <div class="form-group">
+          <label>Nhập lại mật khẩu</label>
+          <input type="password" v-model="confirmPassword" required />
         </div>
 
-        <button class="btn-login">Login</button>
+        <button class="btn-login">Register</button>
       </form>
     </div>
   </div>
@@ -47,41 +50,38 @@
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import api from '@/services/api'
-import { useAuthStore } from '@/stores/auth'
 
 const router = useRouter()
-const authStore = useAuthStore()
 
+const hoTen = ref('')
 const email = ref('')
+const phone = ref('')
 const password = ref('')
-const activeTab = ref('login')
+const confirmPassword = ref('')
 
-const login = async () => {
+const register = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert('Mật khẩu không khớp')
+    return
+  }
+
   try {
-    const res = await api.post('/auth/login', {
+    await api.post('/auth/register', {
+      hoTen: hoTen.value,
       email: email.value,
+      phone: phone.value,
       password: password.value
     })
 
-    // 🔥 LƯU TOÀN BỘ AUTH VÀO STORE
-    authStore.setAuth({
-      token: res.data.token,
-      email: res.data.email,
-      role: res.data.role,
-      hoTen: res.data.hoTen
-    })
-
-    // gắn token cho các request sau
-    api.defaults.headers.common.Authorization =
-      `Bearer ${res.data.token}`
-
-    router.push('/')
+    alert('Đăng ký thành công, mời đăng nhập')
+    router.push('/login')
   } catch (err) {
     console.error(err)
-    alert('Sai email hoặc mật khẩu')
+    alert('Đăng ký thất bại')
   }
 }
 </script>
+
 
 <style scoped>
 .login-wrapper {
@@ -155,4 +155,11 @@ const login = async () => {
   border: none;
   border-radius: 4px;
 }
+.tab-link {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 </style>

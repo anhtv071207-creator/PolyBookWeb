@@ -103,6 +103,9 @@ CREATE TABLE Carts (
 )
 GO
 
+ALTER TABLE Carts
+DROP COLUMN session_id;
+
 CREATE TABLE Cart_Items (
     id INT IDENTITY PRIMARY KEY,
     cart_id INT NOT NULL,
@@ -390,10 +393,11 @@ VALUES
 (4, '/books/luoc-su-thoi-gian.jpg', 1),
 (5, '/books/nguoi-ban-hang-vi-dai-nhat-the-gioi.jpg', 1),
 (6, '/books/giet-con-chim-nhai.jpg', 1)
-
+Use BookStoreDB
 SELECT * FROM Books;
 SELECT * FROM Orders;
 SELECT * FROM Order_Items;
+SELECT * from users
 
 SELECT 
     c.name AS column_name,
@@ -422,4 +426,14 @@ go
 ALTER TABLE Orders
 DROP COLUMN thoi_gian_nhan;
 GO
+
+SELECT * From Books
+SELECT * FROM Users
+SELECT * From Address
+SELECT * From Carts
+SELECT * From Cart_Items
+
+
+
+
 

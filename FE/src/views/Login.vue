@@ -1,25 +1,14 @@
 <template>
   <div class="login-wrapper">
     <div class="login-card">
-      <div class="breadcrumb">
-        Trang chủ &gt; Đăng nhập/Đăng ký
-      </div>
+      <div class="breadcrumb">Trang chủ &gt; Đăng nhập</div>
 
       <div class="tabs">
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'login' }"
-          @click="activeTab = 'login'"
-        >
-          Login
-        </button>
-        <button
-          class="tab"
-          :class="{ active: activeTab === 'register' }"
-          @click="activeTab = 'register'"
-        >
+        <button class="tab active">Login</button>
+
+        <router-link to="/register" class="tab tab-link">
           Register
-        </button>
+        </router-link>
       </div>
 
       <form v-if="activeTab === 'login'" @submit.prevent="login">
@@ -44,43 +33,42 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import api from '@/services/api'
-import { useAuthStore } from '@/stores/auth'
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/services/api";
+import { useAuthStore } from "@/stores/auth";
 
-const router = useRouter()
-const authStore = useAuthStore()
+const router = useRouter();
+const authStore = useAuthStore();
 
-const email = ref('')
-const password = ref('')
-const activeTab = ref('login')
+const email = ref("");
+const password = ref("");
+const activeTab = ref("login");
 
 const login = async () => {
   try {
-    const res = await api.post('/auth/login', {
+    const res = await api.post("/auth/login", {
       email: email.value,
-      password: password.value
-    })
+      password: password.value,
+    });
 
     // 🔥 LƯU TOÀN BỘ AUTH VÀO STORE
     authStore.setAuth({
       token: res.data.token,
       email: res.data.email,
       role: res.data.role,
-      hoTen: res.data.hoTen
-    })
+      hoTen: res.data.hoTen,
+    });
 
     // gắn token cho các request sau
-    api.defaults.headers.common.Authorization =
-      `Bearer ${res.data.token}`
+    api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
 
-    router.push('/')
+    router.push("/");
   } catch (err) {
-    console.error(err)
-    alert('Sai email hoặc mật khẩu')
+    console.error(err);
+    alert("Sai email hoặc mật khẩu");
   }
-}
+};
 </script>
 
 <style scoped>

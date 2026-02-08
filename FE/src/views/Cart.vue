@@ -25,16 +25,32 @@
               </div>
 
               <div class="qty-wrapper">
-                <button class="qty-btn" @click="decrease(item)">−</button>
+                <button
+                  class="qty-btn"
+                  :disabled="item.loading"
+                  @click="decrease(item)"
+                >
+                  −
+                </button>
                 <span class="qty-number">{{ item.qty }}</span>
-                <button class="qty-btn" @click="increase(item)">+</button>
+                <button
+                  class="qty-btn"
+                  :disabled="item.loading"
+                  @click="increase(item)"
+                >
+                  +
+                </button>
               </div>
 
               <div class="item-total ms-3">
                 {{ formatPrice(item.price * item.qty) }}
               </div>
 
-              <button class="btn-remove ms-3" @click="remove(item.id)">
+              <button
+                class="btn-remove ms-3"
+                :disabled="item.loading"
+                @click="remove(item.id)"
+              >
                 ✕
               </button>
             </div>
@@ -68,7 +84,9 @@
               </span>
             </div>
 
-            <button class="btn btn-danger w-100" @click="order">Đặt Hàng</button>
+            <button class="btn btn-danger w-100" @click="order">
+              Đặt Hàng
+            </button>
           </div>
         </div>
       </div>
@@ -86,42 +104,109 @@
 <script setup>
 import { ref, computed, onMounted } from "vue";
 import { getItems, removeItem, updateQty } from "@/utils/cart";
-import Order from "./Order.vue";
 import { useRouter } from "vue-router";
+import { useAuthStore } from "@/stores/auth";
+import api from "@/services/api";
 
+const auth = useAuthStore();
+const router = useRouter();
 const cartItems = ref([]);
 
-onMounted(() => {
-  cartItems.value = getItems();
-});
-
-const increase = (item) => {
-  item.qty++;
-  updateQty(item.id, item.qty);
-};
-
-const decrease = (item) => {
-  if (item.qty > 1) {
-    item.qty--;
-    updateQty(item.id, item.qty);
+const loadCart = async () => {
+  if (auth.isLoggedIn && auth.role === "USER") {
+    const res = await api.get(`/cart/user/${auth.user.id}`);
+    cartItems.value = mapFromApi(res.data);
+  } else {
+    cartItems.value = getItems().map((i) => ({
+      ...i,
+      loading: false,
+    }));
   }
 };
 
-const remove = (id) => {
-  cartItems.value = cartItems.value.filter((i) => i.id !== id);
-  removeItem(id);
+onMounted(loadCart);
+
+const mapFromApi = (cart) =>
+  (cart.items || []).map((i) => ({
+    id: i.bookId,
+    name: i.tieuDe,
+    price: i.gia,
+    qty: i.soLuong,
+    image: i.imageUrl,
+    loading: false,
+  }));
+
+const increase = async (item) => {
+  try {
+    if (auth.isLoggedIn && auth.role === "USER") {
+      item.loading = true;
+      await api.post(
+        "/cart/add",
+        { bookId: item.id, quantity: 1 },
+        { params: { userId: auth.user.id } },
+      );
+      await loadCart(); 
+    } else {
+      item.qty++;
+      updateQty(item.id, item.qty);
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || "Không thể tăng số lượng");
+  } finally {
+    item.loading = false;
+  }
+};
+
+const decrease = async (item) => {
+  if (item.qty <= 1) return;
+
+  try {
+    if (auth.isLoggedIn && auth.role === "USER") {
+      item.loading = true;
+      await api.post(
+        "/cart/add",
+        { bookId: item.id, quantity: -1 },
+        { params: { userId: auth.user.id } },
+      );
+      await loadCart();
+    } else {
+      item.qty--;
+      updateQty(item.id, item.qty);
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || "Không thể giảm số lượng");
+  } finally {
+    item.loading = false;
+  }
+};
+
+const remove = async (id) => {
+  const item = cartItems.value.find((i) => i.id === id);
+  try {
+    if (auth.isLoggedIn && auth.role === "USER") {
+      if (item) item.loading = true;
+      await api.delete(`/cart/items/${id}`, {
+        params: { userId: auth.user.id },
+      });
+      await loadCart();
+    } else {
+      removeItem(id);
+      cartItems.value = cartItems.value.filter((i) => i.id !== id);
+    }
+  } catch (e) {
+    alert(e.response?.data?.message || "Không thể xóa sản phẩm");
+  } finally {
+    if (item) item.loading = false;
+  }
 };
 
 const totalPrice = computed(() =>
-  cartItems.value.reduce((sum, i) => sum + i.price * i.qty, 0),
+  cartItems.value.reduce((s, i) => s + i.price * i.qty, 0),
 );
 
-const formatPrice = (price) => price.toLocaleString("vi-VN") + " đ";
-const router = useRouter();
+const formatPrice = (p) => p.toLocaleString("vi-VN") + " đ";
 
-const order = () => {
-  router.push("/order");
-};
+const order = () => router.push("/order");
 </script>
 
 <style scoped>

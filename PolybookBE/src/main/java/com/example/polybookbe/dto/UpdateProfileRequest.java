@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.Date;
 
 @Data
-public class UpdateIProfileRequest {
+public class UpdateProfileRequest {
     private String hoTen;
     private String phone;
     private String quocGia;

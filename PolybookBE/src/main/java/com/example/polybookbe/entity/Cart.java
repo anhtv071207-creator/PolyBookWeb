@@ -23,9 +23,6 @@ public class Cart {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    @Column(name = "session_id", length = 255)
-    private String sessionId;
     @OneToMany(mappedBy = "cart", cascade = CascadeType.ALL)
     private List<CartItem> items;
 }

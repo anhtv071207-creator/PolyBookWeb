@@ -136,7 +136,9 @@
       <div class="row g-2">
         <div class="col-6">
           <label
-            ><input type="checkbox" v-model="agree" /> Với việc mua hàng bạn đồng ý với <a href="">Điều khoản và điêu kiện của chúng tôi</a></label
+            ><input type="checkbox" v-model="agree" /> Với việc mua hàng bạn
+            đồng ý với
+            <a href="">Điều khoản và điêu kiện của chúng tôi</a></label
           >
         </div>
         <div class="col-6">
@@ -171,18 +173,32 @@ const SHIPPING_FEE = 10000;
 
 const cartItems = ref([]);
 onMounted(async () => {
-  cartItems.value = getItems();
   loadProvinces();
+
   console.log(
     "[Checkout] userId =",
     auth.user?.id ?? null,
     "| isLoggedIn =",
-    auth.isLoggedIn,
+    auth.isLoggedIn
   );
+
   if (auth.user?.id) {
     await loadUserInfo(auth.user.id);
+
+    const res = await api.get(`/cart/user/${auth.user.id}`);
+    cartItems.value = res.data.items.map(i => ({
+      id: i.bookId,
+      name: i.tieuDe,
+      image: i.imageUrl,
+      price: Number(i.gia),
+      qty: i.soLuong,
+    }));
+  } else {
+    cartItems.value = getItems();
   }
 });
+
+
 
 const subTotal = computed(() =>
   cartItems.value.reduce((s, i) => s + i.price * i.qty, 0),
@@ -215,7 +231,6 @@ const loadProvinces = async () => {
   provinces.value = await res.json();
 };
 
-
 const onProvinceChange = async () => {
   districts.value = [];
   wards.value = [];
@@ -227,7 +242,7 @@ const onProvinceChange = async () => {
   orderForm.value.tinhThanh = selectedProvince.value.name;
 
   const res = await fetch(
-    `https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`
+    `https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`,
   );
   const data = await res.json();
   districts.value = data.districts;
@@ -242,7 +257,7 @@ const onDistrictChange = async () => {
   orderForm.value.quanHuyen = selectedDistrict.value.name;
 
   const res = await fetch(
-    `https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`
+    `https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`,
   );
   const data = await res.json();
   wards.value = data.wards;
@@ -261,48 +276,7 @@ const paymentMethods = [
   { value: "MOMO", label: "Ví Momo" },
   { value: "VNPAY", label: "Ví VNPay" },
 ];
-const placeOrder = async () => {
-  const payload = {
-    userId: auth.user?.id || null,
-    hoTenNguoiNhan: orderForm.value.fullName,
-    email: orderForm.value.email,
-    phone: orderForm.value.phone,
-    quocGia: orderForm.value.quocGia,
-    tinhThanh: orderForm.value.tinhThanh,
-    quanHuyen: orderForm.value.quanHuyen,
-    phuongXa: orderForm.value.phuongXa,
-    diaChiNhanHang: orderForm.value.address,
-    paymentMethod: orderForm.value.paymentMethod,
-    items: cartItems.value.map((i) => ({
-      bookId: i.id,
-      soLuong: i.qty,
-    })),
-  };
-
-  try {
-    await api.post("/orders", payload);
-    toastMessage.value = "Đặt hàng thành công";
-    showToast.value = true;
-    localStorage.removeItem("cart");
-    cartItems.value = [];
-    setTimeout(() => (showToast.value = false), 2000);
-  } catch (err) {
-    toastMessage.value =
-      err.response?.data?.message || "Đặt hàng thất bại";
-    showToast.value = true;
-    setTimeout(() => (showToast.value = false), 2000);
-  }
-};
-
 // const placeOrder = async () => {
-//   const error = validateOrder();
-//   if (error) {
-//     toastMessage.value = error;
-//     showToast.value = true;
-//     setTimeout(() => (showToast.value = false), 2000);
-//     return;
-//   }
-
 //   const payload = {
 //     userId: auth.user?.id || null,
 //     hoTenNguoiNhan: orderForm.value.fullName,
@@ -328,42 +302,88 @@ const placeOrder = async () => {
 //     cartItems.value = [];
 //     setTimeout(() => (showToast.value = false), 2000);
 //   } catch (err) {
-//     toastMessage.value = err.response?.data?.message || "Đặt hàng thất bại";
+//     toastMessage.value =
+//       err.response?.data?.message || "Đặt hàng thất bại";
 //     showToast.value = true;
 //     setTimeout(() => (showToast.value = false), 2000);
 //   }
 // };
+const placeOrder = async () => {
+  const error = validateOrder();
+  if (error) {
+    toastMessage.value = error;
+    showToast.value = true;
+    setTimeout(() => (showToast.value = false), 2000);
+    return;
+  }
 
-// const validateOrder = () => {
-//   if (!orderForm.value.fullName?.trim())
-//     return "Vui lòng nhập họ tên người nhận";
+  const payload = {
+    userId: auth.user?.id || null,
+    hoTenNguoiNhan: orderForm.value.fullName,
+    email: orderForm.value.email,
+    phone: orderForm.value.phone,
+    quocGia: orderForm.value.quocGia,
+    tinhThanh: orderForm.value.tinhThanh,
+    quanHuyen: orderForm.value.quanHuyen,
+    phuongXa: orderForm.value.phuongXa,
+    diaChiNhanHang: orderForm.value.address,
+    paymentMethod: orderForm.value.paymentMethod,
+  };
 
-//   if (!orderForm.value.email?.trim()) return "Vui lòng nhập email";
+  // 👉 CHỈ guest mới gửi items
+  if (!auth.user?.id) {
+    payload.items = cartItems.value.map((i) => ({
+      bookId: i.id,
+      soLuong: i.qty,
+    }));
+  }
 
-//   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-//   if (!emailRegex.test(orderForm.value.email)) return "Email không hợp lệ";
+  try {
+    await api.post("/orders", payload);
+    toastMessage.value = "Đặt hàng thành công";
+    showToast.value = true;
+    if (!auth.user?.id) {
+      localStorage.removeItem("cart");
+    }
+    cartItems.value = [];
+    setTimeout(() => (showToast.value = false), 2000);
+  } catch (err) {
+    toastMessage.value = err.response?.data?.message || "Đặt hàng thất bại";
+    showToast.value = true;
+    setTimeout(() => (showToast.value = false), 2000);
+  }
+};
 
-//   if (!orderForm.value.phone?.trim()) return "Vui lòng nhập số điện thoại";
+const validateOrder = () => {
+  if (!orderForm.value.fullName?.trim())
+    return "Vui lòng nhập họ tên người nhận";
 
-//   const phoneRegex = /^(0|\+84)[0-9]{9}$/;
-//   if (!phoneRegex.test(orderForm.value.phone))
-//     return "Số điện thoại không hợp lệ";
+  if (!orderForm.value.email?.trim()) return "Vui lòng nhập email";
 
-//   if (!orderForm.value.tinhThanh) return "Vui lòng chọn tỉnh / thành";
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(orderForm.value.email)) return "Email không hợp lệ";
 
-//   if (!orderForm.value.quanHuyen) return "Vui lòng chọn quận / huyện";
+  if (!orderForm.value.phone?.trim()) return "Vui lòng nhập số điện thoại";
 
-//   if (!orderForm.value.phuongXa) return "Vui lòng chọn phường / xã";
+  const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+  if (!phoneRegex.test(orderForm.value.phone))
+    return "Số điện thoại không hợp lệ";
 
-//   if (!orderForm.value.address?.trim())
-//     return "Vui lòng nhập địa chỉ nhận hàng";
+  if (!orderForm.value.tinhThanh) return "Vui lòng chọn tỉnh / thành";
 
-//   if (!cartItems.value.length) return "Giỏ hàng trống";
+  if (!orderForm.value.quanHuyen) return "Vui lòng chọn quận / huyện";
 
-//   if (!agree.value) return "Bạn phải đồng ý điều khoản";
+  if (!orderForm.value.phuongXa) return "Vui lòng chọn phường / xã";
 
-//   return null;
-// };
+  if (!orderForm.value.address?.trim())
+    return "Vui lòng nhập địa chỉ nhận hàng";
+
+  if (!cartItems.value.length) return "Giỏ hàng trống";
+
+  if (!agree.value) return "Bạn phải đồng ý điều khoản";
+
+  return null;
+};
 
 const loadUserInfo = async (userId) => {
   try {
@@ -378,7 +398,7 @@ const loadUserInfo = async (userId) => {
     orderForm.value.quanHuyen = u.quanHuyen;
     orderForm.value.phuongXa = u.phuongXa;
     orderForm.value.address = u.diaChi;
-  await loadUserAddress(u);
+    await loadUserAddress(u);
   } catch (e) {
     console.warn("Không lấy được UserInfo");
   }
@@ -387,24 +407,21 @@ const loadUserAddress = async (data) => {
   await loadProvinces();
 
   selectedProvince.value = provinces.value.find(
-    p => p.name === data.tinhThanh
+    (p) => p.name === data.tinhThanh,
   );
 
   if (selectedProvince.value) {
     await onProvinceChange();
     selectedDistrict.value = districts.value.find(
-      d => d.name === data.quanHuyen
+      (d) => d.name === data.quanHuyen,
     );
   }
 
   if (selectedDistrict.value) {
     await onDistrictChange();
-    selectedWard.value = wards.value.find(
-      w => w.name === data.phuongXa
-    );
+    selectedWard.value = wards.value.find((w) => w.name === data.phuongXa);
   }
 };
-
 </script>
 
 <style scoped>
@@ -417,10 +434,9 @@ const loadUserAddress = async (data) => {
 .checkout-box {
   border: 1px solid #bfbfbf;
   padding: 12px;
-  
 }
 .radio-row {
-  display: block;      
+  display: block;
   margin-bottom: 8px;
   text-align: left;
 }
@@ -443,7 +459,7 @@ const loadUserAddress = async (data) => {
   justify-content: space-between;
 }
 .summary .sum {
-  font-size : 20px;
+  font-size: 20px;
   font-weight: 700;
   border-top: 1px solid #ccc;
   color: #ff0000;
@@ -504,5 +520,4 @@ const loadUserAddress = async (data) => {
   width: 15%;
   text-align: right;
 }
-
 </style>

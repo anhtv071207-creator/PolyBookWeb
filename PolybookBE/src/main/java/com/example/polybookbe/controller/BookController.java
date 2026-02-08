@@ -2,12 +2,15 @@ package com.example.polybookbe.controller;
 
 import com.example.polybookbe.dto.BookDetailResponse;
 import com.example.polybookbe.dto.BookHomeDTO;
+import com.example.polybookbe.dto.CreateBookRequest;
 import com.example.polybookbe.entity.Book;
 import com.example.polybookbe.entity.BookImage;
 import com.example.polybookbe.repository.BookImageRepository;
 import com.example.polybookbe.repository.BookRepository;
 import com.example.polybookbe.service.BookService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,8 +34,11 @@ public class BookController {
     }
 
     @PostMapping
-    public Book createBook(@RequestBody Book book) {
-        return bookService.save(book);
+    public ResponseEntity<Book> createBook(
+            @Valid @RequestBody CreateBookRequest request) {
+
+        Book createdBook = bookService.createBook(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
     @DeleteMapping("/{id}")
@@ -52,7 +58,12 @@ public class BookController {
         res.setId(book.getId());
         res.setTieuDe(book.getTieuDe());
         res.setTacGia(book.getTacGia());
+        res.setHangTon(book.getHangTon());
         res.setGia(book.getGia());
+        res.setMoTa(book.getMoTa());
+        res.setAvgRating(book.getAvgRating());
+        res.setTotalReviews(book.getTotalReviews());
+
 
         res.setMainImage(
                 images.stream()

@@ -52,7 +52,12 @@ export const useAuthStore = defineStore("auth", {
     },
 
     logout() {
-      this.$reset();
+      this.token = null;
+      this.email = null;
+      this.role = null;
+      this.user = null;
+      this.isLoggedIn = false;
+
       localStorage.clear();
     },
   },

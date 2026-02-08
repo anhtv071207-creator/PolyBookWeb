@@ -1,10 +1,12 @@
 package com.example.polybookbe.controller;
 
 import com.example.polybookbe.dto.AddToCartRequest;
-import com.example.polybookbe.entity.Cart;
-import com.example.polybookbe.entity.User;
+import com.example.polybookbe.dto.CartResponse;
+import com.example.polybookbe.dto.OrderItemRequest;
 import com.example.polybookbe.service.CartService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @CrossOrigin(origins = "http://localhost:5173")
 @RestController
@@ -17,28 +19,33 @@ public class CartController {
         this.cartService = cartService;
     }
 
+
     @GetMapping("/user/{userId}")
-    public Cart getCartByUser(@PathVariable Integer userId) {
-        User user = new User();
-        user.setId(userId);
-        return cartService.getCartByUser(user);
+    public CartResponse getCartByUser(@PathVariable Integer userId) {
+        return cartService.getCartByUser(userId);
     }
 
-    @GetMapping("/session/{sessionId}")
-    public Cart getCartBySession(@PathVariable String sessionId) {
-        return cartService.getCartBySessionId(sessionId);
-    }
 
-    @PostMapping("/items")
-    public Cart addToCart(
-            @RequestBody AddToCartRequest request,
-            @RequestParam(required = false) Integer userId
+    @PostMapping("/add")
+    public CartResponse addToCart(
+            @RequestParam Integer userId,
+            @RequestBody AddToCartRequest request
     ) {
-        User user = null;
-        if (userId != null) {
-            user = new User();
-            user.setId(userId);
-        }
-        return cartService.addToCart(user, request);
+        return cartService.addToCart(userId, request);
+    }
+
+    @DeleteMapping("/items/{bookId}")
+    public CartResponse removeItem(
+            @RequestParam Integer userId,
+            @PathVariable Integer bookId
+    ) {
+        return cartService.removeItem(userId, bookId);
+    }
+
+    @GetMapping("/checkout-items")
+    public List<OrderItemRequest> getCheckoutItems(
+            @RequestParam Integer userId
+    ) {
+        return cartService.getCheckoutItems(userId);
     }
 }

@@ -1,8 +1,11 @@
 package com.example.polybookbe.controller;
 
+import com.example.polybookbe.dto.RegisterRequest;
 import com.example.polybookbe.entity.User;
 import com.example.polybookbe.security.JwtUtil;
 import com.example.polybookbe.service.UserService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
@@ -28,15 +31,30 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public User register(@RequestBody User user) {
-        return userService.register(user);
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            userService.register(request);
+            return ResponseEntity.ok("Đăng ký thành công");
+        } catch (RuntimeException ex) {
+            return ResponseEntity
+                    .status(HttpStatus.CONFLICT)
+                    .body(ex.getMessage());
+        }
     }
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody Map<String, String> req) {
         User user = userService.findByEmail(req.get("email"));
 
-        if (user == null || !passwordEncoder.matches(req.get("password"), user.getPassword())) {
+        if (user == null) {
+            throw new RuntimeException("Sai email hoặc mật khẩu");
+        }
+
+        if (!user.getTrangThai()) {
+            throw new RuntimeException("Tài khoản đã bị khóa");
+        }
+
+        if (!passwordEncoder.matches(req.get("password"), user.getPassword())) {
             throw new RuntimeException("Sai email hoặc mật khẩu");
         }
 

@@ -1,5 +1,4 @@
 <template>
-  <!-- Banner -->
   <section class="container my-4">
     <div class="banner position-relative rounded overflow-hidden">
       <img src="/images/banner.jpg" class="banner-img" alt="Banner" />
@@ -7,7 +6,6 @@
     </div>
   </section>
 
-  <!-- Best seller -->
   <section class="container my-5">
     <div class="d-flex justify-content-between align-items-center mb-3">
       <h4 class="fw-bold mb-0">Sách bán chạy</h4>

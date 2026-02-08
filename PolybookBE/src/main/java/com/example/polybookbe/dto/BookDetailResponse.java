@@ -17,7 +17,10 @@ public class BookDetailResponse {
     private String tieuDe;
     private String tacGia;
     private BigDecimal gia;
-
+    private Integer hangTon;
     private String mainImage;
     private List<String> thumbnails;
+    private String moTa;
+    private BigDecimal avgRating;
+    private Integer totalReviews;
 }
