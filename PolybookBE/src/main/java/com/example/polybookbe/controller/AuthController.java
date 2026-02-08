@@ -1,8 +1,11 @@
 package com.example.polybookbe.controller;
 
+import com.example.polybookbe.dto.LoginRequest;
+import com.example.polybookbe.dto.LoginResponse;
 import com.example.polybookbe.dto.RegisterRequest;
 import com.example.polybookbe.entity.User;
 import com.example.polybookbe.security.JwtUtil;
+import com.example.polybookbe.service.AuthService;
 import com.example.polybookbe.service.UserService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -19,15 +22,18 @@ public class AuthController {
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
+    private final AuthService authService;
 
     public AuthController(
             UserService userService,
             PasswordEncoder passwordEncoder,
-            JwtUtil jwtUtil
+            JwtUtil jwtUtil,
+            AuthService authService
     ) {
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
         this.jwtUtil = jwtUtil;
+        this.authService = authService;
     }
 
     @PostMapping("/register")
@@ -43,22 +49,9 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public Map<String, String> login(@RequestBody Map<String, String> req) {
-        User user = userService.findByEmail(req.get("email"));
-
-        if (user == null) {
-            throw new RuntimeException("Sai email hoặc mật khẩu");
-        }
-
-        if (!user.getTrangThai()) {
-            throw new RuntimeException("Tài khoản đã bị khóa");
-        }
-
-        if (!passwordEncoder.matches(req.get("password"), user.getPassword())) {
-            throw new RuntimeException("Sai email hoặc mật khẩu");
-        }
-
-        String token = jwtUtil.generateToken(user.getId(),user.getEmail(), user.getRole());
-        return Map.of("token", token);
+    public ResponseEntity<LoginResponse> login(
+            @RequestBody LoginRequest request
+    ) {
+        return ResponseEntity.ok(authService.login(request));
     }
 }

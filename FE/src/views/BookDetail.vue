@@ -40,7 +40,10 @@
               </div>
 
               <div class="price">{{ formatPrice(book.gia) }} đ</div>
-              <div class="stock-text">Hàng tồn: {{ book.hangTon }}</div>
+              <div class="stock-text" :class="{ out: book.hangTon === 0 }">
+                <template v-if="book.hangTon === 0"> HẾT HÀNG </template>
+                <template v-else> Hàng tồn: {{ book.hangTon }} </template>
+              </div>
             </div>
 
             <div class="right-box bottom-box">
@@ -198,7 +201,7 @@ const addToCart = async () => {
         },
         {
           params: { userId: auth.user.id },
-        }
+        },
       );
 
       showToastMsg("success", "Đã thêm vào giỏ hàng");
@@ -443,11 +446,9 @@ const decrease = () => {
   font-weight: 500;
 }
 
-
 .thumbnail:hover {
   border-color: #333;
 }
-
 
 .rating-line {
   color: #f5a623;
@@ -549,5 +550,30 @@ const decrease = () => {
     flex-direction: row;
   }
 }
+.stock-text {
+  margin-top: 10px;
+  padding: 6px 0;
+  background: #e5e5e5;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.stock-text.out {
+  background: #d32f2f;
+  color: #fff;
+  font-weight: 700;
+  letter-spacing: 1px;
+
+  box-shadow:
+    0 0 6px rgba(255, 0, 0, 0.6),
+    0 0 12px rgba(255, 0, 0, 0.6),
+    0 0 20px rgba(255, 0, 0, 0.6);
+
+  text-shadow:
+    0 0 6px rgba(255, 80, 80, 0.9),
+    0 0 12px rgba(255, 80, 80, 0.9);
+}
+
 
 </style>
