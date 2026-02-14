@@ -426,7 +426,7 @@ go
 ALTER TABLE Orders
 DROP COLUMN thoi_gian_nhan;
 GO
-
+USE BookStoreDB
 SELECT * From Books
 SELECT * FROM Users
 SELECT * From Address

@@ -86,4 +86,13 @@ public class BookController {
     public List<BookHomeDTO> home() {
         return bookRepository.findBooksForHome();
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> update(
+            @PathVariable Integer id,
+            @Valid @RequestBody CreateBookRequest request) {
+
+        return ResponseEntity.ok(bookService.updateBook(id, request));
+    }
+
 }

@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface BookImageRepository extends JpaRepository<BookImage,Integer> {
     List<BookImage> findByBookId(Integer bookId);
+
+    BookImage findByBookIdAndBiaSachTrue(Integer id);
 }

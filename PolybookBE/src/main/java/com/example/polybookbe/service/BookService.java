@@ -16,4 +16,6 @@ public interface BookService {
     Book save(Book book);
 
     void deleteById(Integer id);
+
+    Book updateBook(Integer id, CreateBookRequest request);
 }

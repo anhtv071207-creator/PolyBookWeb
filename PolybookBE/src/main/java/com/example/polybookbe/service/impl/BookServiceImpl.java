@@ -67,4 +67,31 @@ public class BookServiceImpl implements BookService {
 
         return savedBook;
     }
+
+    @Override
+    @Transactional
+    public Book updateBook(Integer id, CreateBookRequest request) {
+
+        Book book = bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
+
+        book.setTieuDe(request.getTieuDe());
+        book.setTacGia(request.getTacGia());
+        book.setIsbn(request.getIsbn());
+        book.setGia(request.getGia());
+        book.setHangTon(request.getHangTon());
+        book.setMoTa(request.getMoTa());
+
+        Book updatedBook = bookRepository.save(book);
+        BookImage cover = bookImageRepository
+                .findByBookIdAndBiaSachTrue(id);
+
+        if (cover != null) {
+            cover.setUrl(request.getCoverImageUrl());
+            bookImageRepository.save(cover);
+        }
+
+        return updatedBook;
+    }
+
 }
