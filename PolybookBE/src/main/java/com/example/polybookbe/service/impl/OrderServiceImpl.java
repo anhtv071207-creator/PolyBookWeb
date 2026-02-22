@@ -328,4 +328,9 @@ public class OrderServiceImpl implements OrderService {
                 .findByEmailContainingOrPhoneContaining(keyword, keyword, pageable)
                 .map(OrderListResponse::new);
     }
+
+    @Override
+    public BigDecimal getRevenueByStatus(Integer status) {
+        return orderRepository.sumTongTienByTrangThai(status);
+    }
 }

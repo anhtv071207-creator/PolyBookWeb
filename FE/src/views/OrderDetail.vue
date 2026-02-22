@@ -131,6 +131,8 @@ const order = ref({
   trangThai: 0,
 });
 
+
+
 const orderItems = ref([]);
 
 const fetchOrderDetail = async () => {
@@ -266,13 +268,35 @@ h3 {
   flex-wrap: wrap;
 }
 
+/* ===== STATUS ACTION BUTTON BASE ===== */
 .status-actions .btn {
   padding: 8px 16px;
   border-radius: 14px;
   font-weight: 600;
-  border: none;
   cursor: pointer;
   transition: 0.25s;
+  border: 2px solid transparent;
+}
+
+/* Khi KHÔNG disabled */
+.status-actions .btn:not(:disabled) {
+  border: 2px solid #007bff;
+}
+
+/* Hover khi active */
+.status-actions .btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 
+    0 0 0 3px rgba(0, 123, 255, 0.25),
+    0 8px 20px rgba(0, 123, 255, 0.35);
+}
+
+/* Disabled */
+.status-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  border: 2px solid transparent;
+  box-shadow: none;
 }
 
 /* default disabled */

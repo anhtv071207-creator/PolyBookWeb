@@ -539,15 +539,10 @@ const cancelDeleteBook = () => {
     :class="{ 'edit-popup': currentMode === 'edit' }"
   >
     <div class="popup-wrapper">
-      <div class="popup-title">
-        Chọn danh mục
+      <div class="popup-header">
+        <h3>Chọn danh mục</h3>
 
-        <!-- <button class="btn-close" @click="showPopup = false"></button> -->
-        <div class="popup-footer">
-          <button class="btn-confirm" @click="showPopup = false">
-            Xác nhận
-          </button>
-        </div>
+        <button class="btn-confirm" @click="showPopup = false">Xác nhận</button>
       </div>
 
       <div class="popup-box">
@@ -602,7 +597,6 @@ h2 {
   margin-bottom: 35px;
 }
 
-/* ================= WRAPPER ================= */
 .form-wrapper {
   display: grid;
   grid-template-columns: 220px 1fr;
@@ -610,7 +604,6 @@ h2 {
   margin-bottom: 40px;
 }
 
-/* ================= CARD ================= */
 .card {
   background: linear-gradient(145deg, #ffffff, #f4f9ff);
   border-radius: 20px;
@@ -626,7 +619,6 @@ h2 {
   margin-bottom: 25px;
 }
 
-/* ================= SIDE TABS ================= */
 .side-tabs {
   background: white;
   padding: 25px 20px;
@@ -658,7 +650,6 @@ h2 {
   transform: translateY(-2px);
 }
 
-/* ================= FORM ================= */
 .form-group {
   margin-bottom: 20px;
 }
@@ -702,7 +693,6 @@ textarea {
   margin-top: 12px;
 }
 
-/* ================= BUTTON ================= */
 .btn {
   width: 100%;
   padding: 14px;
@@ -739,7 +729,6 @@ textarea {
   background: #b3002d;
 }
 
-/* ================= CATEGORY BUTTON ================= */
 .btn-category {
   width: 100%;
   margin-top: 10px;
@@ -758,7 +747,6 @@ textarea {
   color: white;
 }
 
-/* ================= SELECTED TAG ================= */
 .selected-tags {
   display: flex;
   flex-wrap: wrap;
@@ -773,7 +761,6 @@ textarea {
   border-radius: 20px;
 }
 
-/* ================= BOOK LIST ================= */
 .list-card {
   margin-top: 30px;
 }
@@ -835,7 +822,6 @@ textarea {
   gap: 8px;
 }
 
-/* ================= POPUP ================= */
 .popup-overlay {
   position: fixed;
   inset: 0;
@@ -866,6 +852,12 @@ textarea {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
+  min-height: 60px;
+  padding: 12px;
+  border: 1px dashed #cfe2ff;
+  border-radius: 12px;
+  background: #f8fbff;
+  align-items: flex-start;
 }
 
 .tag-item {
@@ -881,7 +873,6 @@ textarea {
   color: white;
 }
 
-/* ================= PAGINATION ================= */
 .pagination {
   margin-top: 25px;
   display: flex;
@@ -908,7 +899,6 @@ textarea {
   cursor: not-allowed;
 }
 
-/* ================= DELETE MODAL ================= */
 .delete-overlay {
   position: fixed;
   inset: 0;
@@ -948,7 +938,6 @@ textarea {
   border-radius: 8px;
   border: none;
 }
-/* ===== PAGE HEADER ===== */
 .page-header {
   position: relative;
   margin-bottom: 35px;
@@ -977,5 +966,29 @@ textarea {
 .btn-back:hover {
   transform: translateY(-50%) translateY(-2px);
   box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+}
+.popup-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.popup-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #007bff;
+  margin: 0;
+}
+.selected-content {
+  min-height: 60px;
+  padding: 12px;
+  border: 1px dashed #cfe2ff;
+  border-radius: 12px;
+  background: #f8fbff;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: flex-start;
 }
 </style>

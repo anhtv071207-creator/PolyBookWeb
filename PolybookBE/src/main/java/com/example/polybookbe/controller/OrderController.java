@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
@@ -55,4 +56,13 @@ public class OrderController {
     public OrderDetailResponse getDetail(@PathVariable Integer id) {
         return orderService.getDetail(id);
     }
+
+    @GetMapping("/revenue")
+    public BigDecimal getRevenue(
+            @RequestParam(defaultValue = "4") Integer status
+    ) {
+        return orderService.getRevenueByStatus(status);
+    }
+
+
 }
