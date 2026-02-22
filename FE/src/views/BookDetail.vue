@@ -1,8 +1,24 @@
 <template>
   <section class="container book-detail">
     <div class="breadcrumb-box">
-      Trang chủ &nbsp;&gt;&nbsp; Kỹ năng &nbsp;&gt;&nbsp;
-      <span class="active">Tâm lý</span>
+      <span class="breadcrumb-link">Trang chủ</span>
+      &nbsp;&gt;&nbsp;
+
+      <template v-if="book.categories?.length">
+        <template v-for="(cate, index) in book.categories" :key="cate.id">
+          <span class="breadcrumb-link">
+            {{ cate.ten }}
+          </span>
+
+          <span v-if="index < book.categories.length - 1">
+            &nbsp;&gt;&nbsp;
+          </span>
+        </template>
+
+        &nbsp;&gt;&nbsp;
+      </template>
+
+      <span class="active">{{ book.tieuDe }}</span>
     </div>
 
     <div class="detail-wrapper">
@@ -14,6 +30,7 @@
 
           <div class="thumb-list">
             <img
+              class="thumbnail"
               v-for="(img, index) in book.thumbnails?.slice(0, 6)"
               :key="index"
               :src="img"
@@ -69,27 +86,10 @@
       </div>
     </div>
     <div class="book-extra mt-4">
-      <div class="tab-header">
-        <div
-          class="tab-item"
-          :class="{ active: activeTab === 'info' }"
-          @click="activeTab = 'info'"
-        >
-          THÔNG TIN SẢN PHẨM
-        </div>
-        <div
-          class="tab-item"
-          :class="{ active: activeTab === 'review' }"
-          @click="activeTab = 'review'"
-        >
-          ĐÁNH GIÁ SẢN PHẨM
-        </div>
-      </div>
-
-      <div class="tab-content">
-        <div v-if="activeTab === 'info'" class="info-box">
-          <div>
-            <h4>THÔNG TIN SẢN PHẨM</h4>
+      <div class="info-card">
+        <div class="info-layout">
+          <div class="info-left">
+            <h4>Thông tin sản phẩm</h4>
             <table class="info-table">
               <tbody>
                 <tr>
@@ -109,10 +109,6 @@
                   <td>2023</td>
                 </tr>
                 <tr>
-                  <td>Hình thức</td>
-                  <td>Bìa mềm</td>
-                </tr>
-                <tr>
                   <td>Số trang</td>
                   <td>320</td>
                 </tr>
@@ -120,35 +116,38 @@
             </table>
           </div>
 
-          <div>
-            <h4>MÔ TẢ SẢN PHẨM</h4>
+          <div class="info-right">
+            <h4>Mô tả</h4>
             <p class="desc-text">{{ book.moTa }}</p>
           </div>
         </div>
+      </div>
 
-        <div v-if="activeTab === 'review'" class="review-box">
-          <div class="review-summary">
-            <div class="score">
-              <div class="point">
-                {{ book.avgRating || 0 }}
-              </div>
-              <div class="star">★★★★★</div>
-              <div>({{ book.totalReviews || 0 }} đánh giá)</div>
-            </div>
+      <div class="review-card">
+        <h4>Đánh giá sản phẩm</h4>
 
-            <div class="rating-bars">
-              <div class="bar" v-for="i in 5" :key="i">
-                <span>{{ 6 - i }} sao</span>
-                <div class="line">
-                  <div class="fill" style="width: 0%"></div>
-                </div>
-                <span>0%</span>
-              </div>
-            </div>
+        <div class="review-summary">
+          <div class="score">
+            <div class="point">{{ book.avgRating || 0 }}</div>
+            <div class="star">★★★★★</div>
+            <div>({{ book.totalReviews || 0 }} đánh giá)</div>
           </div>
 
-          <div class="empty-review">Chưa có đánh giá nào cho sản phẩm này</div>
+          <div class="rating-bars">
+            <div class="bar" v-for="i in 5" :key="i">
+              <span>{{ 6 - i }} sao</span>
+              <div class="line">
+                <div
+                  class="fill"
+                  :style="{ width: getPercent(6 - i) + '%' }"
+                ></div>
+              </div>
+              <span>{{ getPercent(6 - i) }}%</span>
+            </div>
+          </div>
         </div>
+
+        <div class="empty-review">Chưa có đánh giá nào cho sản phẩm này</div>
       </div>
     </div>
     <div v-if="showToast" class="toast-overlay">
@@ -169,6 +168,8 @@ import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
 import { addItem } from "@/utils/cart";
 import { useAuthStore } from "@/stores/auth";
+import { computed } from "vue";
+import { watch } from "vue";
 
 const auth = useAuthStore();
 const route = useRoute();
@@ -177,6 +178,20 @@ const router = useRouter();
 const book = ref({});
 const quantity = ref(1);
 
+const totalReviews = computed(() => book.value.totalReviews || 0);
+
+const getPercent = (star) => {
+  if (!book.value.ratingStats || !totalReviews.value) return 0;
+  return Math.round((book.value.ratingStats[star] / totalReviews.value) * 100);
+};
+watch(
+  () => book.value.hangTon,
+  (stock) => {
+    if (quantity.value > stock) {
+      quantity.value = stock || 1;
+    }
+  },
+);
 onMounted(async () => {
   const res = await api.get(`/books/${route.params.id}`);
   book.value = res.data;
@@ -258,9 +273,23 @@ const decrease = () => {
 }
 
 .right-box {
-  border: 1px solid #000;
-  padding: 16px;
+  border: 1px solid #e5e5e5;
+  padding: 20px;
   background: #fff;
+  border-radius: 14px;
+
+  box-shadow:
+    0 8px 24px rgba(0, 0, 0, 0.06),
+    0 2px 6px rgba(0, 0, 0, 0.05);
+
+  transition: all 0.3s ease;
+}
+
+.right-box:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 12px 32px rgba(0, 0, 0, 0.08),
+    0 4px 10px rgba(0, 0, 0, 0.06);
 }
 
 .top-box {
@@ -282,6 +311,9 @@ const decrease = () => {
 .book-detail {
   margin-top: 20px;
   font-size: 14px;
+  background: #f5f6f8;
+  padding: 20px;
+  border-radius: 16px;
 }
 
 .breadcrumb-box {
@@ -359,28 +391,26 @@ const decrease = () => {
 }
 
 .qty-btn {
-  width: 28px;
-  height: 28px;
-  border: 1px solid #ccc;
-  background: #f5f5f5;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  background: #fafafa;
   cursor: pointer;
-  font-size: 16px;
-  line-height: 1;
-  padding: 0;
+  transition: 0.2s;
 }
 
 .qty-btn:hover {
-  background: #e0e0e0;
+  background: #d32f2f;
+  color: #fff;
+  border-color: #d32f2f;
 }
 
 .qty-number {
-  min-width: 40px;
-  height: 28px;
-  border: 1px solid #ccc;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 14px;
+  min-width: 50px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid #ddd;
   background: #fff;
 }
 
@@ -484,19 +514,6 @@ const decrease = () => {
   margin-top: 40px;
 }
 
-.tab-header {
-  display: flex;
-  border-bottom: 1px solid #ddd;
-}
-
-.tab-item {
-  padding: 12px 20px;
-  cursor: pointer;
-  font-weight: 600;
-  color: #666;
-  border-bottom: 3px solid transparent;
-}
-
 .tab-item.active {
   color: #111;
   border-color: #111;
@@ -572,5 +589,153 @@ const decrease = () => {
   text-shadow:
     0 0 6px rgba(255, 80, 80, 0.9),
     0 0 12px rgba(255, 80, 80, 0.9);
+}
+.info-box {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+
+  background: #fff;
+  padding: 32px;
+  border-radius: 14px;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.info-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  text-align: left;
+}
+
+.info-table td {
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-table td:first-child {
+  font-weight: 600;
+  color: #666;
+  width: 40%;
+}
+.desc-text {
+  margin-top: 12px;
+  line-height: 1.8;
+  color: #444;
+  font-size: 15px;
+  text-align: left;
+}
+.review-box {
+  background: #fff;
+  padding: 32px;
+  border-radius: 14px;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.05),
+    0 12px 32px rgba(0, 0, 0, 0.06);
+}
+
+.star {
+  font-size: 20px;
+  color: #f5a623;
+  margin: 8px 0;
+}
+
+.tab-item {
+  padding: 12px 0;
+  font-weight: 600;
+  cursor: pointer;
+  color: #777;
+  position: relative;
+  transition: 0.3s;
+}
+
+.tab-item.active::after {
+  content: "";
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  background: #d32f2f;
+  border-radius: 3px;
+}
+
+.info-card,
+.review-card {
+  background: #fff;
+  padding: 32px;
+  border-radius: 18px;
+  margin-bottom: 30px;
+
+  border: 1px solid #000;
+
+  box-shadow:
+    0 10px 30px rgba(0, 0, 0, 0.06),
+    0 4px 10px rgba(0, 0, 0, 0.04);
+
+  transition: 0.3s ease;
+}
+
+.info-card:hover,
+.review-card:hover {
+  transform: translateY(-4px);
+}
+
+.info-layout {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 40px;
+}
+
+.review-summary {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 40px;
+  margin-top: 20px;
+}
+.point {
+  font-size: 52px;
+  font-weight: 700;
+  color: #d32f2f;
+}
+
+.star {
+  font-size: 18px;
+  color: #f5a623;
+  margin: 6px 0;
+}
+.bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 10px;
+}
+
+.line {
+  flex: 1;
+  height: 8px;
+  background: #eee;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f5a623, #ff9800);
+  border-radius: 6px;
+}
+@media (max-width: 900px) {
+  .info-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .review-summary {
+    grid-template-columns: 1fr;
+    text-align: center;
+  }
 }
 </style>

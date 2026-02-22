@@ -68,29 +68,36 @@ const formatPrice = (price) =>
 <style scoped>
 .banner {
   position: relative;
+
   width: 100%;
+  max-width: 600px;   /* bạn đổi số này tùy ý */
+  
+  margin-left: auto;
+  margin-right: auto;
+
+  border-radius: 18px;
+  overflow: hidden;
 }
 
 .banner-img {
   width: 100%;
-  height: auto;
+  height: 100%;
+  object-fit: cover;
   display: block;
 }
-
 .cta-btn {
-  right: 2.25rem;
-  bottom: 1.25rem;
-  padding: 0.55rem 1.4rem;
-  border-radius: 30px;
-  z-index: 3;
-  background-color: #d12e28;
-  border: 1px;
+  position: absolute;
+  right: 2.5rem;
+  bottom: 2rem;
+  width: auto;       
+  display: inline-block;
+  padding: 0.7rem 1.8rem;
+  border-radius: 999px;
+  background: #d12e28;
   color: #fff;
   font-weight: 600;
-  box-shadow: 0 6px 14px rgba(217, 48, 42, 0.18);
-  transition: all 0.2s ease;
+  border: none;
 }
-
 .cta-btn:hover {
   background-color: #ff3b30;
   color: #fff;

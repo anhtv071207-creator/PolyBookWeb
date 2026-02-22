@@ -3,6 +3,7 @@ package com.example.polybookbe.service.impl;
 import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.Address;
 import com.example.polybookbe.entity.User;
+import com.example.polybookbe.exception.ApiException;
 import com.example.polybookbe.repository.AddressRepository;
 import com.example.polybookbe.repository.UserRepository;
 import com.example.polybookbe.service.UserService;
@@ -35,8 +36,28 @@ public class UserServiceImpl implements UserService {
     @Override
     public User register(RegisterRequest request) {
 
+        if (!StringUtils.hasText(request.getHoTen())) {
+            throw new ApiException("Họ tên không được để trống", "FULLNAME_REQUIRED");
+        }
+
+        if (!StringUtils.hasText(request.getEmail())) {
+            throw new ApiException("Email không được để trống", "EMAIL_REQUIRED");
+        }
+
+        if (!request.getEmail().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new ApiException("Email không hợp lệ", "EMAIL_INVALID");
+        }
+
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new RuntimeException("Email đã tồn tại");
+            throw new ApiException("Email đã tồn tại", "EMAIL_EXISTS");
+        }
+
+        if (!StringUtils.hasText(request.getPassword())) {
+            throw new ApiException("Mật khẩu không được để trống", "PASSWORD_REQUIRED");
+        }
+
+        if (request.getPassword().length() < 6) {
+            throw new ApiException("Mật khẩu phải có ít nhất 6 ký tự", "PASSWORD_TOO_SHORT");
         }
 
         User user = new User();
@@ -105,6 +126,30 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserResponse createStaff(CreateStaffRequest request) {
+
+        if (!StringUtils.hasText(request.getHoTen())) {
+            throw new ApiException("Họ tên không được để trống", "FULLNAME_REQUIRED");
+        }
+
+        if (!StringUtils.hasText(request.getEmail())) {
+            throw new ApiException("Email không được để trống", "EMAIL_REQUIRED");
+        }
+
+        if (!request.getEmail().matches("^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$")) {
+            throw new ApiException("Email không hợp lệ", "EMAIL_INVALID");
+        }
+
+        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new ApiException("Email đã tồn tại", "EMAIL_EXISTS");
+        }
+
+        if (!StringUtils.hasText(request.getPassword())) {
+            throw new ApiException("Mật khẩu không được để trống", "PASSWORD_REQUIRED");
+        }
+
+        if (request.getPassword().length() < 6) {
+            throw new ApiException("Mật khẩu phải có ít nhất 6 ký tự", "PASSWORD_TOO_SHORT");
+        }
 
         User user = new User();
         user.setEmail(request.getEmail());

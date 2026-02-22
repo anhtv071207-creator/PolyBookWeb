@@ -6,6 +6,8 @@ import com.example.polybookbe.dto.UpdateOrderStatusRequest;
 import com.example.polybookbe.service.OrderService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,12 +17,12 @@ import java.util.List;
 @RequestMapping("/api/management/orders")
 @RequiredArgsConstructor
 public class ManagementOrdersController {
-    @Autowired
-    private OrderService orderService;
+
+    private final OrderService orderService;
 
     @GetMapping
-    public List<OrderListResponse> getAll() {
-        return orderService.getAllForManagement();
+    public Page<OrderListResponse> getAll(Pageable pageable) {
+        return orderService.getAllForManagement(pageable);
     }
 
     @GetMapping("/{id}")
@@ -41,15 +43,9 @@ public class ManagementOrdersController {
         orderService.cancelOrder(id);
     }
 
-    @GetMapping("/management/orders/{id}")
-    public ResponseEntity<OrderDetailResponse> getOrderDetail(@PathVariable Integer id) {
-        return ResponseEntity.ok(orderService.getDetail(id));
-    }
-
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Integer id) {
         orderService.deleteOrder(id);
         return ResponseEntity.noContent().build();
     }
-
 }

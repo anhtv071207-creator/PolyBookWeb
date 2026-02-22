@@ -1,6 +1,11 @@
 <template>
   <section class="order-management">
-    <h2>Quản lý đơn hàng</h2>
+<div class="page-header">
+  <button class="btn-back" @click="goBackManagement">
+    ← Quay lại
+  </button>
+  <h2>Quản lý sản phẩm</h2>
+</div>
 
     <table class="order-table">
       <thead>
@@ -50,6 +55,35 @@
         </tr>
       </tbody>
     </table>
+    <div class="pagination" v-if="totalPages > 1">
+      <!-- Prev Arrow -->
+      <button
+        class="arrow"
+        @click="changePage(currentPage - 1)"
+        :disabled="currentPage === 0"
+      >
+        ←
+      </button>
+
+      <!-- Number Pages -->
+      <button
+        v-for="p in totalPages"
+        :key="p"
+        @click="changePage(p - 1)"
+        :class="{ active: currentPage === p - 1 }"
+      >
+        {{ p }}
+      </button>
+
+      <!-- Next Arrow -->
+      <button
+        class="arrow"
+        @click="changePage(currentPage + 1)"
+        :disabled="currentPage >= totalPages - 1"
+      >
+        →
+      </button>
+    </div>
   </section>
 </template>
 
@@ -59,14 +93,34 @@ import { useRouter } from "vue-router";
 import api from "@/services/api";
 
 const router = useRouter();
+
 const orders = ref([]);
+const currentPage = ref(0);
+const totalPages = ref(0);
+const pageSize = 10;
 
-const fetchOrder = async () => {
-  const res = await api.get("/management/orders");
-  orders.value = res.data;
+const fetchOrder = async (page = 0) => {
+  const res = await api.get("/management/orders", {
+    params: {
+      page,
+      size: pageSize,
+    },
+  });
+
+  orders.value = res.data.content;
+  totalPages.value = res.data.totalPages;
+  currentPage.value = res.data.number;
 };
+const goBackManagement = () => {
+  router.push("/managements");
+};
+onMounted(() => fetchOrder());
 
-onMounted(fetchOrder);
+const changePage = (page) => {
+  if (page >= 0 && page < totalPages.value) {
+    fetchOrder(page);
+  }
+};
 
 const STATUS_MAP = {
   0: { text: "Chờ xác nhận", class: "status-pending" },
@@ -94,63 +148,189 @@ const editOrder = (id) => {
 
 <style scoped>
 .order-management {
-  padding: 24px;
+  padding: 40px 5%;
+  background: #eef4ff;
+  min-height: 100vh;
 }
 
+h2 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 30px;
+}
+
+/* ===== TABLE CARD ===== */
 .order-table {
   width: 100%;
   border-collapse: collapse;
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
 }
 
-.order-table th,
+.order-table thead {
+  background: #f1f6ff;
+}
+
+.order-table th {
+  padding: 16px;
+  font-weight: 600;
+  color: #007bff;
+  text-align: center;
+  font-size: 14px;
+}
+
 .order-table td {
-  border: 1px solid #333;
-  padding: 8px;
+  padding: 16px;
   text-align: center;
+  font-size: 14px;
 }
 
+.order-table tr {
+  transition: 0.2s;
+}
+
+.order-table tr:hover {
+  background: #f4f9ff;
+}
+
+/* ===== STATUS PILL ===== */
 .status-pill {
-  padding: 4px 10px;
-  border-radius: 12px;
-  font-size: 13px;
-  font-weight: 500;
-  color: #fff;
+  padding: 6px 14px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
+/* Trạng thái mềm theo admin theme */
 .status-pending {
-  background: #6c757d;
+  background: #e2e8f0;
+  color: #334155;
 }
+
 .status-confirmed {
-  background: #0d6efd;
+  background: #dbeafe;
+  color: #007bff;
 }
+
 .status-packing {
-  background: #0dcaf0;
+  background: #cffafe;
+  color: #0891b2;
 }
+
 .status-shipping {
-  background: #ffc107;
-  color: #000;
+  background: #fef3c7;
+  color: #b45309;
 }
+
 .status-success {
-  background: #198754;
+  background: #dcfce7;
+  color: #15803d;
 }
+
 .status-cancel {
-  background: #dc3545;
+  background: #fee2e2;
+  color: #dc2626;
 }
+
 .status-return {
-  background: #adb5bd;
-  color: #000;
+  background: #e5e7eb;
+  color: #374151;
+}
+/* ===== PAGE HEADER ===== */
+.page-header {
+  position: relative;
+  margin-bottom: 35px;
 }
 
-.btn-edit {
-  padding: 4px 12px;
-  background: #222;
-  color: #fff;
-  border: none;
-  cursor: pointer;
-}
-
-.empty {
+.page-header h2 {
   text-align: center;
-  padding: 20px;
+  margin: 0;
+}
+
+.btn-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  transition: 0.25s;
+}
+
+.btn-back:hover {
+  transform: translateY(-50%) translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+}
+
+/* ===== EDIT BUTTON ===== */
+.btn-edit {
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-size: 13px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  border: none;
+  color: white;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.btn-edit:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
+/* ===== EMPTY ROW ===== */
+.empty {
+  padding: 30px;
+  font-weight: 500;
+  color: #64748b;
+}
+
+/* ===== PAGINATION ===== */
+.pagination {
+  margin-top: 30px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.pagination button {
+  padding: 8px 14px;
+  border-radius: 12px;
+  border: none;
+  background: #f1f6ff;
+  cursor: pointer;
+  transition: 0.2s;
+  min-width: 40px;
+  font-weight: 500;
+}
+
+.pagination button:hover {
+  background: #e2edff;
+}
+
+.pagination button.active {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+}
+
+.pagination button.arrow {
+  font-weight: bold;
+  font-size: 16px;
+}
+
+.pagination button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 </style>

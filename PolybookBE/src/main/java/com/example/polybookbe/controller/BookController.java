@@ -1,8 +1,6 @@
 package com.example.polybookbe.controller;
 
-import com.example.polybookbe.dto.BookDetailResponse;
-import com.example.polybookbe.dto.BookHomeDTO;
-import com.example.polybookbe.dto.CreateBookRequest;
+import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.Book;
 import com.example.polybookbe.entity.BookImage;
 import com.example.polybookbe.repository.BookImageRepository;
@@ -28,71 +26,50 @@ public class BookController {
     @Autowired
     private BookImageRepository imageRepo;
 
-    @GetMapping
-    public List<Book> getAllBooks() {
-        return bookService.getAllBooks();
-    }
+//    @GetMapping
+//    public List<BookResponse> getAllBooks() {
+//        return bookService.getAllBooks();
+//    }
 
     @PostMapping
-    public ResponseEntity<Book> createBook(
+    public ResponseEntity<BookResponse> createBook(
             @Valid @RequestBody CreateBookRequest request) {
 
-        Book createdBook = bookService.createBook(request);
+        BookResponse createdBook = bookService.createBook(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdBook);
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBook(@PathVariable Integer id) {
+    public ResponseEntity<Void> deleteBook(@PathVariable Integer id) {
         bookService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<BookDetailResponse> getDetail(@PathVariable Integer id) {
-
-        Book book = bookRepository.findById(id)
-                .orElseThrow();
-
-        List<BookImage> images = imageRepo.findByBookId(id);
-
-        BookDetailResponse res = new BookDetailResponse();
-        res.setId(book.getId());
-        res.setTieuDe(book.getTieuDe());
-        res.setTacGia(book.getTacGia());
-        res.setHangTon(book.getHangTon());
-        res.setGia(book.getGia());
-        res.setMoTa(book.getMoTa());
-        res.setAvgRating(book.getAvgRating());
-        res.setTotalReviews(book.getTotalReviews());
-
-
-        res.setMainImage(
-                images.stream()
-                        .filter(i -> Boolean.TRUE.equals(i.getBiaSach()))
-                        .map(BookImage::getUrl)
-                        .findFirst()
-                        .orElse("/books/default.jpg")
-        );
-
-        res.setThumbnails(
-                images.stream()
-                        .map(BookImage::getUrl)
-                        .toList()
-        );
-
-        return ResponseEntity.ok(res);
+        return ResponseEntity.ok(bookService.getDetail(id));
     }
 
     @GetMapping("/home")
     public List<BookHomeDTO> home() {
-        return bookRepository.findBooksForHome();
+        return bookService.getBooksForHome();
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> update(
+    public ResponseEntity<BookResponse> update(
             @PathVariable Integer id,
             @Valid @RequestBody CreateBookRequest request) {
 
         return ResponseEntity.ok(bookService.updateBook(id, request));
     }
 
+    @GetMapping
+    public PageResponse<BookResponse> getBooks(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "id") String sortBy,
+            @RequestParam(defaultValue = "asc") String direction
+    ) {
+        return bookService.getBooksWithPaging(page, size, sortBy, direction);
+    }
 }

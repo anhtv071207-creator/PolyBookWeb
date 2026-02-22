@@ -6,6 +6,8 @@ import com.example.polybookbe.dto.OrderListResponse;
 import com.example.polybookbe.entity.Order;
 import com.example.polybookbe.service.OrderService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,8 +35,20 @@ public class OrderController {
     }
 
     @GetMapping("/lookup")
-    public List<OrderListResponse> lookup(@RequestParam String keyword) {
-        return orderService.findByEmailOrPhone(keyword);
+    public Page<OrderListResponse> lookup(
+            @RequestParam(required = false) Integer userId,
+            @RequestParam(required = false) String keyword,
+            Pageable pageable
+    ) {
+        if (keyword != null && !keyword.isBlank()) {
+            return orderService.searchByEmailOrPhone(keyword, pageable);
+        }
+
+        if (userId != null) {
+            return orderService.getOrdersByUser(userId, pageable);
+        }
+
+        return Page.empty(pageable);
     }
 
     @GetMapping("/{id}")

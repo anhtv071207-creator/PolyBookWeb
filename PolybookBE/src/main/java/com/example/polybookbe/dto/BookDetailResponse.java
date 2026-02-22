@@ -23,4 +23,5 @@ public class BookDetailResponse {
     private String moTa;
     private BigDecimal avgRating;
     private Integer totalReviews;
+    private List<CategoryResponse> categories;
 }

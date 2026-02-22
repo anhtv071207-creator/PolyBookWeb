@@ -41,5 +41,19 @@ public class CategoryServiceImpl implements CategoryService {
     public Category save(Category category) {
         return categoryRepository.save(category);
     }
+
+    @Override
+    public void deleteById(Integer id) {
+
+        Category category = getById(id);
+
+        if (!category.getDanhMucCon().isEmpty()) {
+            throw new RuntimeException("Cannot delete category with children");
+        }
+
+        categoryRepository.delete(category);
+    }
+
+
 }
 

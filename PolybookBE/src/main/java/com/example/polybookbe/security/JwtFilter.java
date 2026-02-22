@@ -28,6 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
             HttpServletResponse response,
             FilterChain filterChain
     ) throws ServletException, IOException {
+        System.out.println("JWT FILTER RUNNING: " + request.getServletPath());
 
         if ("OPTIONS".equalsIgnoreCase(request.getMethod())) {
             filterChain.doFilter(request, response);
@@ -56,6 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
         Integer userId = jwtUtil.getUserId(token);
         String role = jwtUtil.getRole(token);
+
 
         UsernamePasswordAuthenticationToken authentication =
                 new UsernamePasswordAuthenticationToken(

@@ -1,21 +1,29 @@
 package com.example.polybookbe.service;
 
-import com.example.polybookbe.dto.CreateBookRequest;
+import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.Book;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 
 public interface BookService {
 
-    List<Book> getAllBooks();
+    List<BookResponse> getAllBooks();
 
-    Book getBookById(Integer id);
+    BookResponse getBookById(Integer id);
 
-    Book createBook(CreateBookRequest request);
+    BookResponse createBook(CreateBookRequest request);
 
-    Book save(Book book);
+    BookResponse save(Book book);
 
     void deleteById(Integer id);
 
-    Book updateBook(Integer id, CreateBookRequest request);
+    BookResponse updateBook(Integer id, CreateBookRequest request);
+
+    BookDetailResponse getDetail(Integer id);
+
+    List<BookHomeDTO> getBooksForHome();
+
+    PageResponse<BookResponse> getBooksWithPaging(int page, int size, String sortBy, String direction);
 }

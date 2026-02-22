@@ -1,12 +1,10 @@
 package com.example.polybookbe.dto;
 
-import jakarta.validation.constraints.DecimalMin;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 @Data
 public class CreateBookRequest {
@@ -32,4 +30,6 @@ public class CreateBookRequest {
     @NotBlank
     private String coverImageUrl;
 
+    @NotEmpty(message = "Phải chọn ít nhất 1 danh mục")
+    private List<Integer> categoryIds;
 }

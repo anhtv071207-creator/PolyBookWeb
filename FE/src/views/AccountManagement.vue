@@ -1,70 +1,127 @@
 <template>
-  <div>
-    <h2>Quản Lý Người Dùng</h2>
-    <div class="row g-2">
-      <div class="col-6">
-        <h4>Tạo tài khoản nhân viên</h4>
-        <form @submit.prevent="createStaff" class="staff-form">
-          <div>
-            <input v-model="staff.email" placeholder="Email" />
-          </div>
-          <div>
-            <input
-              v-model="staff.password"
-              type="password"
-              placeholder="Password"
-            />
-          </div>
-          <div>
-            <input v-model="staff.hoTen" placeholder="Họ tên" />
-          </div>
-          <div>
-            <input v-model="staff.phone" placeholder="Số điện thoại" />
-          </div>
-          <button type="submit">Tạo STAFF</button>
-        </form>
+  <div class="page">
+    <div class="page-header">
+      <button class="btn-back" @click="goBackManagement">← Quay lại</button>
+      <h2>Quản lý sản phẩm</h2>
+    </div>
+    <div class="form-wrapper">
+      <!-- SIDE TABS -->
+      <div class="side-tabs">
+        <div
+          class="tab-item"
+          :class="{ 'active-tab': currentMode === 'add' }"
+          @click="setMode('add')"
+        >
+          Thêm nhân viên
+        </div>
+
+        <div
+          class="tab-item"
+          :class="{ 'active-tab': currentMode === 'search' }"
+          @click="setMode('search')"
+        >
+          Tìm tài khoản
+        </div>
       </div>
-      <div class="col-6">
-        <h4 class="form-title">Tìm kiếm & lọc tài khoản</h4>
 
-        <form class="filter-box" @submit.prevent="onSearch">
-          <div class="filter-row">
-            <input
-              v-model="filters.keyword"
-              type="text"
-              placeholder="Tìm theo họ tên / email / số điện thoại"
-              class="search-input"
-            />
+      <!-- TAB CONTENT -->
+      <div class="tab-content">
+        <!-- ADD STAFF -->
+        <div v-if="currentMode === 'add'">
+          <div class="card">
+            <h2>Tạo tài khoản nhân viên</h2>
+            <form @submit.prevent="createStaff">
+              <div class="form-group">
+                <label>Email</label>
+                <input
+                  v-model="staff.email"
+                  :class="{ 'input-error': staffErrors.email }"
+                />
+                <p v-if="staffErrors.email" class="error-text">
+                  {{ staffErrors.email }}
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label>Mật khẩu</label>
+                <input
+                  type="password"
+                  v-model="staff.password"
+                  :class="{ 'input-error': staffErrors.password }"
+                />
+                <p v-if="staffErrors.password" class="error-text">
+                  {{ staffErrors.password }}
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label>Họ tên</label>
+                <input
+                  v-model="staff.hoTen"
+                  :class="{ 'input-error': staffErrors.hoTen }"
+                />
+                <p v-if="staffErrors.hoTen" class="error-text">
+                  {{ staffErrors.hoTen }}
+                </p>
+              </div>
+
+              <div class="form-group">
+                <label>Số điện thoại</label>
+                <input
+                  v-model="staff.phone"
+                  :class="{ 'input-error': staffErrors.phone }"
+                />
+                <p v-if="staffErrors.phone" class="error-text">
+                  {{ staffErrors.phone }}
+                </p>
+              </div>
+
+              <button class="btn primary">Tạo STAFF</button>
+            </form>
           </div>
+        </div>
 
-          <div class="filter-row two-cols">
-            <select v-model="filters.role">
-              <option value="">Tất cả role</option>
-              <option value="USER">User</option>
-              <option value="STAFF">Staff</option>
-              <option value="ADMIN">Admin</option>
-            </select>
+        <!-- SEARCH USER -->
+        <div v-if="currentMode === 'search'">
+          <div class="card">
+            <h2>Tìm kiếm & lọc tài khoản</h2>
 
-            <select v-model="filters.status">
-              <option value="">Tất cả trạng thái</option>
-              <option value="active">Hoạt động</option>
-              <option value="locked">Đã khóa</option>
-            </select>
+            <form @submit.prevent="onSearch">
+              <div class="form-group">
+                <label>Từ khóa</label>
+                <input
+                  v-model="filters.keyword"
+                  placeholder="Họ tên / Email / SĐT"
+                />
+              </div>
+
+              <div class="form-group">
+                <label>Role</label>
+                <select v-model="filters.role">
+                  <option value="">Tất cả</option>
+                  <option value="USER">User</option>
+                  <option value="STAFF">Staff</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Trạng thái</label>
+                <select v-model="filters.status">
+                  <option value="">Tất cả</option>
+                  <option value="active">Hoạt động</option>
+                  <option value="locked">Đã khóa</option>
+                </select>
+              </div>
+
+              <button class="btn primary">Tìm kiếm</button>
+            </form>
           </div>
-
-          <div class="filter-row actions">
-            <button type="submit" class="btn-secondary">Tìm kiếm</button>
-            <button type="button" class="btn-secondary" @click="resetFilters">
-              Reset
-            </button>
-          </div>
-        </form>
+        </div>
       </div>
     </div>
 
-    <hr />
-    <div>
-      <h4>Danh sách người dùng</h4>
+    <div class="card list-card">
+      <h2>Danh sách người dùng</h2>
 
       <table class="user-table">
         <thead>
@@ -79,17 +136,22 @@
         </thead>
 
         <tbody>
-          <tr v-for="user in users" :key="user.id">
+          <tr
+            v-for="user in users.filter((u) => u.role !== 'ADMIN')"
+            :key="user.id"
+          >
             <td>{{ user.id }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.hoTen }}</td>
             <td>{{ user.role }}</td>
             <td>
-              {{ user.trangThai ? "Hoạt động" : "Đã khóa" }}
+              <span :class="user.trangThai ? 'badge active' : 'badge locked'">
+                {{ user.trangThai ? "Hoạt động" : "Đã khóa" }}
+              </span>
             </td>
             <td>
               <router-link :to="`/admin/users/${user.id}`">
-                <button>Chi tiết</button>
+                <button class="btn small primary">Chi tiết</button>
               </router-link>
             </td>
           </tr>
@@ -102,8 +164,43 @@
 <script setup>
 import { ref, onMounted } from "vue";
 import api from "@/services/api";
+import { useRouter } from "vue-router";
+const router = useRouter();
 
+const staffErrors = ref({});
+const staffServerError = ref("");
+const validateStaff = () => {
+  staffErrors.value = {};
+  staffServerError.value = "";
+
+  if (!staff.value.hoTen) {
+    staffErrors.value.hoTen = "Họ tên không được để trống";
+  }
+
+  if (!staff.value.email) {
+    staffErrors.value.email = "Email không được để trống";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(staff.value.email)) {
+    staffErrors.value.email = "Email không hợp lệ";
+  }
+
+  if (!staff.value.phone) {
+    staffErrors.value.phone = "Số điện thoại không được để trống";
+  }
+
+  if (!staff.value.password) {
+    staffErrors.value.password = "Mật khẩu không được để trống";
+  } else if (staff.value.password.length < 6) {
+    staffErrors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
+  }
+
+  return Object.keys(staffErrors.value).length === 0;
+};
 const users = ref([]);
+const currentMode = ref("add");
+
+const setMode = (mode) => {
+  currentMode.value = mode;
+};
 
 const staff = ref({
   email: "",
@@ -154,17 +251,27 @@ const resetFilters = () => {
 };
 
 const createStaff = async () => {
-  await api.post("/account-management/admin/staff", staff.value);
-  alert("Tạo staff thành công");
+  if (!validateStaff()) return;
 
-  staff.value = {
-    email: "",
-    password: "",
-    hoTen: "",
-    phone: "",
-  };
+  try {
+    await api.post("/account-management/admin/staff", staff.value);
+    alert("Tạo staff thành công");
 
-  fetchAllUsers();
+    staff.value = {
+      email: "",
+      password: "",
+      hoTen: "",
+      phone: "",
+    };
+
+    fetchAllUsers();
+  } catch (err) {
+    staffServerError.value =
+      err.response?.data?.message || "Tạo staff thất bại";
+  }
+};
+const goBackManagement = () => {
+  router.push("/managements");
 };
 
 onMounted(() => {
@@ -173,128 +280,175 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.page {
+  padding: 40px 5%;
+  background: #eef4ff;
+}
+
 h2 {
-  margin: 16px 0;
-  font-size: 22px;
-  font-weight: 600;
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 30px;
 }
 
-hr {
-  margin: 24px 0;
+.form-wrapper {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  gap: 30px;
+  margin-bottom: 40px;
 }
 
-.staff-form {
-  max-width: 100%;
-  padding: 16px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fafafa;
-}
-
-.staff-form div {
-  margin-bottom: 12px;
-}
-
-input {
-  width: 100%;
-  padding: 8px 10px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  outline: none;
-}
-
-input:focus {
-  border-color: #409eff;
-}
-
-button {
-  padding: 8px 14px;
+.card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px;
   border: none;
-  border-radius: 4px;
-  background: #409eff;
-  color: white;
-  cursor: pointer;
-  font-weight: 500;
+  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
 }
 
-button:hover {
-  background: #337ecc;
+.side-tabs {
+  background: white;
+  padding: 25px;
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-tr:hover {
-  background: #f9f9f9;
-}
-
-td span {
+.tab-item {
+  padding: 14px;
+  text-align: center;
   font-weight: 600;
+  border-radius: 14px;
+  cursor: pointer;
+  background: #f1f6ff;
+  transition: 0.2s;
 }
 
-td span.active {
-  color: green;
+.tab-item:hover {
+  background: #e2edff;
 }
 
-td span.locked {
-  color: red;
-}
-td button {
-  background: #000000;
+.tab-item.active-tab {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
 }
 
-td button:hover {
-  background: #c9c9cc;
+.form-group {
+  margin-bottom: 22px;
 }
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #007bff;
+  margin-bottom: 8px;
+}
+/* ===== PAGE HEADER ===== */
+.page-header {
+  position: relative;
+  margin-top: 40px; /* thêm dòng này */
+  margin-bottom: 35px;
+}
+
+.page-header h2 {
+  text-align: center;
+  margin: 0;
+}
+
+.btn-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 10px 18px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  transition: 0.25s;
+}
+
+.btn-back:hover {
+  transform: translateY(-50%) translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+}
+
+input,
+select {
+  width: 100%;
+  padding: 14px 16px;
+  border-radius: 14px;
+  border: none;
+  background: #f1f6ff;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  background: white;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+}
+
+.btn.primary {
+  width: 100%;
+  padding: 16px;
+  border-radius: 14px;
+  font-size: 15px;
+  font-weight: 600;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  border: none;
+  transition: 0.2s;
+}
+
+.btn.primary:hover {
+  opacity: 0.9;
+  transform: translateY(-2px);
+}
+
 .user-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 16px;
+  margin-top: 20px;
   background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
 }
 
-.user-table,
-.user-table th,
-.user-table td {
-  border: 1px solid #000;
-}
-
-.user-table th,
-.user-table td {
-  padding: 5px;
-  text-align: center;
+.user-table thead {
+  background: #f1f6ff;
 }
 
 .user-table th {
-  background: #f5f7fa;
+  padding: 16px;
   font-weight: 600;
-}
-.filter-box {
-  width: 100%;
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  background: #fafafa;
+  color: #007bff;
 }
 
-.filter-row {
-  width: 100%;
+.user-table td {
+  padding: 16px;
 }
 
-.filter-row.two-cols {
-  display: flex;
-  gap: 10px;
+.user-table tr:hover {
+  background: #f4f9ff;
 }
 
-.filter-row.two-cols select {
-  flex: 1;
+.badge.active {
+  background: #d4f4ff;
+  color: #007bff;
 }
 
-.search-input {
-  width: 100%;
-}
-
-.filter-row.actions {
-  display: flex;
-  gap: 8px;
+.badge.locked {
+  background: #ffe5e5;
+  color: #dc2626;
 }
 </style>

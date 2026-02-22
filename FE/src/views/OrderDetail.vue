@@ -101,7 +101,8 @@
       </div>
     </div>
 
-    <div class="d-flex justify-content-end gap-2">
+    <div class="action-bottom">
+      <button class="btn-back" @click="goBack">Quay lại</button>
       <button class="btn-delete" @click="deleteOrder(order.id)">Xóa</button>
     </div>
   </div>
@@ -161,7 +162,6 @@ const changeStatus = async (newStatus) => {
   order.value.trangThai = newStatus;
 };
 
-
 const deleteOrder = async (id) => {
   await api.delete(`/management/orders/${id}`);
   router.push("/management/orders");
@@ -170,43 +170,191 @@ const deleteOrder = async (id) => {
 const formatMoney = (value) => {
   return new Intl.NumberFormat("vi-VN").format(value) + " đ";
 };
+const goBack = () => {
+  router.push("/management/orders");
+};  
 </script>
 
 <style scoped>
+/* ===== PAGE ===== */
 .order-detail {
-  max-width: 900px;
+  max-width: 1000px;
+  margin: auto;
+  padding: 40px;
+  background: #eef4ff;
+  min-height: 100vh;
 }
 
+h3 {
+  font-size: 24px;
+  font-weight: 700;
+  color: #007bff;
+  margin-bottom: 30px;
+}
+
+/* ===== CARD ===== */
+.card {
+  background: linear-gradient(145deg, #ffffff, #f4f9ff);
+  border-radius: 22px;
+  padding: 25px;
+  margin-bottom: 30px;
+  border: 2px solid #007bff;
+  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+}
+
+.card-header {
+  font-weight: 600;
+  font-size: 16px;
+  color: #007bff;
+  margin-bottom: 15px;
+}
+
+.card-body p {
+  margin-bottom: 8px;
+  font-size: 14px;
+}
+
+.kh-info {
+  text-align: left;
+}
+
+/* ===== PRODUCT LIST ===== */
 .product-list {
   display: flex;
   gap: 16px;
   flex-wrap: wrap;
 }
-.kh-info{
-  text-align: left;
-}
+
 .product-item {
   display: flex;
   gap: 12px;
-  border: 1px solid #ddd;
-  padding: 10px;
-  border-radius: 6px;
+  padding: 14px;
+  border-radius: 16px;
+  background: white;
+  border: 1px solid #e6eefc;
   width: 260px;
+  transition: 0.25s;
+}
+
+.product-item:hover {
+  background: #f1f6ff;
+  transform: translateY(-4px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
 }
 
 .product-image {
   width: 60px;
   height: 80px;
   object-fit: cover;
+  border-radius: 6px;
 }
 
 .product-name {
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
+.product-price {
+  font-size: 13px;
+  color: #007bff;
+}
+
+/* ===== STATUS ACTIONS ===== */
 .status-actions {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   flex-wrap: wrap;
+}
+
+.status-actions .btn {
+  padding: 8px 16px;
+  border-radius: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+}
+
+/* default disabled */
+.status-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ===== STATUS COLORS ===== */
+.btn-secondary {
+  background: #e2e8f0;
+  color: #334155;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+}
+
+.btn-info {
+  background: #cffafe;
+  color: #0891b2;
+}
+
+.btn-warning {
+  background: #fef3c7;
+  color: #b45309;
+}
+
+.btn-success {
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.btn-danger {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.status-actions .btn:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
+}
+
+/* ===== DELETE BUTTON ===== */
+.btn-delete {
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: crimson;
+  color: white;
+  transition: 0.25s;
+}
+
+.btn-delete:hover {
+  background: #b3002d;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
+}
+/* ===== BOTTOM ACTIONS ===== */
+.action-bottom {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.btn-back {
+  padding: 10px 20px;
+  border-radius: 14px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #007bff, #00c6ff);
+  color: white;
+  transition: 0.25s;
+}
+
+.btn-back:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
 }
 </style>

@@ -32,4 +32,36 @@ public class CategoryController {
     public List<Category> getByParent(@PathVariable Integer id) {
         return categoryService.getByParentId(id);
     }
+    @GetMapping("/{id}")
+    public Category getById(@PathVariable Integer id) {
+        return categoryService.getById(id);
+    }
+    @PostMapping
+    public Category create(@RequestBody Category category) {
+        return categoryService.save(category);
+    }
+    @PutMapping("/{id}")
+    public Category update(@PathVariable Integer id,
+                           @RequestBody Category categoryRequest) {
+
+        Category category = categoryService.getById(id);
+
+        category.setTenDanhMuc(categoryRequest.getTenDanhMuc());
+
+        if (categoryRequest.getDanhMucCha() != null) {
+            Category parent = categoryService.getById(
+                    categoryRequest.getDanhMucCha().getId()
+            );
+            category.setDanhMucCha(parent);
+        } else {
+            category.setDanhMucCha(null);
+        }
+
+        return categoryService.save(category);
+    }
+
+    @DeleteMapping("/{id}")
+    public void delete(@PathVariable Integer id) {
+        categoryService.deleteById(id);
+    }
 }

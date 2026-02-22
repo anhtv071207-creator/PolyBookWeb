@@ -15,6 +15,8 @@ import RemoteManagement from "../views/RemoteManagement.vue";
 import Register from "../views/Register.vue";
 import Infomation from "../views/Infomation.vue";
 import ProductManagement from "../views/ProductManagement.vue";
+import CategoryManagement from "../views/CategoryManagement.vue";
+import report from "../views/report.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -40,6 +42,8 @@ const routes = [
   { path: "/register", component: Register },
   { path: "/info", component: Infomation },
   { path: "/management/product", component: ProductManagement },
+  { path: "/management/category", component: CategoryManagement },
+  { path: "/reports", component: report },
 ];
 
 const router = createRouter({

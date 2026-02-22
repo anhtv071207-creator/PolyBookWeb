@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -45,5 +46,10 @@ public class Book {
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<BookImage> images;
-
+    @OneToMany(
+            mappedBy = "book",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true
+    )
+    private List<BookCategory> bookCategories = new ArrayList<>();
 }

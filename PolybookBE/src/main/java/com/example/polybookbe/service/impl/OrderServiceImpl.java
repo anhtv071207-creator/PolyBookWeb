@@ -6,6 +6,8 @@ import com.example.polybookbe.repository.*;
 import com.example.polybookbe.service.OrderService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -31,10 +33,10 @@ public class OrderServiceImpl implements OrderService {
     @Autowired
     private CartRepository cartRepository;
 
-    @Override
-    public List<Order> getOrdersByUser(Integer userId) {
-        return orderRepository.findByUserId(userId);
-    }
+//    @Override
+//    public List<Order> getOrdersByUser(Integer userId) {
+//        return orderRepository.findByUserId(userId);
+//    }
 
     @Override
     @Transactional
@@ -75,6 +77,7 @@ public class OrderServiceImpl implements OrderService {
                 }
 
                 book.setHangTon(book.getHangTon() - req.getSoLuong());
+                bookRepository.save(book);
 
                 OrderItem item = new OrderItem();
                 item.setOrder(order);
@@ -167,20 +170,20 @@ public class OrderServiceImpl implements OrderService {
             return;
         }
 
-        if (!newTrangThai.equals(current + 1)) {
-            throw new RuntimeException("Trạng thái không hợp lệ");
+        if (newTrangThai < current) {
+            throw new RuntimeException("Không thể quay ngược trạng thái");
         }
 
         order.setTrangThai(newTrangThai);
     }
 
-    @Override
-    public List<OrderListResponse> getAllForManagement() {
-        return orderRepository.findAll()
-                .stream()
-                .map(OrderListResponse::new)
-                .toList();
-    }
+//    @Override
+//    public List<OrderListResponse> getAllForManagement() {
+//        return orderRepository.findAll()
+//                .stream()
+//                .map(OrderListResponse::new)
+//                .toList();
+//    }
 
     @Override
     public OrderDetailResponse getDetail(Integer id) {
@@ -196,12 +199,17 @@ public class OrderServiceImpl implements OrderService {
         return buildOrderDetailResponse(order);
     }
 
+    //    @Override
+//    public List<OrderListResponse> findByEmailOrPhone(String keyword) {
+//        return orderRepository.findByEmailOrPhone(keyword)
+//                .stream()
+//                .map(OrderListResponse::new)
+//                .toList();
+//    }
     @Override
-    public List<OrderListResponse> findByEmailOrPhone(String keyword) {
-        return orderRepository.findByEmailOrPhone(keyword)
-                .stream()
-                .map(OrderListResponse::new)
-                .toList();
+    public Page<OrderListResponse> getAllForManagement(Pageable pageable) {
+        return orderRepository.findAll(pageable)
+                .map(OrderListResponse::new);
     }
 
     @Override
@@ -213,7 +221,10 @@ public class OrderServiceImpl implements OrderService {
 
         for (OrderItem item : order.getItems()) {
             Book book = item.getBook();
-            book.setHangTon(book.getHangTon() + item.getSoLuong());
+
+            if (!order.getTrangThai().equals(5)) {
+                book.setHangTon(book.getHangTon() + item.getSoLuong());
+            }
         }
 
         orderItemRepository.deleteAll(order.getItems());
@@ -275,5 +286,46 @@ public class OrderServiceImpl implements OrderService {
         );
 
         return res;
+    }
+
+    @Override
+    public List<OrderListResponse> getOrdersForLookup(Integer userId) {
+
+        if (userId == null) {
+            return List.of();
+        }
+
+        return orderRepository.findByUserId(userId)
+                .stream()
+                .map(OrderListResponse::new)
+                .toList();
+    }
+
+//    @Override
+//    public Page<OrderListResponse> getAllForManagement(Pageable pageable) {
+//        return orderRepository.findAll(pageable)
+//                .map(OrderListResponse::new);
+//    }
+
+    @Override
+    public Page<OrderListResponse> getOrdersByUser(Integer userId, Pageable pageable) {
+
+        if (userId == null) {
+            return Page.empty(pageable);
+        }
+
+        return orderRepository.findByUserId(userId, pageable)
+                .map(OrderListResponse::new);
+    }
+
+    @Override
+    public Page<OrderListResponse> searchByEmailOrPhone(
+            String keyword,
+            Pageable pageable
+    ) {
+
+        return orderRepository
+                .findByEmailContainingOrPhoneContaining(keyword, keyword, pageable)
+                .map(OrderListResponse::new);
     }
 }

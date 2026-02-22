@@ -15,19 +15,33 @@
         <div class="form-group">
           <label>Email</label>
           <input type="email" v-model="email" />
+          <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
         </div>
 
         <div class="form-group">
           <label>Mật khẩu</label>
           <input type="password" v-model="password" />
+          <p v-if="errors.password" class="error-text">
+            {{ errors.password }}
+          </p>
         </div>
 
         <div class="forgot">
           <a href="#">Quên mật khẩu?</a>
         </div>
-
+        <p v-if="serverError" class="server-error">
+          {{ serverError }}
+        </p>
         <button class="btn-login">Login</button>
       </form>
+    </div>
+  </div>
+  <div v-if="showLockPopup" class="overlay">
+    <div class="lock-popup">
+      <div class="lock-icon">🔒</div>
+      <h3>Tài khoản đã bị khóa</h3>
+      <p>Vui lòng liên hệ quản trị viên để được hỗ trợ.</p>
+      <button @click="showLockPopup = false">Đóng</button>
     </div>
   </div>
 </template>
@@ -37,6 +51,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
+const errors = ref({});
+const serverError = ref("");
+const showLockPopup = ref(false);
 
 const router = useRouter();
 const authStore = useAuthStore();
@@ -46,13 +63,14 @@ const password = ref("");
 const activeTab = ref("login");
 
 const login = async () => {
+  if (!validate()) return;
+
   try {
     const res = await api.post("/auth/login", {
       email: email.value,
       password: password.value,
     });
 
-    // 🔥 LƯU TOÀN BỘ AUTH VÀO STORE
     authStore.setAuth({
       token: res.data.token,
       email: res.data.email,
@@ -60,14 +78,36 @@ const login = async () => {
       hoTen: res.data.hoTen,
     });
 
-    // gắn token cho các request sau
     api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
 
     router.push("/");
   } catch (err) {
-    console.error(err);
-    alert("Sai email hoặc mật khẩu");
+    const code = err.response?.data?.code;
+
+    if (code === "ACCOUNT_LOCKED") {
+      showLockPopup.value = true;
+      return;
+    }
+
+    serverError.value = err.response?.data?.message || "Đăng nhập thất bại";
   }
+};
+
+const validate = () => {
+  errors.value = {};
+  serverError.value = "";
+
+  if (!email.value) {
+    errors.value.email = "Email không được để trống";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    errors.value.email = "Email không hợp lệ";
+  }
+
+  if (!password.value) {
+    errors.value.password = "Mật khẩu không được để trống";
+  }
+
+  return Object.keys(errors.value).length === 0;
 };
 </script>
 
@@ -142,5 +182,84 @@ const login = async () => {
   color: #fff;
   border: none;
   border-radius: 4px;
+}
+.input-error {
+  border-color: #ff4d4f !important;
+  background: #fff1f0;
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.server-error {
+  background: #fff1f0;
+  border: 1px solid #ff4d4f;
+  color: #ff4d4f;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 14px;
+  margin-bottom: 16px;
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.lock-popup {
+  background: #1f1f1f;
+  color: #fff;
+  width: 400px;
+  padding: 30px;
+  border-radius: 14px;
+  text-align: center;
+  animation: fadeInScale 0.25s ease;
+}
+
+.lock-popup h3 {
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.lock-popup p {
+  font-size: 14px;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.lock-popup button {
+  padding: 10px 20px;
+  background: #ff4d4f;
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  cursor: pointer;
+}
+
+.lock-popup button:hover {
+  background: #d9363e;
+}
+
+.lock-icon {
+  font-size: 40px;
+}
+
+@keyframes fadeInScale {
+  from {
+    opacity: 0;
+    transform: scale(0.85);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 </style>

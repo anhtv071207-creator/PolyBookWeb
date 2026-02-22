@@ -26,10 +26,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(ApiException.class)
     public ResponseEntity<?> apiExceptionHandler(ApiException ex) {
+
         Map<String, Object> response = new HashMap<>();
         response.put("result", "FAILED");
-        response.put("code", "API_ERROR");
+        response.put("code", ex.getCode());
         response.put("message", ex.getMessage());
+
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 

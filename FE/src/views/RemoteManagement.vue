@@ -89,7 +89,7 @@ const canSeeAdminBar = computed(() => isAdmin.value || isStaff.value);
 }
 
 .admin-card {
-  background: #8eb4ff;
+  background: #243447;
   height: 120px;
   border-radius: 10px;
 
@@ -98,7 +98,7 @@ const canSeeAdminBar = computed(() => isAdmin.value || isStaff.value);
   gap: 20px;
   padding: 20px;
 
-  color: #000;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 600;
 

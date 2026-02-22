@@ -9,4 +9,6 @@ public interface BookImageRepository extends JpaRepository<BookImage,Integer> {
     List<BookImage> findByBookId(Integer bookId);
 
     BookImage findByBookIdAndBiaSachTrue(Integer id);
+
+    void deleteByBookId(Integer bookId);
 }
