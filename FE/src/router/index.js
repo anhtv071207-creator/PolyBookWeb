@@ -17,6 +17,7 @@ import Infomation from "../views/Infomation.vue";
 import ProductManagement from "../views/ProductManagement.vue";
 import CategoryManagement from "../views/CategoryManagement.vue";
 import report from "../views/report.vue";
+import CategoryPage from "../views/CategoryPage.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -44,6 +45,11 @@ const routes = [
   { path: "/management/product", component: ProductManagement },
   { path: "/management/category", component: CategoryManagement },
   { path: "/reports", component: report },
+  {
+    path: "/category/:id",
+    component: CategoryPage,
+    props: true,
+  },
 ];
 
 const router = createRouter({

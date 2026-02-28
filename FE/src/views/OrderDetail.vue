@@ -341,7 +341,6 @@ h3 {
   box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
 }
 
-/* ===== DELETE BUTTON ===== */
 .btn-delete {
   padding: 10px 20px;
   border-radius: 14px;
@@ -358,7 +357,6 @@ h3 {
   transform: translateY(-2px);
   box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
 }
-/* ===== BOTTOM ACTIONS ===== */
 .action-bottom {
   display: flex;
   justify-content: flex-end;

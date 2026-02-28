@@ -13,11 +13,7 @@
     </div>
 
     <div class="row g-4">
-      <div
-        v-for="b in books"
-        :key="b.id"
-        class="col-6 col-md-3"
-      >
+      <div v-for="b in books" :key="b.id" class="col-6 col-md-3">
         <router-link
           :to="`/book/${b.id}`"
           class="text-decoration-none text-dark"
@@ -34,9 +30,7 @@
                 {{ b.tieuDe }}
               </h5>
 
-              <div class="book-price">
-                {{ formatPrice(b.gia) }} đ
-              </div>
+              <div class="book-price">{{ formatPrice(b.gia) }} đ</div>
             </div>
           </div>
         </router-link>
@@ -64,14 +58,13 @@ const formatPrice = (price) =>
   price ? Number(price).toLocaleString("vi-VN") : "0";
 </script>
 
-
 <style scoped>
 .banner {
   position: relative;
 
   width: 100%;
-  max-width: 600px;   /* bạn đổi số này tùy ý */
-  
+  max-width: 600px; /* bạn đổi số này tùy ý */
+
   margin-left: auto;
   margin-right: auto;
 
@@ -89,7 +82,7 @@ const formatPrice = (price) =>
   position: absolute;
   right: 2.5rem;
   bottom: 2rem;
-  width: auto;       
+  width: auto;
   display: inline-block;
   padding: 0.7rem 1.8rem;
   border-radius: 999px;
@@ -123,7 +116,6 @@ const formatPrice = (price) =>
   object-fit: contain;
   background: #f8f8f8;
 }
-
 .book-title {
   font-size: 0.95rem;
   font-weight: 600;

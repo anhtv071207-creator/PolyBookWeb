@@ -72,4 +72,12 @@ public class BookController {
     ) {
         return bookService.getBooksWithPaging(page, size, sortBy, direction);
     }
+    @GetMapping("/category/{id}")
+    public PageResponse<BookResponse> getBooksByCategory(
+            @PathVariable Integer id,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        return bookService.getBooksByCategory(id, page, size);
+    }
 }

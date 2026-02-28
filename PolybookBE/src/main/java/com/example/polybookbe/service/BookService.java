@@ -26,4 +26,7 @@ public interface BookService {
     List<BookHomeDTO> getBooksForHome();
 
     PageResponse<BookResponse> getBooksWithPaging(int page, int size, String sortBy, String direction);
+
+    PageResponse<BookResponse> getBooksByCategory (Integer categoryId, int page,int size);
+
 }

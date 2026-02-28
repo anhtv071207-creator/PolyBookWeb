@@ -1,8 +1,7 @@
 <script setup>
-import { computed } from "vue";
+import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
-import { ref, onMounted } from "vue";
 import api from "@/services/api";
 
 const auth = useAuthStore();
@@ -23,18 +22,28 @@ const isUser = computed(() => role.value === "USER");
 const logout = () => {
   auth.logout();
   // router.push("/login");
+  router.push("/");
 };
 const fetchParentCategories = async () => {
   const res = await api.get("http://localhost:8080/api/categories/root");
   parentCategories.value = res.data;
+
+  if (res.data.length > 0) {
+    fetchChildCategories(res.data[0].id);
+  }
 };
 
 const fetchChildCategories = async (parentId) => {
+  if (selectedParentId.value === parentId) return;
+
   selectedParentId.value = parentId;
   const res = await api.get(
     `http://localhost:8080/api/categories/parent/${parentId}`,
   );
   childCategories.value = res.data;
+};
+const goToCategory = (id) => {
+  router.push(`/category/${id}`);
 };
 onMounted(() => {
   fetchParentCategories();
@@ -42,8 +51,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <header class="header  shadow-sm"> 
-    <!-- bg-white -->
+  <header class="header shadow-sm">
     <div class="container header-row py-2">
       <div class="header-left">
         <router-link
@@ -80,6 +88,7 @@ onMounted(() => {
                     :key="parent.id"
                     class="category-parent-item"
                     @mouseenter="fetchChildCategories(parent.id)"
+                    @click="goToCategory(parent.id)"
                   >
                     {{ parent.tenDanhMuc }}
                   </li>
@@ -89,6 +98,7 @@ onMounted(() => {
                     v-for="child in childCategories"
                     :key="child.id"
                     class="category-child-item"
+                    @click="goToCategory(child.id)"
                   >
                     {{ child.tenDanhMuc }}
                   </li>
@@ -456,7 +466,9 @@ onMounted(() => {
   cursor: pointer;
   font-weight: 500;
   color: #2c3e50;
-  transition: background 0.2s, color 0.2s;
+  transition:
+    background 0.2s,
+    color 0.2s;
 }
 
 .category-parent-item:hover {
@@ -471,7 +483,9 @@ onMounted(() => {
   cursor: pointer;
   font-size: 14px;
   color: #444;
-  transition: background 0.15s, color 0.15s;
+  transition:
+    background 0.15s,
+    color 0.15s;
 }
 
 .category-child-item:hover {
@@ -500,20 +514,20 @@ onMounted(() => {
 
 /* dropdown account – mặc định chữ sáng */
 .dropdown-menu .dropdown-item {
-  color: #e5edf5;              /* chữ sáng mặc định */
+  color: #e5edf5; /* chữ sáng mặc định */
   background-color: transparent;
 }
 
 /* hover / focus */
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  background-color: #3b5166;   /* nền nổi bật hơn */
-  color: #ffffff;              /* trắng rõ */
+  background-color: #3b5166; /* nền nổi bật hơn */
+  color: #ffffff; /* trắng rõ */
 }
 
 /* item nguy hiểm (Đăng xuất) */
 .dropdown-menu .dropdown-item.text-danger {
-  color: #ff6b6b;              /* đỏ sáng trên nền tối */
+  color: #ff6b6b; /* đỏ sáng trên nền tối */
 }
 
 .dropdown-menu .dropdown-item.text-danger:hover {
@@ -531,26 +545,30 @@ onMounted(() => {
 }
 
 .category-parent-item {
-  color: #ffffff;                 /* chữ trắng mặc định */
+  color: #ffffff; /* chữ trắng mặc định */
   background-color: transparent;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .category-parent-item:hover {
-  background-color: #ffffff;      /* nền trắng khi hover */
-  color: #2c3e50;                  /* chữ = màu nền cũ */
+  background-color: #ffffff; /* nền trắng khi hover */
+  color: #2c3e50; /* chữ = màu nền cũ */
 }
 
 /* ===== CỘT CON ===== */
 .category-child-item {
-  color: #ffffff;                 /* chữ trắng mặc định */
+  color: #ffffff; /* chữ trắng mặc định */
   background-color: transparent;
-  transition: background-color 0.15s ease, color 0.15s ease;
+  transition:
+    background-color 0.15s ease,
+    color 0.15s ease;
 }
 
 .category-child-item:hover {
-  background-color: #ffffff;      /* nền trắng */
-  color: #2c3e50;                  /* chữ tối */
+  background-color: #ffffff; /* nền trắng */
+  color: #2c3e50; /* chữ tối */
 }
 
 /* ===== SCROLLBAR ===== */
@@ -564,5 +582,4 @@ onMounted(() => {
   background-color: rgba(255, 255, 255, 0.35);
   border-radius: 4px;
 }
-
 </style>

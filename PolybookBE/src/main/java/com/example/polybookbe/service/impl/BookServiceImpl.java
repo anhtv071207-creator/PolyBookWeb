@@ -286,4 +286,44 @@ public class BookServiceImpl implements BookService {
                 bookPage.isLast()
         );
     }
+    @Override
+    public PageResponse<BookResponse> getBooksByCategory(
+            Integer categoryId,
+            int page,
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        List<Integer> childIds =
+                categoryRepository.findChildIds(categoryId);
+
+        Page<Book> bookPage;
+
+        if (!childIds.isEmpty()) {
+
+            bookPage = bookRepository
+                    .findByCategoryIdIn(childIds, pageable);
+
+        } else {
+
+            bookPage = bookRepository
+                    .findByCategoryId(categoryId, pageable);
+        }
+
+        List<BookResponse> content =
+                bookPage.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new PageResponse<>(
+                content,
+                bookPage.getNumber(),
+                bookPage.getSize(),
+                bookPage.getTotalElements(),
+                bookPage.getTotalPages(),
+                bookPage.isLast()
+        );
+    }
 }

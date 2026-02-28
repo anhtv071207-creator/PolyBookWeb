@@ -68,6 +68,8 @@ CREATE TABLE Books (
 )
 GO
 
+<--ALTER TABLE booksALTER COLUMN mo_ta NVARCHAR(MAX);-->
+
 CREATE TABLE Book_Categories (
     book_id INT NOT NULL,
     category_id INT NOT NULL,
