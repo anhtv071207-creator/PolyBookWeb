@@ -220,7 +220,6 @@ h3 {
   text-align: left;
 }
 
-/* ===== PRODUCT LIST ===== */
 .product-list {
   display: flex;
   gap: 16px;
@@ -261,14 +260,12 @@ h3 {
   color: #007bff;
 }
 
-/* ===== STATUS ACTIONS ===== */
 .status-actions {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
 
-/* ===== STATUS ACTION BUTTON BASE ===== */
 .status-actions .btn {
   padding: 8px 16px;
   border-radius: 14px;
@@ -278,12 +275,10 @@ h3 {
   border: 2px solid transparent;
 }
 
-/* Khi KHÔNG disabled */
 .status-actions .btn:not(:disabled) {
   border: 2px solid #007bff;
 }
 
-/* Hover khi active */
 .status-actions .btn:not(:disabled):hover {
   transform: translateY(-2px);
   box-shadow: 
@@ -291,7 +286,6 @@ h3 {
     0 8px 20px rgba(0, 123, 255, 0.35);
 }
 
-/* Disabled */
 .status-actions .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
@@ -299,13 +293,11 @@ h3 {
   box-shadow: none;
 }
 
-/* default disabled */
 .status-actions .btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* ===== STATUS COLORS ===== */
 .btn-secondary {
   background: #e2e8f0;
   color: #334155;

@@ -22,7 +22,7 @@ public class OrderDetailResponse {
     private String hoTenNguoiNhan;
     private String email;
     private String phone;
-
+    private String phuongThucThanhToan;
     private String quocGia;
     private String tinhThanh;
     private String quanHuyen;
@@ -52,7 +52,7 @@ public class OrderDetailResponse {
         this.quanHuyen = order.getQuanHuyen();
         this.phuongXa = order.getPhuongXa();
         this.diaChiNhanHang = order.getDiaChiNhanHang();
-
+        this.phuongThucThanhToan = order.getPhuongThucThanhToan();
         this.trangThai = order.getTrangThai();
         this.tongTien = order.getTongTien();
 

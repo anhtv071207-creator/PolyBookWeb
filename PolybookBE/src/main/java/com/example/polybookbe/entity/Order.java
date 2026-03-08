@@ -55,6 +55,8 @@ public class Order {
 
     @Column(name = "email", length = 100)
     private String email;
+    @Column(name = "phuong_thuc_thanh_toan", length = 50)
+    private String phuongThucThanhToan;
 
     @Column(name = "phone", length = 20)
     private String phone;
@@ -64,4 +66,7 @@ public class Order {
 
     @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<OrderItem> items;
+
+    @OneToOne(mappedBy = "order", fetch = FetchType.LAZY)
+    private Payment payment;
 }

@@ -4,6 +4,7 @@ import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.*;
 import com.example.polybookbe.repository.*;
 import com.example.polybookbe.service.OrderService;
+import com.example.polybookbe.service.PromotionService;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,11 +33,10 @@ public class OrderServiceImpl implements OrderService {
     private CartItemRepository cartItemRepository;
     @Autowired
     private CartRepository cartRepository;
-
-//    @Override
-//    public List<Order> getOrdersByUser(Integer userId) {
-//        return orderRepository.findByUserId(userId);
-//    }
+    @Autowired
+    private PaymentRepository paymentRepository;
+    @Autowired
+    private PromotionService promotionService;
 
     @Override
     @Transactional
@@ -54,11 +54,13 @@ public class OrderServiceImpl implements OrderService {
         order.setMaDonHang("DH-" + UUID.randomUUID().toString().substring(0, 8));
         order.setTrangThai(0);
         fillShippingInfo(order, request);
+        order.setPhuongThucThanhToan(request.getPhuongThucThanhToan());
 
         BigDecimal tongTien = BigDecimal.ZERO;
         List<OrderItem> items = new ArrayList<>();
 
         if (user == null) {
+
             if (request.getItems() == null || request.getItems().isEmpty()) {
                 throw new RuntimeException("Danh sách sản phẩm trống");
             }
@@ -79,14 +81,16 @@ public class OrderServiceImpl implements OrderService {
                 book.setHangTon(book.getHangTon() - req.getSoLuong());
                 bookRepository.save(book);
 
+                BigDecimal finalPrice = promotionService.calculateDiscountPrice(book);
+
                 OrderItem item = new OrderItem();
                 item.setOrder(order);
                 item.setBook(book);
                 item.setSoLuong(req.getSoLuong());
-                item.setDonGia(book.getGia());
+                item.setDonGia(finalPrice);
 
                 tongTien = tongTien.add(
-                        book.getGia().multiply(BigDecimal.valueOf(req.getSoLuong()))
+                        finalPrice.multiply(BigDecimal.valueOf(req.getSoLuong()))
                 );
 
                 items.add(item);
@@ -117,15 +121,16 @@ public class OrderServiceImpl implements OrderService {
 
                 book.setHangTon(book.getHangTon() - cartItem.getSoLuong());
 
+                BigDecimal finalPrice = promotionService.calculateDiscountPrice(book);
+
                 OrderItem item = new OrderItem();
                 item.setOrder(order);
                 item.setBook(book);
                 item.setSoLuong(cartItem.getSoLuong());
-                item.setDonGia(cartItem.getDonGia());
+                item.setDonGia(finalPrice);
 
                 tongTien = tongTien.add(
-                        cartItem.getDonGia()
-                                .multiply(BigDecimal.valueOf(cartItem.getSoLuong()))
+                        finalPrice.multiply(BigDecimal.valueOf(cartItem.getSoLuong()))
                 );
 
                 items.add(item);
@@ -157,6 +162,7 @@ public class OrderServiceImpl implements OrderService {
         }
 
         if (newTrangThai == 5) {
+
             if (current >= 2) {
                 throw new RuntimeException("Không thể hủy đơn ở trạng thái hiện tại");
             }
@@ -175,39 +181,52 @@ public class OrderServiceImpl implements OrderService {
         }
 
         order.setTrangThai(newTrangThai);
-    }
 
-//    @Override
-//    public List<OrderListResponse> getAllForManagement() {
-//        return orderRepository.findAll()
-//                .stream()
-//                .map(OrderListResponse::new)
-//                .toList();
-//    }
+        if (newTrangThai == 4) {
+
+            boolean exists = paymentRepository.existsByOrder(order);
+
+            if (!exists) {
+
+                Payment payment = new Payment();
+                payment.setOrder(order);
+                payment.setUserId(order.getUser() != null ? order.getUser().getId() : null);
+                payment.setMaGiaoDich("PAY-" + UUID.randomUUID().toString().substring(0, 10));
+                payment.setSoTien(order.getTongTien());
+                payment.setPhuongThuc(order.getPhuongThucThanhToan());
+
+                if ("COD".equals(order.getPhuongThucThanhToan())) {
+                    payment.setTrangThai(true);
+                } else {
+                    payment.setTrangThai(false);
+                }
+
+                paymentRepository.save(payment);
+            }
+        }
+    }
 
     @Override
     public OrderDetailResponse getDetail(Integer id) {
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
         return buildOrderDetailResponse(order);
     }
 
     @Override
     public OrderDetailResponse getDetailByMaDonHang(String maDonHang) {
+
         Order order = orderRepository.findByMaDonHang(maDonHang)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
+
         return buildOrderDetailResponse(order);
     }
 
-    //    @Override
-//    public List<OrderListResponse> findByEmailOrPhone(String keyword) {
-//        return orderRepository.findByEmailOrPhone(keyword)
-//                .stream()
-//                .map(OrderListResponse::new)
-//                .toList();
-//    }
     @Override
     public Page<OrderListResponse> getAllForManagement(Pageable pageable) {
+
         return orderRepository.findAll(pageable)
                 .map(OrderListResponse::new);
     }
@@ -220,6 +239,7 @@ public class OrderServiceImpl implements OrderService {
                 .orElseThrow(() -> new RuntimeException("Order not found"));
 
         for (OrderItem item : order.getItems()) {
+
             Book book = item.getBook();
 
             if (!order.getTrangThai().equals(5)) {
@@ -237,6 +257,7 @@ public class OrderServiceImpl implements OrderService {
     }
 
     private void fillShippingInfo(Order order, CreateOrderRequest request) {
+
         order.setHoTenNguoiNhan(request.getHoTenNguoiNhan());
         order.setEmail(request.getEmail());
         order.setPhone(request.getPhone());
@@ -266,6 +287,7 @@ public class OrderServiceImpl implements OrderService {
         res.setDiaChiNhanHang(order.getDiaChiNhanHang());
 
         if (order.getNgayTao() != null) {
+
             res.setNgayTao(
                     order.getNgayTao()
                             .toInstant()
@@ -300,12 +322,6 @@ public class OrderServiceImpl implements OrderService {
                 .map(OrderListResponse::new)
                 .toList();
     }
-
-//    @Override
-//    public Page<OrderListResponse> getAllForManagement(Pageable pageable) {
-//        return orderRepository.findAll(pageable)
-//                .map(OrderListResponse::new);
-//    }
 
     @Override
     public Page<OrderListResponse> getOrdersByUser(Integer userId, Pageable pageable) {

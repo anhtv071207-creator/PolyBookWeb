@@ -346,7 +346,6 @@ tbody tr:hover {
   color: #198754;
 }
 
-/* Status */
 .status-pill {
   padding: 5px 12px;
   border-radius: 20px;
@@ -355,7 +354,6 @@ tbody tr:hover {
   color: #fff;
 }
 
-/* View button */
 .view-btn {
   padding: 6px 12px;
   border-radius: 6px;

@@ -300,7 +300,6 @@ onMounted(() => {
   display: flex;
   align-items: center;
 } */
-/* ===== HEADER BASE ===== */
 .header {
   width: 100%;
   background: linear-gradient(90deg, #243447, #2c3e50);
@@ -315,14 +314,13 @@ onMounted(() => {
   color: inherit;
 }
 
-/* ===== LOGO ===== */
+
 .logo {
   width: 42px;
   height: 42px;
   object-fit: contain;
 }
 
-/* ===== LAYOUT ===== */
 .header-row {
   display: flex;
   align-items: center;
@@ -349,7 +347,6 @@ onMounted(() => {
   gap: 10px;
 }
 
-/* ===== SEARCH ===== */
 .search-box input {
   width: 340px;
   max-width: 100%;
@@ -369,7 +366,6 @@ onMounted(() => {
   cursor: pointer;
 }
 
-/* ===== BUTTONS ===== */
 .btn {
   white-space: nowrap;
   border-radius: 999px;
@@ -377,7 +373,6 @@ onMounted(() => {
   padding: 6px 14px;
 }
 
-/* primary */
 .btn-primary {
   background-color: #4a6fa5;
   border-color: #4a6fa5;
@@ -387,7 +382,6 @@ onMounted(() => {
   border-color: #3d5f90;
 }
 
-/* light (Danh mục) */
 .btn-light {
   background-color: #3b5166;
   color: #e5edf5;
@@ -398,7 +392,6 @@ onMounted(() => {
   border-color: #466078;
 }
 
-/* outline */
 .btn-outline-danger,
 .btn-outline-secondary {
   color: #e5edf5;
@@ -410,7 +403,6 @@ onMounted(() => {
   border-color: #3b5166;
 }
 
-/* account */
 .btn-dark {
   background-color: #3b5166;
   border-color: #3b5166;
@@ -419,7 +411,6 @@ onMounted(() => {
   background-color: #466078;
 }
 
-/* ===== DROPDOWN COMMON ===== */
 .dropdown-menu {
   background-color: #2c3e50;
   border: none;
@@ -444,7 +435,6 @@ onMounted(() => {
   border-color: rgba(255, 255, 255, 0.12);
 }
 
-/* ===== CATEGORY MEGA MENU ===== */
 .category-mega {
   width: 72vw;
   max-width: 920px;
@@ -459,7 +449,6 @@ onMounted(() => {
   overflow-y: auto;
 }
 
-/* parent */
 .category-parent-item {
   padding: 10px 14px;
   border-radius: 8px;
@@ -476,7 +465,6 @@ onMounted(() => {
   color: #4a6fa5;
 }
 
-/* child */
 .category-child-item {
   padding: 8px 12px;
   border-radius: 8px;
@@ -493,7 +481,6 @@ onMounted(() => {
   color: #dc3545;
 }
 
-/* ===== SCROLLBAR ===== */
 .category-parent::-webkit-scrollbar,
 .category-child::-webkit-scrollbar {
   width: 6px;
@@ -505,47 +492,42 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-/* ===== ACCOUNT FIX ===== */
+
 .account-fixed {
   margin-left: auto;
   display: flex;
   align-items: center;
 }
 
-/* dropdown account – mặc định chữ sáng */
 .dropdown-menu .dropdown-item {
-  color: #e5edf5; /* chữ sáng mặc định */
+  color: #e5edf5; 
   background-color: transparent;
 }
 
-/* hover / focus */
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  background-color: #3b5166; /* nền nổi bật hơn */
-  color: #ffffff; /* trắng rõ */
+  background-color: #3b5166; 
+  color: #ffffff; 
 }
 
-/* item nguy hiểm (Đăng xuất) */
 .dropdown-menu .dropdown-item.text-danger {
-  color: #ff6b6b; /* đỏ sáng trên nền tối */
+  color: #ff6b6b; 
 }
 
 .dropdown-menu .dropdown-item.text-danger:hover {
   background-color: rgba(220, 53, 69, 0.15);
   color: #ff8787;
 }
-/* ===== CATEGORY DROPDOWN ===== */
 .category-mega {
   background-color: #2c3e50;
 }
 
-/* ===== CỘT CHA ===== */
 .category-parent {
   border-right: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .category-parent-item {
-  color: #ffffff; /* chữ trắng mặc định */
+  color: #ffffff; 
   background-color: transparent;
   transition:
     background-color 0.15s ease,
@@ -553,13 +535,12 @@ onMounted(() => {
 }
 
 .category-parent-item:hover {
-  background-color: #ffffff; /* nền trắng khi hover */
-  color: #2c3e50; /* chữ = màu nền cũ */
+  background-color: #ffffff; 
+  color: #2c3e50; 
 }
 
-/* ===== CỘT CON ===== */
 .category-child-item {
-  color: #ffffff; /* chữ trắng mặc định */
+  color: #ffffff; 
   background-color: transparent;
   transition:
     background-color 0.15s ease,
@@ -567,11 +548,10 @@ onMounted(() => {
 }
 
 .category-child-item:hover {
-  background-color: #ffffff; /* nền trắng */
-  color: #2c3e50; /* chữ tối */
+  background-color: #ffffff; 
+  color: #2c3e50; 
 }
 
-/* ===== SCROLLBAR ===== */
 .category-parent::-webkit-scrollbar,
 .category-child::-webkit-scrollbar {
   width: 6px;

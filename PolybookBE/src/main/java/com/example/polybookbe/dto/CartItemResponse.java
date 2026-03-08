@@ -4,13 +4,13 @@ import lombok.Data;
 import java.math.BigDecimal;
 @Data
 public class CartItemResponse {
+        private Integer bookId;
+        private String tieuDe;
+        private String imageUrl;
+        private BigDecimal gia;
+        private Integer discount;
+        private BigDecimal salePrice;
+        private Integer soLuong;
+        private BigDecimal tongTien;
 
-    private Integer bookId;
-    private String tieuDe;
-    private String imageUrl;
-    private BigDecimal gia;
-    private Integer soLuong;
-    private BigDecimal tongTien;
-
-}
-
+    }

@@ -17,5 +17,4 @@ public interface CartService {
 
     List<OrderItemRequest> getCheckoutItems(Integer userId);
 
-
 }

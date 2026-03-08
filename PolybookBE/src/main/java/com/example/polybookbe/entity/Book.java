@@ -1,5 +1,6 @@
 package com.example.polybookbe.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -46,10 +47,16 @@ public class Book {
 
     @OneToMany(mappedBy = "book", fetch = FetchType.LAZY)
     private List<BookImage> images;
+
+    @JsonIgnore
     @OneToMany(
             mappedBy = "book",
             cascade = CascadeType.ALL,
             orphanRemoval = true
     )
     private List<BookCategory> bookCategories = new ArrayList<>();
+
+    @JsonIgnore
+    @OneToMany(mappedBy = "book", cascade = CascadeType.ALL)
+    private List<Promotion> promotion;
 }

@@ -218,7 +218,6 @@ const cancelDelete = () => {
 </template>
 
 <style scoped>
-/* ===== PAGE ===== */
 .container {
   max-width: 1100px;
   margin: auto;
@@ -236,7 +235,6 @@ h2 {
   margin-bottom: 35px;
 }
 
-/* ===== FORM CARD ===== */
 .form-box {
   background: linear-gradient(145deg, #ffffff, #f4f9ff);
   padding: 35px;
@@ -251,7 +249,6 @@ h2 {
   transform: translateY(-6px);
 }
 
-/* ===== INPUT + SELECT ===== */
 input,
 select {
   width: 100%;
@@ -271,7 +268,6 @@ select:focus {
   outline: none;
 }
 
-/* ===== BUTTONS ===== */
 .form-actions {
   display: flex;
   gap: 12px;
@@ -299,7 +295,6 @@ button:disabled {
   cursor: not-allowed;
 }
 
-/* DELETE riêng */
 .btn-delete {
   background: crimson;
 }
@@ -309,7 +304,6 @@ button:disabled {
   box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
 }
 
-/* CLEAR */
 .form-actions button:not(.btn-add):not(.btn-edit):not(.btn-delete) {
   background: #6c757d;
 }
@@ -319,7 +313,6 @@ button:disabled {
   box-shadow: none;
 }
 
-/* ===== LIST CARD ===== */
 .list-box {
   background: white;
   padding: 35px;
@@ -328,7 +321,6 @@ button:disabled {
   box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
 }
 
-/* ===== ROOT BOX ===== */
 .root-box {
   background: #ffffff;
   padding: 24px;
@@ -343,7 +335,6 @@ button:disabled {
   transform: translateY(-4px);
 }
 
-/* ===== ROOT TITLE ===== */
 .root-title {
   font-size: 18px;
   font-weight: 600;
@@ -358,7 +349,6 @@ button:disabled {
   transform: translateX(6px);
 }
 
-/* ===== CHILD TAGS ===== */
 .child-tags {
   margin-top: 15px;
   display: flex;
@@ -382,13 +372,11 @@ button:disabled {
   transform: scale(1.05);
 }
 
-/* ===== ACTIVE ===== */
 .active {
   background: linear-gradient(135deg, #007bff, #00c6ff) !important;
   color: white !important;
 }
 
-/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -443,7 +431,7 @@ button:disabled {
     opacity: 1;
   }
 }
-/* ===== PAGE HEADER ===== */
+
 .page-header {
   position: relative;
   margin-bottom: 35px;

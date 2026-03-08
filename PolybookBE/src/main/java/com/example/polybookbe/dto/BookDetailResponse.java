@@ -24,4 +24,6 @@ public class BookDetailResponse {
     private BigDecimal avgRating;
     private Integer totalReviews;
     private List<CategoryResponse> categories;
+    private Integer discount;
+    private BigDecimal salePrice;
 }

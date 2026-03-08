@@ -15,6 +15,7 @@ public class CreateOrderRequest {
     private String quanHuyen;
     private String phuongXa;
     private String diaChiNhanHang;
+    private String phuongThucThanhToan;
 
     private List<OrderItemRequest> items;
 }
