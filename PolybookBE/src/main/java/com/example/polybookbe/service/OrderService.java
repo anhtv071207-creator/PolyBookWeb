@@ -39,4 +39,5 @@ public interface OrderService {
     Page<OrderListResponse> searchByEmailOrPhone(String keyword, Pageable pageable);
 
     BigDecimal getRevenueByStatus(Integer status);
+
 }

@@ -5,7 +5,6 @@
       <h2>Quản lý sản phẩm</h2>
     </div>
     <div class="form-wrapper">
-      <!-- SIDE TABS -->
       <div class="side-tabs">
         <div
           class="tab-item"
@@ -24,9 +23,7 @@
         </div>
       </div>
 
-      <!-- TAB CONTENT -->
       <div class="tab-content">
-        <!-- ADD STAFF -->
         <div v-if="currentMode === 'add'">
           <div class="card">
             <h2>Tạo tài khoản nhân viên</h2>
@@ -81,7 +78,6 @@
           </div>
         </div>
 
-        <!-- SEARCH USER -->
         <div v-if="currentMode === 'search'">
           <div class="card">
             <h2>Tìm kiếm & lọc tài khoản</h2>
@@ -347,10 +343,9 @@ h2 {
   color: #007bff;
   margin-bottom: 8px;
 }
-/* ===== PAGE HEADER ===== */
 .page-header {
   position: relative;
-  margin-top: 40px; /* thêm dòng này */
+  margin-top: 40px;
   margin-bottom: 35px;
 }
 

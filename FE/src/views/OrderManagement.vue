@@ -56,7 +56,7 @@
       </tbody>
     </table>
     <div class="pagination" v-if="totalPages > 1">
-      <!-- Prev Arrow -->
+
       <button
         class="arrow"
         @click="changePage(currentPage - 1)"
@@ -65,7 +65,6 @@
         ←
       </button>
 
-      <!-- Number Pages -->
       <button
         v-for="p in totalPages"
         :key="p"
@@ -75,7 +74,6 @@
         {{ p }}
       </button>
 
-      <!-- Next Arrow -->
       <button
         class="arrow"
         @click="changePage(currentPage + 1)"
@@ -161,7 +159,6 @@ h2 {
   margin-bottom: 30px;
 }
 
-/* ===== TABLE CARD ===== */
 .order-table {
   width: 100%;
   border-collapse: collapse;
@@ -197,7 +194,6 @@ h2 {
   background: #f4f9ff;
 }
 
-/* ===== STATUS PILL ===== */
 .status-pill {
   padding: 6px 14px;
   border-radius: 999px;
@@ -205,7 +201,6 @@ h2 {
   font-weight: 600;
 }
 
-/* Trạng thái mềm theo admin theme */
 .status-pending {
   background: #e2e8f0;
   color: #334155;
@@ -240,7 +235,6 @@ h2 {
   background: #e5e7eb;
   color: #374151;
 }
-/* ===== PAGE HEADER ===== */
 .page-header {
   position: relative;
   margin-bottom: 35px;
@@ -271,7 +265,6 @@ h2 {
   box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
 }
 
-/* ===== EDIT BUTTON ===== */
 .btn-edit {
   padding: 8px 16px;
   border-radius: 14px;
@@ -289,14 +282,12 @@ h2 {
   transform: translateY(-2px);
 }
 
-/* ===== EMPTY ROW ===== */
 .empty {
   padding: 30px;
   font-weight: 500;
   color: #64748b;
 }
 
-/* ===== PAGINATION ===== */
 .pagination {
   margin-top: 30px;
   display: flex;

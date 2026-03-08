@@ -2,10 +2,7 @@ package com.example.polybookbe.service.impl;
 
 import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.*;
-import com.example.polybookbe.repository.BookCategoryRepository;
-import com.example.polybookbe.repository.BookImageRepository;
-import com.example.polybookbe.repository.BookRepository;
-import com.example.polybookbe.repository.CategoryRepository;
+import com.example.polybookbe.repository.*;
 import com.example.polybookbe.service.BookImageService;
 import com.example.polybookbe.service.BookService;
 import jakarta.transaction.Transactional;
@@ -17,6 +14,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -28,6 +27,8 @@ public class BookServiceImpl implements BookService {
     private BookImageService bookImageService;
     @Autowired
     private BookCategoryRepository bookCategoryRepository;
+    @Autowired
+    private PromotionRepository promotionRepository;
     @Override
     public List<BookResponse> getAllBooks(){
         return bookRepository.findAll()
@@ -184,8 +185,23 @@ public class BookServiceImpl implements BookService {
         response.setMoTa(book.getMoTa());
         response.setAvgRating(book.getAvgRating());
         response.setTotalReviews(book.getTotalReviews());
+        Integer discount = 0;
+        BigDecimal salePrice = book.getGia();
 
-        // ===== LOAD IMAGES BẰNG SERVICE =====
+        Promotion promo = promotionRepository
+                .findActivePromotionByBookId(book.getId(), LocalDateTime.now())
+                .orElse(null);
+
+        if (promo != null) {
+            discount = promo.getChietKhau();
+
+            salePrice = book.getGia()
+                    .multiply(BigDecimal.valueOf(100 - discount))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        }
+
+        response.setDiscount(discount);
+        response.setSalePrice(salePrice);
         List<BookImage> images = bookImageService.findByBookId(book.getId());
 
         if (images != null && !images.isEmpty()) {
@@ -231,6 +247,23 @@ public class BookServiceImpl implements BookService {
                         })
                         .toList();
 
+        promotionRepository.findActivePromotionByBookId(book.getId(), LocalDateTime.now());
+
+        Integer discount = 0;
+        BigDecimal salePrice = book.getGia();
+
+        Promotion promo = promotionRepository
+                .findActivePromotionByBookId(book.getId(), LocalDateTime.now())
+                .orElse(null);
+
+        if (promo != null) {
+            discount = promo.getChietKhau();
+
+            salePrice = book.getGia()
+                    .multiply(BigDecimal.valueOf(100 - discount))
+                    .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+        }
+
         return new BookDetailResponse(
                 book.getId(),
                 book.getTieuDe(),
@@ -248,7 +281,9 @@ public class BookServiceImpl implements BookService {
                 book.getMoTa(),
                 book.getAvgRating(),
                 book.getTotalReviews(),
-                categories
+                categories,
+                discount,
+                salePrice
         );
     }
     @Override
@@ -325,5 +360,10 @@ public class BookServiceImpl implements BookService {
                 bookPage.getTotalPages(),
                 bookPage.isLast()
         );
+    }
+    @Override
+    public Book getBookEntityById(Integer id) {
+        return bookRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Book not found"));
     }
 }

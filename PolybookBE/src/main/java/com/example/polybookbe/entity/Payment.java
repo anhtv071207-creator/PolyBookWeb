@@ -20,9 +20,9 @@ public class Payment {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @OneToOne
+    @JoinColumn(name = "order_id")
+    private Order order;
 
     @Column(name = "so_tien", precision = 10, scale = 2)
     private BigDecimal soTien;
@@ -32,4 +32,10 @@ public class Payment {
 
     @Column(name = "trang_thai")
     private Boolean trangThai;
+
+    @Column(name = "user_id", nullable = true)
+    private Integer userId;
+
+    @Column(name = "ma_giao_dich")
+    private String maGiaoDich;
 }

@@ -1,316 +1,3 @@
-<script setup>
-import { reactive, ref, onMounted, computed } from "vue";
-import api from "@/services/api";
-import { useRoute, useRouter } from "vue-router";
-import { watch } from "vue";
-
-const currentMode = ref("add");
-const books = ref([]);
-const previewUrl = ref(null);
-const editPreviewUrl = ref(null);
-const categories = ref([]);
-const showPopup = ref(false);
-const selectedAddCategories = ref([]);
-const selectedEditCategories = ref([]);
-const page = ref(0);
-const size = ref(5);
-const totalPages = ref(0);
-const totalElements = ref(0);
-const loading = ref(false);
-const route = useRoute();
-const router = useRouter();
-const showDeleteConfirm = ref(false);
-const deleteTargetId = ref(null);
-
-const setMode = (mode) => {
-  currentMode.value = mode;
-};
-
-const revokePreview = (refUrl) => {
-  if (refUrl && typeof refUrl.value === "string") {
-    try {
-      URL.revokeObjectURL(refUrl.value);
-    } catch (e) {}
-    refUrl.value = null;
-  }
-};
-
-const resetAddForm = (form) => {
-  form.tieuDe = "";
-  form.tacGia = "";
-  form.isbn = "";
-  form.gia = "";
-  form.hangTon = "";
-  form.moTa = "";
-  form.coverImageUrl = "";
-  selectedAddCategories.value = [];
-  revokePreview(previewUrl);
-};
-
-const resetEditForm = (editForm) => {
-  editForm.id = null;
-  editForm.tieuDe = "";
-  editForm.tacGia = "";
-  editForm.isbn = "";
-  editForm.gia = "";
-  editForm.hangTon = "";
-  editForm.moTa = "";
-  editForm.coverImageUrl = "";
-  selectedEditCategories.value = [];
-  revokePreview(editPreviewUrl);
-};
-
-const fetchCategories = async () => {
-  try {
-    const res = await api.get("/categories");
-    const onlyChildren = [];
-
-    res.data.forEach((parent) => {
-      if (parent.danhMucCon && parent.danhMucCon.length > 0) {
-        parent.danhMucCon.forEach((child) => {
-          onlyChildren.push({
-            ...child,
-            id: Number(child.id),
-          });
-        });
-      }
-    });
-
-    categories.value = onlyChildren;
-  } catch (err) {
-    console.error("Lỗi tải danh mục:", err);
-    categories.value = [];
-  }
-};
-
-const fetchBooks = async () => {
-  try {
-    loading.value = true;
-
-    const res = await api.get("/books", {
-      params: {
-        page: page.value,
-        size: size.value,
-        sortBy: "id",
-        direction: "desc",
-      },
-    });
-
-    books.value = res.data.content;
-    totalPages.value = res.data.totalPages;
-    totalElements.value = res.data.totalElements;
-  } catch (err) {
-    console.error("Lỗi tải danh sách:", err);
-    books.value = [];
-  } finally {
-    loading.value = false;
-  }
-};
-const nextPage = () => {
-  if (page.value < totalPages.value - 1) {
-    page.value++;
-  }
-};
-
-const prevPage = () => {
-  if (page.value > 0) {
-    page.value--;
-  }
-};
-const goBackManagement = () => {
-  router.push("/managements");
-};
-const goToPage = (p) => {
-  if (p >= 0 && p < totalPages.value) {
-    page.value = p;
-  }
-};
-
-onMounted(() => {
-  page.value = Number(route.query.page) || 0;
-  console.log("books:", books.value);
-  console.log("totalPages:", totalPages.value);
-
-  fetchBooks(); // 🔥 GỌI TRỰC TIẾP
-  fetchCategories();
-});
-
-watch(page, (newPage) => {
-  router.replace({
-    query: { ...route.query, page: newPage },
-  });
-
-  fetchBooks(); // 🔥 fetch ở đây luôn
-});
-
-const onSelectImage = (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
-
-  form.coverImageUrl = `/books/${file.name}`;
-  previewUrl.value = URL.createObjectURL(file);
-};
-
-const onSelectEditImage = (event) => {
-  const file = event.target.files?.[0];
-  if (!file) return;
-
-  if (editPreviewUrl.value) URL.revokeObjectURL(editPreviewUrl.value);
-
-  editForm.coverImageUrl = `/books/${file.name}`;
-  editPreviewUrl.value = URL.createObjectURL(file);
-};
-
-const form = reactive({
-  tieuDe: "",
-  tacGia: "",
-  isbn: "",
-  gia: "",
-  hangTon: "",
-  moTa: "",
-  coverImageUrl: "",
-});
-
-const editForm = reactive({
-  id: null,
-  tieuDe: "",
-  tacGia: "",
-  isbn: "",
-  gia: "",
-  hangTon: "",
-  moTa: "",
-  coverImageUrl: "",
-});
-
-const openAddPopup = () => {
-  currentMode.value = "add";
-  showPopup.value = true;
-};
-
-const openEditPopup = () => {
-  currentMode.value = "edit";
-  showPopup.value = true;
-};
-
-const activeSelected = computed(() =>
-  currentMode.value === "add"
-    ? selectedAddCategories.value
-    : selectedEditCategories.value,
-);
-
-const toggleCategory = (id) => {
-  const numericId = Number(id);
-  const target =
-    currentMode.value === "add"
-      ? selectedAddCategories.value
-      : selectedEditCategories.value;
-
-  const index = target.indexOf(numericId);
-  if (index !== -1) target.splice(index, 1);
-  else target.push(numericId);
-};
-
-const submitForm = async () => {
-  try {
-    const normalizedIsbn = (form.isbn || "").replace(/-/g, "");
-
-    await api.post("/books", {
-      tieuDe: form.tieuDe,
-      tacGia: form.tacGia,
-      isbn: normalizedIsbn,
-      gia: Number(form.gia),
-      hangTon: Number(form.hangTon),
-      moTa: form.moTa,
-      coverImageUrl: form.coverImageUrl,
-      categoryIds: selectedAddCategories.value,
-    });
-
-    resetAddForm(form);
-    page.value = 0;
-    await fetchBooks();
-  } catch (err) {
-    console.error("Lỗi thêm sách:", err);
-  }
-};
-
-const startEdit = async (book) => {
-  try {
-    currentMode.value = "edit";
-
-    const res = await api.get(`/books/${book.id}`);
-    const detail = res.data;
-
-    Object.assign(editForm, {
-      id: detail.id,
-      tieuDe: detail.tieuDe,
-      tacGia: detail.tacGia,
-      isbn: book.isbn || "",
-      gia: detail.gia,
-      hangTon: detail.hangTon,
-      moTa: detail.moTa,
-      coverImageUrl: detail.mainImage || "",
-    });
-    selectedEditCategories.value = detail.categories
-      ? detail.categories.map((c) => Number(c.id))
-      : [];
-    if (editPreviewUrl.value) URL.revokeObjectURL(editPreviewUrl.value);
-    editPreviewUrl.value = detail.mainImage || null;
-  } catch (err) {
-    console.error("Lỗi tải chi tiết:", err);
-  }
-};
-
-const updateBook = async () => {
-  if (!editForm.id) return;
-
-  try {
-    await api.put(`/books/${editForm.id}`, {
-      tieuDe: editForm.tieuDe,
-      tacGia: editForm.tacGia,
-      isbn: editForm.isbn,
-      gia: Number(editForm.gia),
-      hangTon: Number(editForm.hangTon),
-      moTa: editForm.moTa,
-      coverImageUrl: editForm.coverImageUrl,
-      categoryIds: selectedEditCategories.value,
-    });
-
-    resetEditForm(editForm);
-    await fetchBooks();
-  } catch (err) {
-    console.error("Lỗi cập nhật:", err);
-  }
-};
-
-const deleteBook = (id) => {
-  deleteTargetId.value = id;
-  showDeleteConfirm.value = true;
-};
-const confirmDeleteBook = async () => {
-  try {
-    await api.delete(`/books/${deleteTargetId.value}`);
-
-    if (books.value.length === 1 && page.value > 0) {
-      page.value--;
-    }
-
-    await fetchBooks();
-  } catch (err) {
-    console.error("Lỗi xoá:", err);
-  } finally {
-    showDeleteConfirm.value = false;
-    deleteTargetId.value = null;
-  }
-};
-
-const cancelDeleteBook = () => {
-  showDeleteConfirm.value = false;
-  deleteTargetId.value = null;
-};
-</script>
-
 <template>
   <div class="page" :class="{ 'edit-mode': currentMode === 'edit' }">
     <div class="page-header">
@@ -582,6 +269,318 @@ const cancelDeleteBook = () => {
     </div>
   </div>
 </template>
+<script setup>
+import { reactive, ref, onMounted, computed } from "vue";
+import api from "@/services/api";
+import { useRoute, useRouter } from "vue-router";
+import { watch } from "vue";
+
+const currentMode = ref("add");
+const books = ref([]);
+const previewUrl = ref(null);
+const editPreviewUrl = ref(null);
+const categories = ref([]);
+const showPopup = ref(false);
+const selectedAddCategories = ref([]);
+const selectedEditCategories = ref([]);
+const page = ref(0);
+const size = ref(5);
+const totalPages = ref(0);
+const totalElements = ref(0);
+const loading = ref(false);
+const route = useRoute();
+const router = useRouter();
+const showDeleteConfirm = ref(false);
+const deleteTargetId = ref(null);
+
+const setMode = (mode) => {
+  currentMode.value = mode;
+};
+
+const revokePreview = (refUrl) => {
+  if (refUrl && typeof refUrl.value === "string") {
+    try {
+      URL.revokeObjectURL(refUrl.value);
+    } catch (e) {}
+    refUrl.value = null;
+  }
+};
+
+const resetAddForm = (form) => {
+  form.tieuDe = "";
+  form.tacGia = "";
+  form.isbn = "";
+  form.gia = "";
+  form.hangTon = "";
+  form.moTa = "";
+  form.coverImageUrl = "";
+  selectedAddCategories.value = [];
+  revokePreview(previewUrl);
+};
+
+const resetEditForm = (editForm) => {
+  editForm.id = null;
+  editForm.tieuDe = "";
+  editForm.tacGia = "";
+  editForm.isbn = "";
+  editForm.gia = "";
+  editForm.hangTon = "";
+  editForm.moTa = "";
+  editForm.coverImageUrl = "";
+  selectedEditCategories.value = [];
+  revokePreview(editPreviewUrl);
+};
+
+const fetchCategories = async () => {
+  try {
+    const res = await api.get("/categories");
+    const onlyChildren = [];
+
+    res.data.forEach((parent) => {
+      if (parent.danhMucCon && parent.danhMucCon.length > 0) {
+        parent.danhMucCon.forEach((child) => {
+          onlyChildren.push({
+            ...child,
+            id: Number(child.id),
+          });
+        });
+      }
+    });
+
+    categories.value = onlyChildren;
+  } catch (err) {
+    console.error("Lỗi tải danh mục:", err);
+    categories.value = [];
+  }
+};
+
+const fetchBooks = async () => {
+  try {
+    loading.value = true;
+
+    const res = await api.get("/books", {
+      params: {
+        page: page.value,
+        size: size.value,
+        sortBy: "id",
+        direction: "desc",
+      },
+    });
+
+    books.value = res.data.content;
+    totalPages.value = res.data.totalPages;
+    totalElements.value = res.data.totalElements;
+  } catch (err) {
+    console.error("Lỗi tải danh sách:", err);
+    books.value = [];
+  } finally {
+    loading.value = false;
+  }
+};
+const nextPage = () => {
+  if (page.value < totalPages.value - 1) {
+    page.value++;
+  }
+};
+
+const prevPage = () => {
+  if (page.value > 0) {
+    page.value--;
+  }
+};
+const goBackManagement = () => {
+  router.push("/managements");
+};
+const goToPage = (p) => {
+  if (p >= 0 && p < totalPages.value) {
+    page.value = p;
+  }
+};
+
+onMounted(() => {
+  page.value = Number(route.query.page) || 0;
+  console.log("books:", books.value);
+  console.log("totalPages:", totalPages.value);
+
+  fetchBooks();
+  fetchCategories();
+});
+
+watch(page, (newPage) => {
+  router.replace({
+    query: { ...route.query, page: newPage },
+  });
+
+  fetchBooks(); // 🔥 fetch ở đây luôn
+});
+
+const onSelectImage = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (previewUrl.value) URL.revokeObjectURL(previewUrl.value);
+
+  form.coverImageUrl = `/books/${file.name}`;
+  previewUrl.value = URL.createObjectURL(file);
+};
+
+const onSelectEditImage = (event) => {
+  const file = event.target.files?.[0];
+  if (!file) return;
+
+  if (editPreviewUrl.value) URL.revokeObjectURL(editPreviewUrl.value);
+
+  editForm.coverImageUrl = `/books/${file.name}`;
+  editPreviewUrl.value = URL.createObjectURL(file);
+};
+
+const form = reactive({
+  tieuDe: "",
+  tacGia: "",
+  isbn: "",
+  gia: "",
+  hangTon: "",
+  moTa: "",
+  coverImageUrl: "",
+});
+
+const editForm = reactive({
+  id: null,
+  tieuDe: "",
+  tacGia: "",
+  isbn: "",
+  gia: "",
+  hangTon: "",
+  moTa: "",
+  coverImageUrl: "",
+});
+
+const openAddPopup = () => {
+  currentMode.value = "add";
+  showPopup.value = true;
+};
+
+const openEditPopup = () => {
+  currentMode.value = "edit";
+  showPopup.value = true;
+};
+
+const activeSelected = computed(() =>
+  currentMode.value === "add"
+    ? selectedAddCategories.value
+    : selectedEditCategories.value,
+);
+
+const toggleCategory = (id) => {
+  const numericId = Number(id);
+  const target =
+    currentMode.value === "add"
+      ? selectedAddCategories.value
+      : selectedEditCategories.value;
+
+  const index = target.indexOf(numericId);
+  if (index !== -1) target.splice(index, 1);
+  else target.push(numericId);
+};
+
+const submitForm = async () => {
+  try {
+    const normalizedIsbn = (form.isbn || "").replace(/-/g, "");
+
+    await api.post("/books", {
+      tieuDe: form.tieuDe,
+      tacGia: form.tacGia,
+      isbn: normalizedIsbn,
+      gia: Number(form.gia),
+      hangTon: Number(form.hangTon),
+      moTa: form.moTa,
+      coverImageUrl: form.coverImageUrl,
+      categoryIds: selectedAddCategories.value,
+    });
+
+    resetAddForm(form);
+    page.value = 0;
+    await fetchBooks();
+  } catch (err) {
+    console.error("Lỗi thêm sách:", err);
+  }
+};
+
+const startEdit = async (book) => {
+  try {
+    currentMode.value = "edit";
+
+    const res = await api.get(`/books/${book.id}`);
+    const detail = res.data;
+
+    Object.assign(editForm, {
+      id: detail.id,
+      tieuDe: detail.tieuDe,
+      tacGia: detail.tacGia,
+      isbn: book.isbn || "",
+      gia: detail.gia,
+      hangTon: detail.hangTon,
+      moTa: detail.moTa,
+      coverImageUrl: detail.mainImage || "",
+    });
+    selectedEditCategories.value = detail.categories
+      ? detail.categories.map((c) => Number(c.id))
+      : [];
+    if (editPreviewUrl.value) URL.revokeObjectURL(editPreviewUrl.value);
+    editPreviewUrl.value = detail.mainImage || null;
+  } catch (err) {
+    console.error("Lỗi tải chi tiết:", err);
+  }
+};
+
+const updateBook = async () => {
+  if (!editForm.id) return;
+
+  try {
+    await api.put(`/books/${editForm.id}`, {
+      tieuDe: editForm.tieuDe,
+      tacGia: editForm.tacGia,
+      isbn: editForm.isbn,
+      gia: Number(editForm.gia),
+      hangTon: Number(editForm.hangTon),
+      moTa: editForm.moTa,
+      coverImageUrl: editForm.coverImageUrl,
+      categoryIds: selectedEditCategories.value,
+    });
+
+    resetEditForm(editForm);
+    await fetchBooks();
+  } catch (err) {
+    console.error("Lỗi cập nhật:", err);
+  }
+};
+
+const deleteBook = (id) => {
+  deleteTargetId.value = id;
+  showDeleteConfirm.value = true;
+};
+const confirmDeleteBook = async () => {
+  try {
+    await api.delete(`/books/${deleteTargetId.value}`);
+
+    if (books.value.length === 1 && page.value > 0) {
+      page.value--;
+    }
+
+    await fetchBooks();
+  } catch (err) {
+    console.error("Lỗi xoá:", err);
+  } finally {
+    showDeleteConfirm.value = false;
+    deleteTargetId.value = null;
+  }
+};
+
+const cancelDeleteBook = () => {
+  showDeleteConfirm.value = false;
+  deleteTargetId.value = null;
+};
+</script>
 
 <style scoped>
 .page {

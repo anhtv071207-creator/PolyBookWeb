@@ -4,19 +4,15 @@ import com.example.polybookbe.dto.AddToCartRequest;
 import com.example.polybookbe.dto.CartItemResponse;
 import com.example.polybookbe.dto.CartResponse;
 import com.example.polybookbe.dto.OrderItemRequest;
-import com.example.polybookbe.entity.Book;
-import com.example.polybookbe.entity.Cart;
-import com.example.polybookbe.entity.CartItem;
-import com.example.polybookbe.entity.User;
-import com.example.polybookbe.repository.BookRepository;
-import com.example.polybookbe.repository.CartItemRepository;
-import com.example.polybookbe.repository.CartRepository;
-import com.example.polybookbe.repository.UserRepository;
+import com.example.polybookbe.entity.*;
+import com.example.polybookbe.repository.*;
 import com.example.polybookbe.service.CartService;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -26,17 +22,20 @@ public class CartServiceImpl implements CartService {
     private final CartItemRepository cartItemRepository;
     private final BookRepository bookRepository;
     private final UserRepository userRepository;
+    private final PromotionRepository promotionRepository;
 
     public CartServiceImpl(
             CartRepository cartRepository,
             CartItemRepository cartItemRepository,
             BookRepository bookRepository,
-            UserRepository userRepository
+            UserRepository userRepository,
+            PromotionRepository promotionRepository
     ) {
         this.cartRepository = cartRepository;
         this.cartItemRepository = cartItemRepository;
         this.bookRepository = bookRepository;
         this.userRepository = userRepository;
+        this.promotionRepository = promotionRepository;
     }
 
     // ===================== GET CART =====================
@@ -132,6 +131,10 @@ public class CartServiceImpl implements CartService {
                 .orElseThrow(() -> new RuntimeException("Sản phẩm không có trong giỏ"));
 
         cartItemRepository.delete(item);
+
+        // load lại items từ DB
+        cart.setItems(cartItemRepository.findByCart(cart));
+
         return mapToCartResponse(cart);
     }
 
@@ -150,10 +153,35 @@ public class CartServiceImpl implements CartService {
                             ? null
                             : item.getBook().getImages().get(0).getUrl()
             );
-            dto.setGia(item.getDonGia());
+            BigDecimal price = item.getDonGia();
+
+            Integer discount = 0;
+            BigDecimal salePrice = price;
+
+            Promotion promo = promotionRepository
+                    .findActivePromotionByBookId(
+                            item.getBook().getId(),
+                            LocalDateTime.now()
+                    )
+                    .orElse(null);
+
+            if (promo != null) {
+
+                discount = promo.getChietKhau();
+
+                salePrice = price
+                        .multiply(BigDecimal.valueOf(100 - discount))
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+            }
+
+            dto.setGia(price);
+            dto.setDiscount(discount);
+            dto.setSalePrice(salePrice);
+
             dto.setSoLuong(item.getSoLuong());
+
             dto.setTongTien(
-                    item.getDonGia().multiply(
+                    salePrice.multiply(
                             BigDecimal.valueOf(item.getSoLuong())
                     )
             );
@@ -194,7 +222,6 @@ public class CartServiceImpl implements CartService {
             return dto;
         }).toList();
     }
-
 
 
 }

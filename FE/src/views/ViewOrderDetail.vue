@@ -108,7 +108,6 @@ const order = ref(null);
 const loading = ref(true);
 const error = ref("");
 
-// ================= STATUS MAP =================
 const STATUS_MAP = {
   0: { text: "Chờ xác nhận", class: "status-pending" },
   1: { text: "Đã xác nhận", class: "status-confirmed" },
@@ -130,7 +129,6 @@ const statusInfo = computed(() => {
   );
 });
 
-// ================= LOAD DATA =================
 const loadDetail = async () => {
   try {
     const res = await api.get(`/orders/${route.params.id}`);
@@ -144,7 +142,6 @@ const loadDetail = async () => {
 
 onMounted(loadDetail);
 
-// ================= CONDITIONS =================
 const canCancel = computed(() =>
   order.value &&
   [0, 1].includes(order.value.trangThai)
@@ -154,7 +151,6 @@ const canReturn = computed(() =>
   order.value && order.value.trangThai === 4
 );
 
-// ================= ACTIONS =================
 const cancelOrder = async () => {
   if (!confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
 
@@ -183,7 +179,7 @@ const returnOrder = async () => {
   }
 };
 
-// ================= FORMAT =================
+
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
     style: "currency",

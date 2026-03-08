@@ -229,7 +229,10 @@ GO
 ALTER TABLE Payment
 ADD ma_giao_dich VARCHAR(100) NOT NULL;
 GO
-
+ALTER TABLE Payment
+ADD user_id INT NULL;
+GO
+Select * from Payment
 
 CREATE TABLE Review (
     id INT IDENTITY PRIMARY KEY,
@@ -435,7 +438,25 @@ SELECT * From Address
 SELECT * From Carts
 SELECT * From Cart_Items
 
+USE BookStoreDB
+ALTER TABLE Orders
+ADD phuong_thuc_thanh_toan VARCHAR(50) NOT NULL DEFAULT 'COD';
+GO
 
+Select * from Payment
 
+CREATE TABLE Promotions (
+    id BIGINT IDENTITY(1,1) PRIMARY KEY,
+    book_id INT NOT NULL,
+    chiet_khau INT DEFAULT 0,
+    bat_dau DATETIME,
+    ket_thuc DATETIME,
+    active BIT DEFAULT 1,
 
-
+    CONSTRAINT fk_promotion_book
+    FOREIGN KEY (book_id) REFERENCES Books(id)
+    ON DELETE CASCADE
+);
+go
+DELETE FROM Promotions
+Select * from Promotions

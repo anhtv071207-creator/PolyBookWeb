@@ -24,9 +24,13 @@
     <div class="detail-wrapper">
       <div class="row">
         <div class="col-md-5">
-          <div class="image-box">
-            <img :src="book.mainImage || '/books/dac-nhan-tam.jpg'" />
-          </div>
+<div class="image-box">
+  <img :src="book.mainImage || '/books/dac-nhan-tam.jpg'" />
+
+  <div v-if="book.discount > 0" class="discount-ribbon">
+    -{{ book.discount }}%
+  </div>
+</div>
 
           <div class="thumb-list">
             <img
@@ -56,7 +60,20 @@
                 <span>({{ book.totalReviews || 0 }} đánh giá)</span>
               </div>
 
-              <div class="price">{{ formatPrice(book.gia) }} đ</div>
+              <div class="price">
+                <template v-if="book.discount > 0">
+                  <div class="price-box">
+                    <span class="price-sale">
+                      {{ formatPrice(book.salePrice) }} đ
+                    </span>
+                    <span class="price-old">
+                      {{ formatPrice(book.gia) }} đ
+                    </span>
+                  </div>
+                </template>
+
+                <template v-else> {{ formatPrice(book.gia) }} đ </template>
+              </div>
               <div class="stock-text" :class="{ out: book.hangTon === 0 }">
                 <template v-if="book.hangTon === 0"> HẾT HÀNG </template>
                 <template v-else> Hàng tồn: {{ book.hangTon }} </template>
@@ -737,5 +754,45 @@ const decrease = () => {
     grid-template-columns: 1fr;
     text-align: center;
   }
+}
+.price-box {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.price-sale {
+  font-size: 30px;
+  color: #d32f2f;
+  font-weight: 700;
+}
+
+.price-old {
+  font-size: 16px;
+  color: #777;
+  text-decoration: line-through;
+}
+.image-box {
+  border: 1px solid #ddd;
+  padding: 10px;
+  text-align: center;
+  position: relative;
+}
+
+.discount-ribbon {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+
+  background: #d32f2f;
+  color: #fff;
+
+  font-weight: 700;
+  font-size: 14px;
+
+  padding: 6px 12px;
+  border-radius: 6px;
+
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
 }
 </style>

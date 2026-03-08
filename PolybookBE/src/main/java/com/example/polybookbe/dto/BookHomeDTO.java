@@ -14,5 +14,7 @@ public class BookHomeDTO {
     private String tieuDe;
     private BigDecimal gia;
     private String url;
+    private Integer discount;
+    private BigDecimal salePrice;
 }
 

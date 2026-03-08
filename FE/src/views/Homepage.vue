@@ -1,61 +1,80 @@
 <template>
-  <section class="container my-4">
-    <div class="banner position-relative rounded overflow-hidden">
-      <img src="/images/banner.jpg" class="banner-img" alt="Banner" />
-      <button class="btn cta-btn position-absolute">Mua ngay</button>
-    </div>
-  </section>
+  <section class="home-books">
+    <div class="container">
 
-  <section class="container my-5">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h4 class="fw-bold mb-0">Sách bán chạy</h4>
-      <a href="#" class="text-muted text-decoration-none">Xem tất cả</a>
-    </div>
+      <div class="grid">
+        <div v-for="b in books" :key="b.id" class="book-card">
 
-    <div class="row g-4">
-      <div v-for="b in books" :key="b.id" class="col-6 col-md-3">
-        <router-link
-          :to="`/book/${b.id}`"
-          class="text-decoration-none text-dark"
-        >
-          <div class="card h-100 border-0 book-card">
-            <img
-              :src="b.url || '/books/default.jpg'"
-              class="card-img-top book-img rounded"
-              alt=""
-            />
+          <router-link :to="`/book/${b.id}`">
 
-            <div class="card-body px-0">
-              <h5 class="book-title mb-1">
-                {{ b.tieuDe }}
-              </h5>
+            <div class="book-img">
 
-              <div class="book-price">{{ formatPrice(b.gia) }} đ</div>
+              <div v-if="b.discount" class="discount-ribbon">
+                -{{ b.discount }}%
+              </div>
+
+              <img :src="b.url" alt="" />
+
             </div>
-          </div>
-        </router-link>
+
+            <h3 class="book-title">
+              {{ b.tieuDe }}
+            </h3>
+
+
+            <div class="price">
+
+
+              <div v-if="b.discount" class="price-box">
+
+                <span class="price-sale">
+                  {{ formatPrice(b.salePrice) }} đ
+                </span>
+
+                <span class="price-old">
+                  {{ formatPrice(b.gia) }} đ
+                </span>
+
+              </div>
+
+              <div v-else class="price-normal">
+                {{ formatPrice(b.gia) }} đ
+              </div>
+
+            </div>
+
+          </router-link>
+
+        </div>
       </div>
+
     </div>
   </section>
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
+
+import { ref, onMounted } from "vue"
 import api from "@/services/api";
 
-const books = ref([]);
+const books = ref([])
+
+function formatPrice(v) {
+  return Number(v).toLocaleString("vi-VN")
+}
 
 onMounted(async () => {
   try {
-    const res = await api.get("/books/home");
-    books.value = res.data;
-  } catch (e) {
-    console.error("Load homepage books failed", e);
-  }
-});
 
-const formatPrice = (price) =>
-  price ? Number(price).toLocaleString("vi-VN") : "0";
+    const res = await api.get("/books/home")
+
+    books.value = res.data
+
+  } catch (e) {
+    console.error("Load homepage books failed", e)
+  }
+})
+
 </script>
 
 <style scoped>
@@ -63,7 +82,7 @@ const formatPrice = (price) =>
   position: relative;
 
   width: 100%;
-  max-width: 600px; /* bạn đổi số này tùy ý */
+  max-width: 600px;
 
   margin-left: auto;
   margin-right: auto;
@@ -78,6 +97,7 @@ const formatPrice = (price) =>
   object-fit: cover;
   display: block;
 }
+
 .cta-btn {
   position: absolute;
   right: 2.5rem;
@@ -91,6 +111,7 @@ const formatPrice = (price) =>
   font-weight: 600;
   border: none;
 }
+
 .cta-btn:hover {
   background-color: #ff3b30;
   color: #fff;
@@ -111,24 +132,42 @@ const formatPrice = (price) =>
 }
 
 .book-img {
+  position: relative;
   height: 250px;
-  width: auto;
-  object-fit: contain;
   background: #f8f8f8;
 }
+
+.book-img img {
+  height: 100%;
+  width: 100%;
+  object-fit: contain;
+}
+
 .book-title {
   font-size: 0.95rem;
   font-weight: 600;
+  color: #000;
 }
-
 .book-author {
   font-size: 0.85rem;
   color: #666;
 }
 
-.book-price {
+
+.price-sale {
   font-weight: 600;
   color: #d12e28;
+}
+
+.price-normal {
+  font-weight: 600;
+  color: #d12e28;
+}
+
+.price-old {
+  color: #666;
+  text-decoration: line-through;
+  margin-left: 6px;
 }
 
 @media (max-width: 767.98px) {
@@ -141,5 +180,32 @@ const formatPrice = (price) =>
     bottom: 1rem;
     padding: 0.45rem 1rem;
   }
+}
+
+.img-wrapper {
+  position: relative;
+}
+
+.discount-ribbon {
+  position: absolute;
+  top: 10px;
+  left: -6px;
+
+  background: #e53935;
+  color: white;
+
+  font-size: 13px;
+  font-weight: 700;
+
+  padding: 5px 12px;
+
+  transform: rotate(-15deg);
+
+  box-shadow: 0 3px 8px rgba(0,0,0,0.2);
+}
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
 }
 </style>

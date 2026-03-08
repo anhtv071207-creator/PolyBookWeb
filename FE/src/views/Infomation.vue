@@ -275,7 +275,6 @@ const mapAddressToSelect = async (data) => {
   box-shadow: none;
 }
 
-/* bỏ style mặc định của select */
 .form-select {
   appearance: none;
   -webkit-appearance: none;
@@ -285,7 +284,6 @@ const mapAddressToSelect = async (data) => {
   background-size: 14px;
 }
 
-/* focus giống nhau */
 .form-control:focus,
 .form-select:focus {
   border-color: #1677ff;
@@ -293,12 +291,10 @@ const mapAddressToSelect = async (data) => {
   outline: none;
 }
 
-/* khoảng cách giữa các dòng */
 .row {
   margin-bottom: 14px;
 }
 
-/* nút lưu */
 .btn-save {
   width: 100%;
   height: 42px;
@@ -324,7 +320,6 @@ const mapAddressToSelect = async (data) => {
   cursor: not-allowed;
 }
 
-/* responsive mobile */
 @media (max-width: 576px) {
   .profile-card {
     padding: 20px;

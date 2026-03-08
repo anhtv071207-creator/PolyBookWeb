@@ -101,7 +101,7 @@
           type="radio"
           name="payment"
           :value="m.value"
-          v-model="orderForm.paymentMethod"
+          v-model="orderForm.phuongThucThanhToan"
         />
         {{ m.label }}
       </label>
@@ -114,12 +114,27 @@
         <tr v-for="item in cartItems" :key="item.id">
           <td class="img"><img :src="item.image" /></td>
           <td>{{ item.name }}</td>
-          <td>{{ formatPrice(item.price) }}</td>
+          <td class="price">
+            <div v-if="item.discountPercent > 0">
+              <span class="old-price">
+                {{ formatPrice(item.originalPrice) }}
+              </span>
+
+              <span class="new-price">
+                {{ formatPrice(item.price) }}
+              </span>
+            </div>
+
+            <div v-else>
+              {{ formatPrice(item.price) }}
+            </div>
+          </td>
           <td>{{ item.qty }}</td>
           <td>{{ formatPrice(item.price * item.qty) }}</td>
         </tr>
       </table>
     </div>
+
     <div class="checkout-box">
       <div class="summary">
         <div>
@@ -169,9 +184,10 @@ import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 
 const auth = useAuthStore();
-const SHIPPING_FEE = 10000;
 
+const SHIPPING_FEE = 10000;
 const cartItems = ref([]);
+
 onMounted(async () => {
   loadProvinces();
 
@@ -179,31 +195,50 @@ onMounted(async () => {
     "[Checkout] userId =",
     auth.user?.id ?? null,
     "| isLoggedIn =",
-    auth.isLoggedIn
+    auth.isLoggedIn,
   );
+
+  let rawItems = [];
 
   if (auth.user?.id) {
     await loadUserInfo(auth.user.id);
 
     const res = await api.get(`/cart/user/${auth.user.id}`);
-    cartItems.value = res.data.items.map(i => ({
+
+    rawItems = res.data.items.map((i) => ({
       id: i.bookId,
       name: i.tieuDe,
       image: i.imageUrl,
-      price: Number(i.gia),
+      price: Number(i.salePrice),
+      originalPrice: Number(i.gia),
+      discountPercent: i.discount,
       qty: i.soLuong,
     }));
   } else {
-    cartItems.value = getItems();
+    rawItems = getItems().map((i) => ({
+      id: i.id,
+      name: i.name,
+      image: i.image,
+
+      originalPrice: Number(i.price),
+
+      price: Number(i.discount > 0 ? i.salePrice : i.price),
+
+      discountPercent: i.discount || 0,
+
+      qty: i.qty,
+    }));
   }
+
+  cartItems.value = rawItems;
 });
-
-
 
 const subTotal = computed(() =>
   cartItems.value.reduce((s, i) => s + i.price * i.qty, 0),
 );
+
 const totalPrice = computed(() => subTotal.value + SHIPPING_FEE);
+
 const formatPrice = (v) => v.toLocaleString("vi-VN") + " đ";
 
 const orderForm = ref({
@@ -215,7 +250,7 @@ const orderForm = ref({
   quanHuyen: "",
   phuongXa: "",
   address: "",
-  paymentMethod: "COD",
+  phuongThucThanhToan: "COD",
 });
 
 const provinces = ref([]);
@@ -244,7 +279,9 @@ const onProvinceChange = async () => {
   const res = await fetch(
     `https://provinces.open-api.vn/api/p/${selectedProvince.value.code}?depth=2`,
   );
+
   const data = await res.json();
+
   districts.value = data.districts;
 };
 
@@ -259,7 +296,9 @@ const onDistrictChange = async () => {
   const res = await fetch(
     `https://provinces.open-api.vn/api/d/${selectedDistrict.value.code}?depth=2`,
   );
+
   const data = await res.json();
+
   wards.value = data.wards;
 };
 
@@ -276,40 +315,10 @@ const paymentMethods = [
   { value: "MOMO", label: "Ví Momo" },
   { value: "VNPAY", label: "Ví VNPay" },
 ];
-// const placeOrder = async () => {
-//   const payload = {
-//     userId: auth.user?.id || null,
-//     hoTenNguoiNhan: orderForm.value.fullName,
-//     email: orderForm.value.email,
-//     phone: orderForm.value.phone,
-//     quocGia: orderForm.value.quocGia,
-//     tinhThanh: orderForm.value.tinhThanh,
-//     quanHuyen: orderForm.value.quanHuyen,
-//     phuongXa: orderForm.value.phuongXa,
-//     diaChiNhanHang: orderForm.value.address,
-//     paymentMethod: orderForm.value.paymentMethod,
-//     items: cartItems.value.map((i) => ({
-//       bookId: i.id,
-//       soLuong: i.qty,
-//     })),
-//   };
 
-//   try {
-//     await api.post("/orders", payload);
-//     toastMessage.value = "Đặt hàng thành công";
-//     showToast.value = true;
-//     localStorage.removeItem("cart");
-//     cartItems.value = [];
-//     setTimeout(() => (showToast.value = false), 2000);
-//   } catch (err) {
-//     toastMessage.value =
-//       err.response?.data?.message || "Đặt hàng thất bại";
-//     showToast.value = true;
-//     setTimeout(() => (showToast.value = false), 2000);
-//   }
-// };
 const placeOrder = async () => {
   const error = validateOrder();
+
   if (error) {
     toastMessage.value = error;
     showToast.value = true;
@@ -327,10 +336,9 @@ const placeOrder = async () => {
     quanHuyen: orderForm.value.quanHuyen,
     phuongXa: orderForm.value.phuongXa,
     diaChiNhanHang: orderForm.value.address,
-    paymentMethod: orderForm.value.paymentMethod,
+    phuongThucThanhToan: orderForm.value.phuongThucThanhToan,
   };
 
-  // 👉 CHỈ guest mới gửi items
   if (!auth.user?.id) {
     payload.items = cartItems.value.map((i) => ({
       bookId: i.id,
@@ -340,16 +348,22 @@ const placeOrder = async () => {
 
   try {
     await api.post("/orders", payload);
+
     toastMessage.value = "Đặt hàng thành công";
     showToast.value = true;
+
     if (!auth.user?.id) {
       localStorage.removeItem("cart");
     }
+
     cartItems.value = [];
+
     setTimeout(() => (showToast.value = false), 2000);
   } catch (err) {
     toastMessage.value = err.response?.data?.message || "Đặt hàng thất bại";
+
     showToast.value = true;
+
     setTimeout(() => (showToast.value = false), 2000);
   }
 };
@@ -361,11 +375,13 @@ const validateOrder = () => {
   if (!orderForm.value.email?.trim()) return "Vui lòng nhập email";
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
   if (!emailRegex.test(orderForm.value.email)) return "Email không hợp lệ";
 
   if (!orderForm.value.phone?.trim()) return "Vui lòng nhập số điện thoại";
 
   const phoneRegex = /^(0|\+84)[0-9]{9}$/;
+
   if (!phoneRegex.test(orderForm.value.phone))
     return "Số điện thoại không hợp lệ";
 
@@ -398,11 +414,13 @@ const loadUserInfo = async (userId) => {
     orderForm.value.quanHuyen = u.quanHuyen;
     orderForm.value.phuongXa = u.phuongXa;
     orderForm.value.address = u.diaChi;
+
     await loadUserAddress(u);
   } catch (e) {
     console.warn("Không lấy được UserInfo");
   }
 };
+
 const loadUserAddress = async (data) => {
   await loadProvinces();
 
@@ -412,6 +430,7 @@ const loadUserAddress = async (data) => {
 
   if (selectedProvince.value) {
     await onProvinceChange();
+
     selectedDistrict.value = districts.value.find(
       (d) => d.name === data.quanHuyen,
     );
@@ -419,6 +438,7 @@ const loadUserAddress = async (data) => {
 
   if (selectedDistrict.value) {
     await onDistrictChange();
+
     selectedWard.value = wards.value.find((w) => w.name === data.phuongXa);
   }
 };
@@ -519,5 +539,16 @@ const loadUserAddress = async (data) => {
 .order-table td.total {
   width: 15%;
   text-align: right;
+}
+.old-price {
+  text-decoration: line-through;
+  color: #888;
+  font-size: 13px;
+  margin-right: 6px;
+}
+
+.new-price {
+  color: #dc3545;
+  font-weight: 600;
 }
 </style>

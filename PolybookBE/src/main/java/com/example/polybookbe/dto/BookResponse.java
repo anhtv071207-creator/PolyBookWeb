@@ -22,5 +22,7 @@ public class BookResponse {
 
     private List<BookImageResponse> images;
     private List<CategoryResponse> categories;
+    private Integer discount;
+    private BigDecimal salePrice;
 }
 

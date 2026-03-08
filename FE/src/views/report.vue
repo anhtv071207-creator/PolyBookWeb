@@ -3,6 +3,10 @@ import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
 
+const router = useRouter();
+
+const loading = ref(true);
+
 const stats = ref({
   totalOrders: 0,
   totalRevenue: 0,
@@ -10,31 +14,34 @@ const stats = ref({
   totalBooks: 0,
 });
 
-const router = useRouter();
-
 const goBackManagement = () => {
   router.back();
 };
 
 const formatCurrency = (value) => {
-  return new Intl.NumberFormat("vi-VN").format(value);
+  return new Intl.NumberFormat("vi-VN").format(value || 0);
 };
 
 const fetchStatistics = async () => {
   try {
+    loading.value = true;
+
     const [orderRes, revenueRes, userRes, bookRes] = await Promise.all([
       api.get("/management/orders?page=0&size=1000"),
-      api.get("/orders/revenue?status=4"),
+      api.get("/management/payments/revenue"),
       api.get("/account-management/admin/users"),
       api.get("/books?page=0&size=1000"),
     ]);
 
-    stats.value.totalOrders = orderRes.data.totalElements;
-    stats.value.totalRevenue = revenueRes.data;
-    stats.value.totalUsers = userRes.data.length;
-    stats.value.totalBooks = bookRes.data.totalElements;
+    stats.value.totalOrders = orderRes?.data?.totalElements ?? 0;
+    stats.value.totalRevenue = revenueRes?.data ?? 0;
+    stats.value.totalUsers =
+      userRes?.data?.totalElements ?? userRes?.data?.length ?? 0;
+    stats.value.totalBooks = bookRes?.data?.totalElements ?? 0;
   } catch (error) {
     console.error("Lỗi thống kê:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
