@@ -19,6 +19,7 @@ import CategoryManagement from "../views/CategoryManagement.vue";
 import report from "../views/report.vue";
 import CategoryPage from "../views/CategoryPage.vue";
 import PromotionManagement from "../views/PromotionManagement.vue";
+import SearchPage from "../views/SearchPage.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -46,12 +47,9 @@ const routes = [
   { path: "/management/product", component: ProductManagement },
   { path: "/management/category", component: CategoryManagement },
   { path: "/reports", component: report },
-  {
-    path: "/category/:id",
-    component: CategoryPage,
-    props: true,
-  },
-    {path: "/promotions",component: PromotionManagement,},
+  { path: "/category/:id", component: CategoryPage, props: true },
+  { path: "/promotions", component: PromotionManagement },
+  { path: "/search", component: SearchPage },
 ];
 
 const router = createRouter({

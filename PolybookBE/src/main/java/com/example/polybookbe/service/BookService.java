@@ -30,4 +30,6 @@ public interface BookService {
     PageResponse<BookResponse> getBooksByCategory (Integer categoryId, int page,int size);
 
     Book getBookEntityById(Integer id);
+
+    PageResponse<BookResponse> searchBooks (String keyword, int page, int size);
 }

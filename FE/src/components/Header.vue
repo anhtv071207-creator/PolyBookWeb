@@ -18,7 +18,7 @@ const userName = computed(() => auth.user?.name || "ho_ten");
 const isAdmin = computed(() => role.value === "ADMIN");
 const isStaff = computed(() => role.value === "STAFF");
 const isUser = computed(() => role.value === "USER");
-
+const keyword = ref("");
 const logout = () => {
   auth.logout();
   // router.push("/login");
@@ -32,7 +32,14 @@ const fetchParentCategories = async () => {
     fetchChildCategories(res.data[0].id);
   }
 };
+const searchBooks = () => {
+  if (!keyword.value.trim()) return;
 
+  router.push({
+    path: "/search",
+    query: { keyword: keyword.value },
+  });
+};
 const fetchChildCategories = async (parentId) => {
   if (selectedParentId.value === parentId) return;
 
@@ -64,8 +71,14 @@ onMounted(() => {
       <div class="header-center">
         <div class="search-box">
           <div class="input-group">
-            <input type="text" class="form-control" placeholder="Tìm sách" />
-            <span class="input-group-text bg-light">
+            <input
+              v-model="keyword"
+              @keyup.enter="searchBooks"
+              type="text"
+              class="form-control"
+              placeholder="Tìm sách"
+            />
+            <span class="input-group-text bg-light" @click="searchBooks">
               <i class="bi bi-search"></i>
             </span>
           </div>
@@ -314,7 +327,6 @@ onMounted(() => {
   color: inherit;
 }
 
-
 .logo {
   width: 42px;
   height: 42px;
@@ -492,7 +504,6 @@ onMounted(() => {
   border-radius: 4px;
 }
 
-
 .account-fixed {
   margin-left: auto;
   display: flex;
@@ -500,18 +511,18 @@ onMounted(() => {
 }
 
 .dropdown-menu .dropdown-item {
-  color: #e5edf5; 
+  color: #e5edf5;
   background-color: transparent;
 }
 
 .dropdown-menu .dropdown-item:hover,
 .dropdown-menu .dropdown-item:focus {
-  background-color: #3b5166; 
-  color: #ffffff; 
+  background-color: #3b5166;
+  color: #ffffff;
 }
 
 .dropdown-menu .dropdown-item.text-danger {
-  color: #ff6b6b; 
+  color: #ff6b6b;
 }
 
 .dropdown-menu .dropdown-item.text-danger:hover {
@@ -527,7 +538,7 @@ onMounted(() => {
 }
 
 .category-parent-item {
-  color: #ffffff; 
+  color: #ffffff;
   background-color: transparent;
   transition:
     background-color 0.15s ease,
@@ -535,12 +546,12 @@ onMounted(() => {
 }
 
 .category-parent-item:hover {
-  background-color: #ffffff; 
-  color: #2c3e50; 
+  background-color: #ffffff;
+  color: #2c3e50;
 }
 
 .category-child-item {
-  color: #ffffff; 
+  color: #ffffff;
   background-color: transparent;
   transition:
     background-color 0.15s ease,
@@ -548,8 +559,8 @@ onMounted(() => {
 }
 
 .category-child-item:hover {
-  background-color: #ffffff; 
-  color: #2c3e50; 
+  background-color: #ffffff;
+  color: #2c3e50;
 }
 
 .category-parent::-webkit-scrollbar,

@@ -80,4 +80,12 @@ public class BookController {
     ) {
         return bookService.getBooksByCategory(id, page, size);
     }
+    @GetMapping("/search")
+    public PageResponse<BookResponse> searchBooks(
+            @RequestParam String keyword,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size
+    ) {
+        return bookService.searchBooks(keyword, page, size);
+    }
 }

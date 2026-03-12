@@ -64,6 +64,8 @@ where i.biaSach = true
             Pageable pageable
     );
 
+    Page<Book> findByTieuDeContainingIgnoreCase(String keyword, Pageable pageable);
+
 }
 
 

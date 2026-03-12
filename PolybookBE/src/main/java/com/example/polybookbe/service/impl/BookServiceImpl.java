@@ -366,4 +366,32 @@ public class BookServiceImpl implements BookService {
         return bookRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Book not found"));
     }
+
+    @Override
+    public PageResponse<BookResponse> searchBooks(
+            String keyword,
+            int page,
+            int size
+    ) {
+
+        Pageable pageable = PageRequest.of(page, size);
+
+        Page<Book> bookPage =
+                bookRepository.findByTieuDeContainingIgnoreCase(keyword, pageable);
+
+        List<BookResponse> list =
+                bookPage.getContent()
+                        .stream()
+                        .map(this::mapToResponse)
+                        .toList();
+
+        return new PageResponse<>(
+                list,
+                bookPage.getNumber(),
+                bookPage.getSize(),
+                bookPage.getTotalElements(),
+                bookPage.getTotalPages(),
+                bookPage.isLast()
+        );
+    }
 }
