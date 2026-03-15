@@ -12,26 +12,17 @@ import java.util.List;
 
 public interface BookRepository extends JpaRepository<Book, Integer> {
     @Query("""
-select new com.example.polybookbe.dto.BookHomeDTO(
+SELECT new com.example.polybookbe.dto.BookHomeDTO(
     b.id,
     b.tieuDe,
     b.gia,
-    i.url,
-    cast(coalesce(p.chietKhau,0) as integer),
-    case
-        when p.chietKhau is not null
-        then (b.gia * (100 - p.chietKhau)) / 100
-        else b.gia
-    end
+    (SELECT bi.url FROM BookImage bi WHERE bi.book.id = b.id AND bi.biaSach = true),
+    0,
+    b.gia
 )
-from Book b
-left join b.images i
-left join Promotion p
-    on p.book.id = b.id
-    and p.active = true
-where i.biaSach = true
+FROM Book b
 """)
-    List<BookHomeDTO> findBooksForHome();
+    Page<BookHomeDTO> findBooksForHome(Pageable pageable);
 
     Page<Book> findAll(Pageable pageable);
 

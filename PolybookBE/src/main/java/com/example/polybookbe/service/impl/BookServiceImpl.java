@@ -287,31 +287,49 @@ public class BookServiceImpl implements BookService {
         );
     }
     @Override
-    public List<BookHomeDTO> getBooksForHome() {
-        return bookRepository.findBooksForHome();
-    }
-    @Override
+    public PageResponse<BookHomeDTO> getBooksForHome(int page, int size) {
+        // 1. Tạo Pageable (mặc định sắp xếp theo ID giảm dần để sách mới hiện lên đầu)
+        Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
+
+        // 2. Gọi repository trả về Page thay vì List
+        // Lưu ý: Bạn cần vào BookRepository và sửa kiểu trả về của findBooksForHome thành Page<BookHomeDTO>
+        Page<BookHomeDTO> bookPage = bookRepository.findBooksForHome(pageable);
+
+        // 3. Trả về kết quả bọc trong PageResponse để Frontend dễ xử lý
+        return new PageResponse<>(
+                bookPage.getContent(),
+                bookPage.getNumber(),
+                bookPage.getSize(),
+                bookPage.getTotalElements(),
+                bookPage.getTotalPages(),
+                bookPage.isLast()
+        );
+    }@Override
     public PageResponse<BookResponse> getBooksWithPaging(
             int page,
             int size,
             String sortBy,
             String direction
     ) {
-
+        // 1. Xác định chiều sắp xếp (Tăng dần/Giảm dần)
         Sort sort = direction.equalsIgnoreCase("desc")
                 ? Sort.by(sortBy).descending()
                 : Sort.by(sortBy).ascending();
 
+        // 2. Tạo đối tượng Pageable
         Pageable pageable = PageRequest.of(page, size, sort);
 
+        // 3. Lấy dữ liệu từ Repository (sử dụng hàm findAll mặc định của JpaRepository)
         Page<Book> bookPage = bookRepository.findAll(pageable);
 
+        // 4. Chuyển đổi từ Entity (Book) sang DTO (BookResponse) bằng hàm mapToResponse bạn đã viết
         List<BookResponse> content = bookPage
                 .getContent()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
 
+        // 5. Trả về đối tượng PageResponse đồng nhất với các hàm khác
         return new PageResponse<>(
                 content,
                 bookPage.getNumber(),

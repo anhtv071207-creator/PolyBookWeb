@@ -2,6 +2,9 @@
 import { ref, onMounted, computed } from "vue";
 import api from "@/services/api";
 import { useRouter } from "vue-router";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const router = useRouter();
 
@@ -135,12 +138,10 @@ const cancelDelete = () => {
 
 <template>
   <div class="container">
-<div class="page-header">
-  <button class="btn-back" @click="goBackManagement">
-    ← Quay lại
-  </button>
-  <h2>Quản lý danh mục</h2>
-</div>
+    <div class="page-header">
+      <button class="btn-back" @click="goBackManagement">← Quay lại</button>
+      <h2>Quản lý danh mục</h2>
+    </div>
     <div class="form-box">
       <input v-model="form.tenDanhMuc" placeholder="Tên danh mục" />
 
@@ -219,227 +220,25 @@ const cancelDelete = () => {
 
 <style scoped>
 .container {
-  max-width: 1100px;
+  max-width: 1000px;
   margin: auto;
-  padding: 40px;
-  background: #eef4ff;
-  border-radius: 24px;
-  min-height: 100vh;
-}
-
-h2 {
-  text-align: center;
-  font-size: 26px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 35px;
-}
-
-.form-box {
-  background: linear-gradient(145deg, #ffffff, #f4f9ff);
-  padding: 35px;
-  border-radius: 22px;
-  margin-bottom: 50px;
-  border: 2px solid #007bff;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
-  transition: 0.25s;
-}
-
-.form-box:hover {
-  transform: translateY(-6px);
-}
-
-input,
-select {
-  width: 100%;
-  padding: 14px 16px;
-  margin-bottom: 18px;
-  border-radius: 12px;
-  border: none;
-  background: #f1f6ff;
-  font-size: 14px;
-  transition: 0.2s;
-}
-
-input:focus,
-select:focus {
-  background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
-  outline: none;
-}
-
-.form-actions {
-  display: flex;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-
-button {
-  padding: 10px 20px;
-  border-radius: 14px;
-  font-weight: 600;
-  cursor: pointer;
-  border: none;
-  transition: 0.25s;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-}
-
-button:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
-}
-
-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.btn-delete {
-  background: crimson;
-}
-
-.btn-delete:hover:not(:disabled) {
-  background: #b3002d;
-  box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
-}
-
-.form-actions button:not(.btn-add):not(.btn-edit):not(.btn-delete) {
-  background: #6c757d;
-}
-
-.form-actions button:not(.btn-add):not(.btn-edit):not(.btn-delete):hover {
-  background: #5a6268;
-  box-shadow: none;
-}
-
-.list-box {
-  background: white;
-  padding: 35px;
-  border-radius: 22px;
-  border: 2px solid #007bff;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
-}
-
-.root-box {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 18px;
-  margin-bottom: 28px;
-  border: 1px solid #e6eefc;
-  transition: 0.25s;
-}
-
-.root-box:hover {
-  background: #f4f9ff;
-  transform: translateY(-4px);
-}
-
-.root-title {
-  font-size: 18px;
-  font-weight: 600;
-  padding: 10px 14px;
-  border-radius: 12px;
-  cursor: pointer;
-  transition: 0.2s;
-}
-
-.root-title:hover {
-  background: #eaf2ff;
-  transform: translateX(6px);
-}
-
-.child-tags {
-  margin-top: 15px;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-}
-
-.tag {
-  padding: 8px 16px;
-  border-radius: 999px;
-  background: #f1f6ff;
-  border: 1px solid #007bff;
-  cursor: pointer;
-  transition: 0.2s;
-  font-size: 14px;
-}
-
-.tag:hover {
-  background: #007bff;
-  color: white;
-  transform: scale(1.05);
-}
-
-.active {
-  background: linear-gradient(135deg, #007bff, #00c6ff) !important;
-  color: white !important;
-}
-
-.modal-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 999;
-}
-
-.confirm-box {
-  width: 420px;
-  background: white;
   padding: 30px;
-  border-radius: 20px;
-  border: 2px solid #007bff;
-  box-shadow: 0 25px 60px rgba(0, 123, 255, 0.25);
-  animation: popIn 0.2s ease;
-}
-
-.confirm-box h4 {
-  color: #007bff;
-  margin-bottom: 10px;
-}
-
-.confirm-actions {
-  display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 25px;
-}
-
-.btn-cancel {
-  background: #6c757d;
-}
-
-.btn-confirm {
-  background: crimson;
-}
-
-.btn-confirm:hover {
-  background: #b3002d;
-}
-
-@keyframes popIn {
-  from {
-    transform: scale(0.9);
-    opacity: 0;
-  }
-  to {
-    transform: scale(1);
-    opacity: 1;
-  }
+  background: #f7f7f7;
+  border-radius: 12px;
+  min-height: 100vh;
 }
 
 .page-header {
   position: relative;
-  margin-bottom: 35px;
+  margin-bottom: 25px;
 }
 
 .page-header h2 {
   text-align: center;
   margin: 0;
+  font-size: 24px;
+  font-weight: 600;
+  color: #333;
 }
 
 .btn-back {
@@ -447,18 +246,267 @@ button:disabled {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
   cursor: pointer;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-  transition: 0.25s;
 }
 
 .btn-back:hover {
-  transform: translateY(-50%) translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+  background: #f1f1f1;
+}
+
+.form-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  margin-bottom: 30px;
+  border: 1px solid #e2e2e2;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 14px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  font-size: 14px;
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #888;
+}
+
+.form-actions {
+  display: flex;
+  gap: 10px;
+}
+
+button {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+button:hover:not(:disabled) {
+  background: #f2f2f2;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  border-color: #e74c3c;
+  color: #e74c3c;
+}
+
+.btn-delete:hover:not(:disabled) {
+  background: #fdeaea;
+}
+
+.list-box {
+  background: white;
+  padding: 25px;
+  border-radius: 10px;
+  border: 1px solid #e2e2e2;
+}
+
+.root-box {
+  margin-bottom: 18px;
+}
+
+.root-title {
+  font-size: 16px;
+  font-weight: 600;
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.root-title:hover {
+  background: #f5f5f5;
+}
+
+.child-tags {
+  margin-top: 10px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  padding: 6px 12px;
+  border-radius: 20px;
+  background: #f3f3f3;
+  border: 1px solid #ddd;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.tag:hover {
+  background: #e9e9e9;
+}
+
+.active {
+  background: #333;
+  color: white;
+  border-color: #333;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.confirm-box {
+  width: 360px;
+  background: white;
+  padding: 24px;
+  border-radius: 10px;
+}
+
+.confirm-box h4 {
+  margin-bottom: 10px;
+}
+
+.confirm-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.btn-cancel {
+  background: white;
+}
+
+.btn-confirm {
+  background: #e74c3c;
+  color: white;
+  border: none;
+}
+/* ===== DARK MODE ===== */
+
+.dark .container {
+  background: #0f172a;
+}
+
+.dark .page-header h2 {
+  color: #f1f5f9;
+}
+
+/* back button */
+
+.dark .btn-back {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-back:hover {
+  background: #334155;
+}
+
+/* form box */
+
+.dark .form-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark input,
+.dark select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark input:focus,
+.dark select:focus {
+  border-color: #64748b;
+}
+
+/* buttons */
+
+.dark button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark button:hover:not(:disabled) {
+  background: #334155;
+}
+
+/* delete button */
+
+.dark .btn-delete {
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+.dark .btn-delete:hover:not(:disabled) {
+  background: rgba(239,68,68,0.15);
+}
+
+/* list */
+
+.dark .list-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .root-title {
+  color: #e2e8f0;
+}
+
+.dark .root-title:hover {
+  background: #334155;
+}
+
+/* child tags */
+
+.dark .tag {
+  background: #334155;
+  border-color: #475569;
+  color: #e2e8f0;
+}
+
+.dark .tag:hover {
+  background: #475569;
+}
+
+/* active tag */
+
+.dark .active {
+  background: #64748b;
+  border-color: #64748b;
+  color: white;
+}
+
+/* modal */
+
+.dark .confirm-box {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .btn-cancel {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
 }
 </style>

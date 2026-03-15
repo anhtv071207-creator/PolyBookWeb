@@ -100,7 +100,9 @@
 import { ref, onMounted, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const route = useRoute();
 const router = useRouter();
 
@@ -197,6 +199,11 @@ return path;
 </script>
 
 <style scoped>
+.product-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #eee;
+}
+
 .product-img {
   width: 70px;
   height: 100px;
@@ -205,102 +212,208 @@ return path;
   border: 1px solid #ddd;
 }
 
-.status-pending {
-  background: #6c757d;
-  color: #fff;
+/* status */
+
+.status-pending,
+.status-confirmed,
+.status-packing,
+.status-shipping,
+.status-success,
+.status-cancel,
+.status-return,
+.status-unknown {
   padding: 5px 12px;
-  border-radius: 20px;
+  border-radius: 14px;
   font-size: 12px;
   font-weight: 500;
+  display: inline-block;
+}
+
+.status-pending {
+  background: #f1f3f5;
+  color: #495057;
 }
 
 .status-confirmed {
-  background: #0d6efd;
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #e7f1ff;
+  color: #0d6efd;
 }
 
 .status-packing {
-  background: #0dcaf0;
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #e6f7ff;
+  color: #0dcaf0;
 }
 
 .status-shipping {
-  background: #ffc107;
-  color: #000;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #fff4e6;
+  color: #f59f00;
 }
 
 .status-success {
-  background: #198754;
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #e6f7ee;
+  color: #198754;
 }
 
 .status-cancel {
-  background: #dc3545;
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #ffe3e3;
+  color: #dc3545;
 }
 
 .status-return {
-  background: #adb5bd;
-  color: #000;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #f1f3f5;
+  color: #6c757d;
 }
 
 .status-unknown {
-  background: #6c757d;
-  color: #fff;
-  padding: 5px 12px;
-  border-radius: 20px;
-  font-size: 12px;
-  font-weight: 500;
+  background: #f1f3f5;
+  color: #6c757d;
 }
+
+/* buttons */
+
 .btn:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-  box-shadow: none;
 }
+
 .btn-cancel {
-  background: #fee2e2;
-  color: #dc2626;
+  background: #ffe3e3;
+  color: #dc3545;
   border: none;
   font-weight: 600;
 }
 
 .btn-cancel:hover {
-  background: #fecaca;
+  background: #ffd5d5;
 }
 
 .btn-return {
-  background: #e2e8f0;
-  color: #334155;
+  background: #f1f3f5;
+  color: #495057;
   border: none;
   font-weight: 600;
 }
 
 .btn-return:hover {
-  background: #cbd5e1;
+  background: #e9ecef;
+}
+/* ===== DARK MODE ORDER DETAIL ===== */
+
+.dark .order-detail {
+  color: #e2e8f0;
 }
 
+.dark .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .product-item {
+  border-bottom: 1px solid #334155;
+}
+
+.dark .product-img {
+  border-color: #334155;
+}
+
+/* status */
+
+.dark .status-pending {
+  background: #334155;
+  color: #cbd5f5;
+}
+
+.dark .status-confirmed {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .status-packing {
+  background: #0e7490;
+  color: #67e8f9;
+}
+
+.dark .status-shipping {
+  background: #78350f;
+  color: #facc15;
+}
+
+.dark .status-success {
+  background: #064e3b;
+  color: #4ade80;
+}
+
+.dark .status-cancel {
+  background: #7f1d1d;
+  color: #f87171;
+}
+
+.dark .status-return {
+  background: #334155;
+  color: #94a3b8;
+}
+
+.dark .status-unknown {
+  background: #334155;
+  color: #94a3b8;
+}
+
+/* buttons */
+
+.dark .btn-cancel {
+  background: #7f1d1d;
+  color: #f87171;
+}
+
+.dark .btn-cancel:hover {
+  background: #991b1b;
+}
+
+.dark .btn-return {
+  background: #334155;
+  color: #cbd5f5;
+}
+
+.dark .btn-return:hover {
+  background: #475569;
+}
+
+/* back button */
+
+.dark .btn-link {
+  color: #93c5fd;
+}
+/* ===== FIX TEXT DARK MODE ===== */
+
+.dark .order-detail,
+.dark .order-detail p,
+.dark .order-detail div,
+.dark .order-detail h4,
+.dark .order-detail h5 {
+  color: #e2e8f0;
+}
+
+/* text muted */
+
+.dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* bootstrap text colors */
+
+.dark .text-danger {
+  color: #f87171 !important;
+}
+
+/* product title */
+
+.dark .product-item .fw-semibold {
+  color: #f1f5f9;
+}
+
+/* hr line */
+
+.dark hr {
+  border-color: #334155;
+}
 </style>

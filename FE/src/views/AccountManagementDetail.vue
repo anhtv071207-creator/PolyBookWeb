@@ -85,6 +85,9 @@
 import { ref, onMounted } from "vue";
 import { useRoute } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const route = useRoute();
 const user = ref(null);
@@ -119,107 +122,114 @@ const toggleStatus = async () => {
 
 <style scoped>
 .page {
-  padding: 40px 5%;
-  background: #eef4ff;
+  padding: 32px 5%;
+  background: #f6f7f9;
   min-height: 100vh;
 }
 
+/* card */
+
 .card {
   background: white;
-  border-radius: 20px;
-  padding: 40px;
-  border: none;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+  border-radius: 8px;
+  padding: 28px;
+  border: 1px solid #e5e5e5;
+  max-width: 900px;
+  margin: auto;
 }
 
 h2 {
   text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 40px;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 30px;
 }
+
+/* info grid */
 
 .info-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 25px;
+  gap: 18px;
 }
 
 .info-item {
-  background: #f1f6ff;
-  padding: 20px;
-  border-radius: 16px;
-  transition: 0.2s;
-}
-
-.info-item:hover {
-  background: #e2edff;
+  border: 1px solid #eee;
+  border-radius: 6px;
+  padding: 14px;
+  background: #fafafa;
 }
 
 .info-item span {
   display: block;
   font-size: 12px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 8px;
-  letter-spacing: 1px;
+  font-weight: 600;
+  color: #666;
+  margin-bottom: 4px;
 }
 
 .info-item p {
   margin: 0;
-  font-size: 15px;
-  font-weight: 500;
+  font-size: 14px;
+  color: #333;
 }
 
 .info-item.full {
   grid-column: span 2;
 }
 
-/* Badge */
+/* badge */
+
 .badge {
   display: inline-block;
-  padding: 6px 14px;
-  border-radius: 999px;
+  padding: 4px 10px;
+  border-radius: 14px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 500;
 }
 
 .badge.active {
-  background: #d4f4ff;
-  color: #007bff;
+  background: #e8f8ee;
+  color: #15803d;
 }
 
 .badge.locked {
-  background: #ffe5e5;
+  background: #ffecec;
   color: #dc2626;
 }
 
 .badge.role {
-  background: #e0f2ff;
-  color: #007bff;
+  background: #f1f1f1;
+  color: #444;
 }
 
-/* Buttons */
+/* actions */
+
 .action-row {
-  margin-top: 40px;
+  margin-top: 28px;
   display: flex;
-  gap: 16px;
   justify-content: center;
+  gap: 10px;
 }
 
 .btn {
-  padding: 14px 24px;
-  border-radius: 14px;
-  font-weight: 600;
-  border: none;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
   cursor: pointer;
-  transition: 0.2s;
+  background: white;
+}
+
+.btn:hover {
+  background: #f2f2f2;
 }
 
 .btn.danger {
   background: #dc2626;
   color: white;
+  border: none;
 }
 
 .btn.danger:hover {
@@ -227,18 +237,42 @@ h2 {
 }
 
 .btn.secondary {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
+  background: #333;
   color: white;
+  border: none;
 }
 
 .btn.secondary:hover {
   opacity: 0.9;
-  transform: translateY(-2px);
 }
+
+/* loading */
 
 .loading {
   text-align: center;
   padding: 60px;
-  font-size: 18px;
+  font-size: 15px;
+  color: #666;
+}
+.dark .page {
+  background: #0f172a;
+}
+
+.dark .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .info-item {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.dark .info-item span {
+  color: #94a3b8;
+}
+
+.dark .info-item p {
+  color: #e2e8f0;
 }
 </style>

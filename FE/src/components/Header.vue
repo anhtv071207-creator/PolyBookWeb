@@ -3,14 +3,17 @@ import { ref, computed, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const auth = useAuthStore();
 const router = useRouter();
-console.log("isLoggedIn:", auth.isLoggedIn);
-console.log("role:", auth.role);
+
 const parentCategories = ref([]);
 const childCategories = ref([]);
 const selectedParentId = ref(null);
+
+const darkMode = ref(false);
 
 const isLoggedIn = computed(() => auth.isLoggedIn);
 const role = computed(() => auth.role);
@@ -18,12 +21,26 @@ const userName = computed(() => auth.user?.name || "ho_ten");
 const isAdmin = computed(() => role.value === "ADMIN");
 const isStaff = computed(() => role.value === "STAFF");
 const isUser = computed(() => role.value === "USER");
+
 const keyword = ref("");
+
+const toggleDarkMode = () => {
+  darkMode.value = !darkMode.value;
+
+  if (darkMode.value) {
+    document.documentElement.classList.add("dark");
+    localStorage.setItem("theme", "dark");
+  } else {
+    document.documentElement.classList.remove("dark");
+    localStorage.setItem("theme", "light");
+  }
+};
+
 const logout = () => {
   auth.logout();
-  // router.push("/login");
   router.push("/");
 };
+
 const fetchParentCategories = async () => {
   const res = await api.get("http://localhost:8080/api/categories/root");
   parentCategories.value = res.data;
@@ -32,6 +49,7 @@ const fetchParentCategories = async () => {
     fetchChildCategories(res.data[0].id);
   }
 };
+
 const searchBooks = () => {
   if (!keyword.value.trim()) return;
 
@@ -40,6 +58,7 @@ const searchBooks = () => {
     query: { keyword: keyword.value },
   });
 };
+
 const fetchChildCategories = async (parentId) => {
   if (selectedParentId.value === parentId) return;
 
@@ -49,137 +68,130 @@ const fetchChildCategories = async (parentId) => {
   );
   childCategories.value = res.data;
 };
+
 const goToCategory = (id) => {
   router.push(`/category/${id}`);
 };
+
 onMounted(() => {
   fetchParentCategories();
+
+  const savedTheme = localStorage.getItem("theme");
+
+  if (savedTheme === "dark") {
+    darkMode.value = true;
+    document.documentElement.classList.add("dark");
+  }
 });
 </script>
 
 <template>
-  <header class="header shadow-sm">
-    <div class="container header-row py-2">
-      <div class="header-left">
-        <router-link
-          to="/"
-          class="d-flex align-items-center gap-2 text-decoration-none"
-        >
-          <img src="/images/logo.png" alt="Logo" class="logo" />
-        </router-link>
+  <header class="app-header">
+    <div class="container header-inner">
+      <router-link to="/" class="logo-area">
+        <img src="/images/logo.png" class="logo" />
+        <span class="brand">Polybook</span>
+      </router-link>
+
+      <div class="search-box">
+        <input
+          v-model="keyword"
+          @keyup.enter="searchBooks"
+          placeholder="Tìm kiếm sách..."
+        />
+        <button @click="searchBooks">
+          <i class="bi bi-search"></i>
+        </button>
       </div>
-      <div class="header-center">
-        <div class="search-box">
-          <div class="input-group">
-            <input
-              v-model="keyword"
-              @keyup.enter="searchBooks"
-              type="text"
-              class="form-control"
-              placeholder="Tìm sách"
-            />
-            <span class="input-group-text bg-light" @click="searchBooks">
-              <i class="bi bi-search"></i>
-            </span>
-          </div>
+
+      <div class="header-actions">
+        <router-link v-if="!isAdmin && !isStaff" to="/cart" class="action-btn">
+          <i class="bi bi-cart"></i>
+        </router-link>
+
+        <router-link
+          v-if="!isAdmin && !isStaff"
+          to="/orders/view"
+          class="action-btn"
+        >
+          <i class="bi bi-receipt"></i>
+        </router-link>
+        <button class="action-btn" @click="theme.toggleTheme()">
+          <i v-if="theme.darkMode" class="bi bi-sun"></i>
+          <i v-else class="bi bi-moon"></i>
+        </button>
+        <div class="account-area">
+          <template v-if="!isLoggedIn">
+            <router-link to="/login" class="login-btn"> Đăng nhập </router-link>
+          </template>
+
+          <template v-else>
+            <div class="dropdown">
+              <button class="user-btn" data-bs-toggle="dropdown">
+                <i class="bi bi-person-circle"></i>
+                {{ userName }}
+              </button>
+
+              <ul class="dropdown-menu dropdown-menu-end">
+                <li v-if="isUser || isStaff">
+                  <router-link class="dropdown-item" to="/info">
+                    Thông tin
+                  </router-link>
+                </li>
+
+                <li v-if="isAdmin || isStaff">
+                  <router-link class="dropdown-item" to="/managements">
+                    Trang quản trị
+                  </router-link>
+                </li>
+
+                <li><hr class="dropdown-divider" /></li>
+
+                <li>
+                  <button class="dropdown-item text-danger" @click="logout">
+                    Đăng xuất
+                  </button>
+                </li>
+              </ul>
+            </div>
+          </template>
         </div>
       </div>
-      <div class="header-right">
-        <div class="d-flex align-items-center gap-3 header-actions">
-          <div class="dropdown">
-            <button
-              class="btn btn-light dropdown-toggle"
-              data-bs-toggle="dropdown"
-            >
-              Danh mục
-            </button>
-            <ul class="dropdown-menu category-mega p-3">
-              <div class="row">
-                <div class="col-4 border-end category-parent">
-                  <li
-                    v-for="parent in parentCategories"
-                    :key="parent.id"
-                    class="category-parent-item"
-                    @mouseenter="fetchChildCategories(parent.id)"
-                    @click="goToCategory(parent.id)"
-                  >
-                    {{ parent.tenDanhMuc }}
-                  </li>
-                </div>
-                <div class="col-8 category-child">
-                  <li
-                    v-for="child in childCategories"
-                    :key="child.id"
-                    class="category-child-item"
-                    @click="goToCategory(child.id)"
-                  >
-                    {{ child.tenDanhMuc }}
-                  </li>
-                </div>
+    </div>
+
+    <!-- CATEGORY BAR -->
+
+    <div class="category-bar">
+      <div class="container">
+        <div class="category-dropdown">
+          <button class="category-trigger" data-bs-toggle="dropdown">
+            <i class="bi bi-list"></i>
+            Danh mục
+          </button>
+
+          <div class="dropdown-menu mega-menu">
+            <div class="mega-left">
+              <div
+                v-for="parent in parentCategories"
+                :key="parent.id"
+                class="mega-parent"
+                @mouseenter="fetchChildCategories(parent.id)"
+                @click="goToCategory(parent.id)"
+              >
+                {{ parent.tenDanhMuc }}
               </div>
-            </ul>
-          </div>
+            </div>
 
-          <router-link
-            v-if="!isAdmin && !isStaff"
-            to="/cart"
-            class="btn btn-outline-danger"
-          >
-            <i class="bi bi-cart"></i>
-            Giỏ hàng
-          </router-link>
-          <router-link
-            v-if="!isAdmin && !isStaff"
-            to="/orders/view"
-            class="btn btn-outline-secondary"
-          >
-            <i class="bi bi-receipt"></i>
-            Đơn hàng
-          </router-link>
-
-          <div class="account-fixed">
-            <template v-if="!isLoggedIn">
-              <router-link to="/register" class="btn btn-outline-primary">
-                Đăng Ký
-              </router-link>
-              <router-link to="/login" class="btn btn-primary">
-                Đăng Nhập
-              </router-link>
-            </template>
-
-            <template v-else>
-              <div class="dropdown">
-                <button
-                  class="btn btn-dark dropdown-toggle"
-                  data-bs-toggle="dropdown"
-                  data-bs-display="static"
-                >
-                  <i class="bi bi-person-circle me-1"></i>
-                  {{ userName }}
-                </button>
-
-                <ul class="dropdown-menu dropdown-menu-end">
-                  <li v-if="isUser || isStaff">
-                    <router-link class="dropdown-item" to="/info">
-                      Thông tin
-                    </router-link>
-                  </li>
-
-                  <li v-if="isAdmin || isStaff">
-                    <router-link class="dropdown-item" to="/managements">
-                      Trang quản trị
-                    </router-link>
-                  </li>
-
-                  <li><hr class="dropdown-divider" /></li>
-                  <li>
-                    <button class="dropdown-item text-danger" @click="logout">
-                      Đăng xuất
-                    </button>
-                  </li>
-                </ul>
+            <div class="mega-right">
+              <div
+                v-for="child in childCategories"
+                :key="child.id"
+                class="mega-child"
+                @click="goToCategory(child.id)"
+              >
+                {{ child.tenDanhMuc }}
               </div>
-            </template>
+            </div>
           </div>
         </div>
       </div>
@@ -188,389 +200,266 @@ onMounted(() => {
 </template>
 
 <style scoped>
-/* .header {
-  width: 100%;
-  
-}
-
-.logo {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
-  cursor: pointer;
-}
-.search-box input {
-  width: 320px;
-  max-width: 100%;
-  border-radius: 20px 0 0 20px;
-}
-.search-box .input-group-text {
-  border-radius: 0 20px 20px 0;
-}
-
-.btn {
-  white-space: nowrap;
-}
-.btn-primary {
-  background-color: var(--bs-primary);
-  color: #fff;
-  border-color: var(--bs-primary);
-}
-.btn-primary:hover {
-  background-color: #fff;
-  color: var(--bs-primary);
-  border-color: var(--bs-primary);
-}
-
-.admin-bar {
-  font-size: 14px;
-}
-.admin-item {
-  cursor: pointer;
-  padding: 6px 10px;
-  border-radius: 6px;
-}
-.admin-item:hover {
-  background: #e9ecef;
-}
-
-.category-mega {
-  width: 70vw;
-  max-width: 900px;
-  left: 50%;
-  transform: translateX(-50%);
-  border-radius: 12px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
-}
-
-.category-parent,
-.category-child {
-  max-height: 360px;
-  overflow-y: auto;
-}
-
-.category-parent-item {
-  padding: 10px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 500;
-  color: #333;
-  transition: all 0.2s ease;
-}
-
-.category-parent-item:hover {
-  background-color: #f1f3f5;
-  color: var(--bs-primary);
-}
-
-.category-child-item {
-  padding: 8px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  color: #555;
-  transition: all 0.15s ease;
-}
-
-.category-child-item:hover {
-  background-color: #f8f9fa;
-  color: var(--bs-danger);
-}
-
-.category-parent::-webkit-scrollbar,
-.category-child::-webkit-scrollbar {
-  width: 6px;
-}
-
-.category-parent::-webkit-scrollbar-thumb,
-.category-child::-webkit-scrollbar-thumb {
-  background-color: #ced4da;
-  border-radius: 4px;
-}
-.header-row {
-  display: flex;
-  align-items: center;
-}
-
-.header-left {
-  flex: 0 0 auto;
-}
-
-.header-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
-}
-
-.header-right {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.account-fixed {
-  margin-left: auto;
-  display: flex;
-  align-items: center;
-} */
-.header {
-  width: 100%;
-  background: linear-gradient(90deg, #243447, #2c3e50);
-  color: #e5edf5;
+.app-header {
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
   position: sticky;
   top: 0;
   z-index: 1000;
 }
 
-.header a {
+/* ===== HEADER TOP ===== */
+
+.header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px 0;
+}
+
+/* LOGO */
+
+.logo-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
   text-decoration: none;
-  color: inherit;
 }
 
 .logo {
-  width: 42px;
-  height: 42px;
-  object-fit: contain;
+  height: 40px;
 }
 
-.header-row {
+.brand {
+  font-size: 20px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+/* SEARCH */
+
+.search-box {
+  flex: 1;
+  max-width: 550px;
+  display: flex;
+}
+
+.search-box input {
+  flex: 1;
+  padding: 10px 14px;
+  border: 1px solid #cbd5e1;
+  border-right: none;
+  border-radius: 8px 0 0 8px;
+  outline: none;
+}
+
+.search-box input:focus {
+  border-color: #2563eb;
+}
+
+.search-box button {
+  border: none;
+  background: #2563eb;
+  color: white;
+  padding: 0 18px;
+  border-radius: 0 8px 8px 0;
+  cursor: pointer;
+}
+
+.search-box button:hover {
+  background: #1d4ed8;
+}
+
+/* HEADER ACTIONS */
+
+.header-actions {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.header-left {
-  flex: 0 0 auto;
+.action-btn {
+  font-size: 20px;
+  color: #1e293b;
+  transition: 0.2s;
 }
 
-.header-center {
-  flex: 1;
-  display: flex;
-  justify-content: center;
+.action-btn:hover {
+  color: #2563eb;
 }
 
-.header-right {
-  flex: 0 0 auto;
-  display: flex;
-  align-items: center;
-}
+/* LOGIN BUTTON */
 
-.header-actions {
-  gap: 10px;
-}
-
-.search-box input {
-  width: 340px;
-  max-width: 100%;
-  border-radius: 999px 0 0 999px;
-  border: none;
-  padding-left: 14px;
-}
-
-.search-box input:focus {
-  box-shadow: none;
-}
-
-.search-box .input-group-text {
-  border-radius: 0 999px 999px 0;
-  background-color: #e9ecef;
-  border: none;
-  cursor: pointer;
-}
-
-.btn {
-  white-space: nowrap;
-  border-radius: 999px;
-  font-size: 14px;
-  padding: 6px 14px;
-}
-
-.btn-primary {
-  background-color: #4a6fa5;
-  border-color: #4a6fa5;
-}
-.btn-primary:hover {
-  background-color: #3d5f90;
-  border-color: #3d5f90;
-}
-
-.btn-light {
-  background-color: #3b5166;
-  color: #e5edf5;
-  border-color: #3b5166;
-}
-.btn-light:hover {
-  background-color: #466078;
-  border-color: #466078;
-}
-
-.btn-outline-danger,
-.btn-outline-secondary {
-  color: #e5edf5;
-  border-color: #b6c2cf;
-}
-.btn-outline-danger:hover,
-.btn-outline-secondary:hover {
-  background-color: #3b5166;
-  border-color: #3b5166;
-}
-
-.btn-dark {
-  background-color: #3b5166;
-  border-color: #3b5166;
-}
-.btn-dark:hover {
-  background-color: #466078;
-}
-
-.dropdown-menu {
-  background-color: #2c3e50;
-  border: none;
-  border-radius: 12px;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
-  padding: 6px;
-}
-
-.dropdown-item {
-  color: #e5edf5;
+.login-btn {
+  background: #2563eb;
+  color: white;
+  padding: 8px 16px;
   border-radius: 8px;
-  padding: 8px 14px;
-  font-size: 14px;
-}
-
-.dropdown-item:hover {
-  background-color: #3b5166;
-  color: #ffffff;
-}
-
-.dropdown-divider {
-  border-color: rgba(255, 255, 255, 0.12);
-}
-
-.category-mega {
-  width: 72vw;
-  max-width: 920px;
-  left: 50%;
-  transform: translateX(-50%);
-  padding: 12px;
-}
-
-.category-parent,
-.category-child {
-  max-height: 360px;
-  overflow-y: auto;
-}
-
-.category-parent-item {
-  padding: 10px 14px;
-  border-radius: 8px;
-  cursor: pointer;
   font-weight: 500;
-  color: #2c3e50;
-  transition:
-    background 0.2s,
-    color 0.2s;
+  text-decoration: none;
 }
 
-.category-parent-item:hover {
-  background-color: #e9eef3;
-  color: #4a6fa5;
+.login-btn:hover {
+  background: #1d4ed8;
 }
 
-.category-child-item {
+/* USER BUTTON */
+
+.user-btn {
+  background: #f1f5f9;
+  border: none;
   padding: 8px 12px;
   border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  color: #444;
-  transition:
-    background 0.15s,
-    color 0.15s;
-}
-
-.category-child-item:hover {
-  background-color: #f1f3f5;
-  color: #dc3545;
-}
-
-.category-parent::-webkit-scrollbar,
-.category-child::-webkit-scrollbar {
-  width: 6px;
-}
-
-.category-parent::-webkit-scrollbar-thumb,
-.category-child::-webkit-scrollbar-thumb {
-  background-color: #c2c9d1;
-  border-radius: 4px;
-}
-
-.account-fixed {
-  margin-left: auto;
   display: flex;
   align-items: center;
+  gap: 6px;
+  cursor: pointer;
 }
 
-.dropdown-menu .dropdown-item {
-  color: #e5edf5;
-  background-color: transparent;
+/* ===== CATEGORY BAR ===== */
+
+.category-bar {
+  background: #f8fafc;
+  border-top: 1px solid #e2e8f0;
 }
 
-.dropdown-menu .dropdown-item:hover,
-.dropdown-menu .dropdown-item:focus {
-  background-color: #3b5166;
-  color: #ffffff;
+.category-dropdown {
+  position: relative;
 }
 
-.dropdown-menu .dropdown-item.text-danger {
-  color: #ff6b6b;
+.category-trigger {
+  border: none;
+  background: none;
+  padding: 10px 0;
+  font-weight: 600;
+  color: #1e293b;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-.dropdown-menu .dropdown-item.text-danger:hover {
-  background-color: rgba(220, 53, 69, 0.15);
-  color: #ff8787;
-}
-.category-mega {
-  background-color: #2c3e50;
+/* ===== MEGA MENU ===== */
+
+.mega-menu {
+  width: 840px;
+  padding: 16px;
+  display: flex;
+  gap: 20px;
 }
 
-.category-parent {
-  border-right: 1px solid rgba(255, 255, 255, 0.15);
+/* LEFT SIDE */
+
+.mega-left {
+  width: 40%;
+  border-right: 1px solid #e2e8f0;
 }
 
-.category-parent-item {
-  color: #ffffff;
-  background-color: transparent;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+.mega-parent {
+  padding: 10px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.category-parent-item:hover {
-  background-color: #ffffff;
-  color: #2c3e50;
+.mega-parent:hover {
+  background: #e2e8f0;
 }
 
-.category-child-item {
-  color: #ffffff;
-  background-color: transparent;
-  transition:
-    background-color 0.15s ease,
-    color 0.15s ease;
+/* RIGHT SIDE */
+
+.mega-right {
+  width: 60%;
+  padding-left: 10px;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
 }
 
-.category-child-item:hover {
-  background-color: #ffffff;
-  color: #2c3e50;
+.mega-child {
+  padding: 8px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s;
 }
 
-.category-parent::-webkit-scrollbar,
-.category-child::-webkit-scrollbar {
-  width: 6px;
+.mega-child:hover {
+  background: #e2e8f0;
+  color: #2563eb;
+}
+.category-dropdown .dropdown-menu {
+  display: none;
 }
 
-.category-parent::-webkit-scrollbar-thumb,
-.category-child::-webkit-scrollbar-thumb {
-  background-color: rgba(255, 255, 255, 0.35);
-  border-radius: 4px;
+.category-dropdown .dropdown-menu.show {
+  display: flex;
+}
+/* ===== DARK MODE HEADER ===== */
+
+.dark .app-header {
+  background: #1e293b;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .category-bar {
+  background: #1e293b;
+  border-top: 1px solid #334155;
+}
+
+/* search */
+
+.dark .search-box input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .search-box input::placeholder {
+  color: #94a3b8;
+}
+
+/* icons */
+
+.dark .action-btn {
+  color: #e2e8f0;
+}
+
+.dark .action-btn:hover {
+  color: #60a5fa;
+}
+
+/* account */
+
+.dark .user-btn {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* category text */
+
+.dark .category-trigger {
+  color: #e2e8f0;
+}
+
+/* mega menu */
+
+.dark .mega-menu {
+  background: #1e293b;
+  border: 1px solid #334155;
+}
+
+.dark .mega-left {
+  border-right: 1px solid #334155;
+}
+
+.dark .mega-parent,
+.dark .mega-child {
+  color: #e2e8f0;
+}
+
+.dark .mega-parent:hover,
+.dark .mega-child:hover {
+  background: #334155;
+  color: #60a5fa;
 }
 </style>

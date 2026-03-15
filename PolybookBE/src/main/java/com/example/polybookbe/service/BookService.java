@@ -23,7 +23,7 @@ public interface BookService {
 
     BookDetailResponse getDetail(Integer id);
 
-    List<BookHomeDTO> getBooksForHome();
+    PageResponse<BookHomeDTO> getBooksForHome(int page, int size);
 
     PageResponse<BookResponse> getBooksWithPaging(int page, int size, String sortBy, String direction);
 

@@ -1,6 +1,9 @@
 <template>
   <div class="container">
-    <h2>Quản lý khuyến mãi</h2>
+    <div class="page-header">
+      <button class="btn-back" @click="goBackManagement">← Quay lại</button>
+      <h2>Quản lý khuyến mãi</h2>
+    </div>
 
     <div class="form-box">
       <h3>{{ editing ? "Sửa khuyến mãi" : "Thêm khuyến mãi" }}</h3>
@@ -60,11 +63,15 @@
 
 <script setup>
 import { ref, onMounted } from "vue";
+import { useRouter } from "vue-router"; // Thêm dòng này
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
+
+const router = useRouter(); // Khởi tạo router
 const promotions = ref([]);
 const books = ref([]);
-
 const editing = ref(false);
 
 const form = ref({
@@ -75,64 +82,89 @@ const form = ref({
   ketThuc: "",
 });
 
-onMounted(async () => {
-  const promoRes = await api.get("/promotions");
-  promotions.value = promoRes.data;
-
-  const bookRes = await api.get("/books", {
-    params: {
-      page: 0,
-      size: 1000,
-    },
-  });
-
-  books.value = bookRes.data.content;
-});
-
-function getBookName(bookId) {
-  const b = books.value.find((x) => x.id === bookId);
-  return b ? b.tieuDe : "";
+// Chuyển logic tải dữ liệu vào một hàm để tái sử dụng
+async function loadPromotions() {
+  try {
+    const res = await api.get("/promotions");
+    promotions.value = res.data;
+  } catch (error) {
+    console.error("Lỗi khi tải danh sách khuyến mãi:", error);
+  }
 }
 
-function savePromotion() {
+async function loadBooks() {
+  try {
+    const res = await api.get("/books", {
+      params: { page: 0, size: 1000 },
+    });
+    books.value = res.data.content;
+  } catch (error) {
+    console.error("Lỗi khi tải danh sách sách:", error);
+  }
+}
+
+onMounted(() => {
+  loadPromotions();
+  loadBooks();
+});
+
+const goBackManagement = () => {
+  router.push("/managements");
+};
+
+async function savePromotion() {
+  // Kiểm tra dữ liệu sơ bộ
+  if (!form.value.bookId || !form.value.chietKhau) {
+    alert("Vui lòng nhập đầy đủ thông tin!");
+    return;
+  }
+
   const payload = {
     bookId: form.value.bookId,
     chietKhau: form.value.chietKhau,
     batDau: form.value.batDau,
     ketThuc: form.value.ketThuc,
-    active: true
+    active: true,
   };
 
-  if (editing.value) {
-    api.put(`/promotions/${form.value.bookId}`, payload).then(loadPromotions);
-  } else {
-    api.post("/promotions", payload).then(loadPromotions);
+  try {
+    if (editing.value) {
+      // Sử dụng ID của khuyến mãi để cập nhật
+      await api.put(`/promotions/${form.value.id}`, payload);
+    } else {
+      await api.post("/promotions", payload);
+    }
+    await loadPromotions(); // Tải lại danh sách
+    resetForm();
+  } catch (error) {
+    alert("Có lỗi xảy ra khi lưu!");
   }
-
-  resetForm();
 }
 
 function editPromotion(p) {
   editing.value = true;
-
   form.value = {
     id: p.id,
-    bookId: p.book?.id,
+    bookId: p.book?.id || "",
     chietKhau: p.chietKhau,
-    batDau: p.batDau?.slice(0, 16),
-    ketThuc: p.ketThuc?.slice(0, 16),
+    // Cắt chuỗi để phù hợp với định dạng của input datetime-local (YYYY-MM-DDTHH:mm)
+    batDau: p.batDau ? p.batDau.slice(0, 16) : "",
+    ketThuc: p.ketThuc ? p.ketThuc.slice(0, 16) : "",
   };
 }
 
-function deletePromotion(id) {
-  if (!confirm("Xóa khuyến mãi?")) return;
-
-  api.delete(`/promotions/${id}`).then(loadPromotions);
+async function deletePromotion(id) {
+  if (!confirm("Bạn có chắc chắn muốn xóa khuyến mãi này?")) return;
+  try {
+    await api.delete(`/promotions/${id}`);
+    loadPromotions();
+  } catch (error) {
+    alert("Xóa thất bại!");
+  }
 }
 
 function resetForm() {
   editing.value = false;
-
   form.value = {
     id: null,
     bookId: "",
@@ -142,15 +174,9 @@ function resetForm() {
   };
 }
 
-async function loadPromotions() {
-  const res = await api.get("/promotions");
-  promotions.value = res.data;
-}
-
 function formatDate(date) {
   if (!date) return "";
-
-  return new Date(date).toLocaleString();
+  return new Date(date).toLocaleString("vi-VN"); // Thêm locale tiếng Việt
 }
 </script>
 
@@ -158,25 +184,46 @@ function formatDate(date) {
 .container {
   max-width: 1000px;
   margin: auto;
-  padding: 40px;
-  background: #eef4ff;
+  padding: 30px;
+  background: #f7f7f7;
   min-height: 100vh;
 }
 
-h2 {
+.page-header {
+  position: relative;
+  margin-bottom: 25px;
+}
+
+.page-header h2 {
+  text-align: center;
+  margin: 0;
   font-size: 24px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 30px;
+  font-weight: 600;
+  color: #333;
+}
+
+.btn-back {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+  cursor: pointer;
+}
+
+.btn-back:hover {
+  background: #f1f1f1;
 }
 
 .form-box {
-  background: linear-gradient(145deg, #ffffff, #f4f9ff);
-  border-radius: 22px;
-  border: 2px solid #007bff;
-  padding: 25px;
+  background: white;
+  border-radius: 10px;
+  border: 1px solid #e2e2e2;
+  padding: 24px;
   margin-bottom: 30px;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
 
   display: flex;
   flex-direction: column;
@@ -184,112 +231,186 @@ h2 {
 }
 
 .form-box h3 {
-  color: #007bff;
   font-size: 18px;
   font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
 }
 
 .form-box input,
 .form-box select {
   padding: 10px 12px;
-  border-radius: 12px;
-  border: 2px solid #cfe2ff;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
   font-size: 14px;
-  transition: 0.2s;
 }
 
 .form-box input:focus,
 .form-box select:focus {
-  border-color: #007bff;
   outline: none;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.15);
+  border-color: #888;
 }
 
 .form-box button {
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
   cursor: pointer;
-  transition: 0.25s;
+  font-weight: 500;
   width: fit-content;
 }
 
-.form-box button:first-of-type {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-}
-
-.form-box button:first-of-type:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
-}
-
-.form-box button:last-of-type {
-  background: #e2e8f0;
-}
-
-.form-box button:last-of-type:hover {
-  background: #cbd5e1;
+.form-box button:hover {
+  background: #f2f2f2;
 }
 
 .promo-table {
   width: 100%;
   border-collapse: collapse;
-  background: linear-gradient(145deg, #ffffff, #f4f9ff);
-  border-radius: 22px;
+  background: white;
+  border: 1px solid #e2e2e2;
+  border-radius: 10px;
   overflow: hidden;
-  border: 2px solid #007bff;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
 }
 
 .promo-table th {
   text-align: left;
   font-weight: 600;
-  font-size: 15px;
-  color: #007bff;
-  padding: 16px;
-  border-bottom: 2px solid #e6eefc;
+  font-size: 14px;
+  padding: 14px;
+  border-bottom: 1px solid #e2e2e2;
+  background: #f5f5f5;
 }
 
 .promo-table td {
-  padding: 16px;
-  border-bottom: 1px solid #e6eefc;
+  padding: 14px;
+  border-bottom: 1px solid #eee;
   font-size: 14px;
 }
 
 .promo-table tbody tr:hover {
-  background: #f1f6ff;
-  transition: 0.2s;
+  background: #fafafa;
 }
 
 .promo-table button {
   padding: 6px 12px;
-  border-radius: 10px;
-  border: none;
-  font-weight: 600;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
   cursor: pointer;
   margin-right: 6px;
-  transition: 0.2s;
 }
 
-.promo-table button:first-child {
-  background: #cffafe;
-  color: #0891b2;
-}
-
-.promo-table button:first-child:hover {
-  background: #0891b2;
-  color: white;
+.promo-table button:hover {
+  background: #f2f2f2;
 }
 
 .promo-table button:last-child {
-  background: #fee2e2;
-  color: #dc2626;
+  border-color: #e74c3c;
+  color: #e74c3c;
 }
 
 .promo-table button:last-child:hover {
-  background: #dc2626;
-  color: white;
+  background: #fdeaea;
+}
+/* ===== DARK MODE ===== */
+
+.dark .container {
+  background: #0f172a;
+}
+
+/* header */
+
+.dark .page-header h2 {
+  color: #f1f5f9;
+}
+
+.dark .btn-back {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-back:hover {
+  background: #334155;
+}
+
+/* form */
+
+.dark .form-box {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .form-box h3 {
+  color: #f1f5f9;
+}
+
+.dark .form-box input,
+.dark .form-box select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-box input:focus,
+.dark .form-box select:focus {
+  border-color: #64748b;
+}
+
+.dark .form-box button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-box button:hover {
+  background: #334155;
+}
+
+/* table */
+
+.dark .promo-table {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .promo-table th {
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.dark .promo-table td {
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.dark .promo-table tbody tr:hover {
+  background: #334155;
+}
+
+/* buttons */
+
+.dark .promo-table button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .promo-table button:hover {
+  background: #334155;
+}
+
+/* delete button */
+
+.dark .promo-table button:last-child {
+  border-color: #ef4444;
+  color: #f87171;
+}
+
+.dark .promo-table button:last-child:hover {
+  background: rgba(239, 68, 68, 0.15);
 }
 </style>

@@ -78,9 +78,6 @@ public class OrderServiceImpl implements OrderService {
                     throw new RuntimeException("Không đủ tồn kho");
                 }
 
-                book.setHangTon(book.getHangTon() - req.getSoLuong());
-                bookRepository.save(book);
-
                 BigDecimal finalPrice = promotionService.calculateDiscountPrice(book);
 
                 OrderItem item = new OrderItem();
@@ -119,7 +116,6 @@ public class OrderServiceImpl implements OrderService {
                     throw new RuntimeException("Không đủ tồn kho");
                 }
 
-                book.setHangTon(book.getHangTon() - cartItem.getSoLuong());
 
                 BigDecimal finalPrice = promotionService.calculateDiscountPrice(book);
 
@@ -157,31 +153,81 @@ public class OrderServiceImpl implements OrderService {
 
         Integer current = order.getTrangThai();
 
-        if (current == 5) {
-            throw new RuntimeException("Đơn đã bị hủy");
-        }
-
-        if (newTrangThai == 5) {
-
-            if (current >= 2) {
-                throw new RuntimeException("Không thể hủy đơn ở trạng thái hiện tại");
-            }
-
-            for (OrderItem item : order.getItems()) {
-                Book book = item.getBook();
-                book.setHangTon(book.getHangTon() + item.getSoLuong());
-            }
-
-            order.setTrangThai(5);
-            return;
+        if (current == 5 || current == 6) {
+            throw new RuntimeException("Đơn đã kết thúc");
         }
 
         if (newTrangThai < current) {
             throw new RuntimeException("Không thể quay ngược trạng thái");
         }
 
+        // =========================
+        // TRỪ TỒN KHO KHI XÁC NHẬN
+        // =========================
+        if (current < 2 && newTrangThai >= 2){
+
+            for (OrderItem item : order.getItems()) {
+
+                Book book = item.getBook();
+
+                if (book.getHangTon() < item.getSoLuong()) {
+                    throw new RuntimeException("Không đủ tồn kho");
+                }
+
+                book.setHangTon(book.getHangTon() - item.getSoLuong());
+                bookRepository.save(book);
+            }
+        }
+
+        // =========================
+        // HỦY ĐƠN
+        // =========================
+        if (newTrangThai == 5) {
+
+            if (current >= 3) {
+                throw new RuntimeException("Không thể hủy ở trạng thái này");
+            }
+
+            if (current >= 2) {
+                restoreStock(order);
+            }
+
+            order.setTrangThai(5);
+            return;
+        }
+
+        // =========================
+        // HOÀN TRẢ
+        // =========================
+        if (newTrangThai == 6) {
+
+            if (current < 4) {
+                throw new RuntimeException("Chỉ hoàn trả sau khi giao");
+            }
+
+            restoreStock(order);
+            order.setTrangThai(6);
+            return;
+        }
+
+        // =========================
+        // TRẠNG THÁI LỖI
+        // =========================
+        if (newTrangThai == 7) {
+
+            if (current != 3 && current != 4) {
+                throw new RuntimeException("Chỉ có thể chuyển sang lỗi từ đang giao hoặc giao thành công");
+            }
+
+            order.setTrangThai(7);
+            return;
+        }
+
         order.setTrangThai(newTrangThai);
 
+        // =========================
+        // TẠO PAYMENT KHI HOÀN THÀNH
+        // =========================
         if (newTrangThai == 4) {
 
             boolean exists = paymentRepository.existsByOrder(order);
@@ -206,6 +252,18 @@ public class OrderServiceImpl implements OrderService {
         }
     }
 
+    private void restoreStock(Order order) {
+
+        for (OrderItem item : order.getItems()) {
+
+            Book book = item.getBook();
+
+            book.setHangTon(book.getHangTon() + item.getSoLuong());
+
+            bookRepository.save(book);
+        }
+    }
+
     @Override
     public OrderDetailResponse getDetail(Integer id) {
 
@@ -227,7 +285,7 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public Page<OrderListResponse> getAllForManagement(Pageable pageable) {
 
-        return orderRepository.findAll(pageable)
+        return orderRepository.findAllForManagement(pageable)
                 .map(OrderListResponse::new);
     }
 
@@ -242,8 +300,9 @@ public class OrderServiceImpl implements OrderService {
 
             Book book = item.getBook();
 
-            if (!order.getTrangThai().equals(5)) {
+            if (order.getTrangThai() >= 2 && order.getTrangThai() != 7) {
                 book.setHangTon(book.getHangTon() + item.getSoLuong());
+                bookRepository.save(book);
             }
         }
 

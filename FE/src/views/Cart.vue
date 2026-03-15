@@ -124,6 +124,9 @@ import { getItems, removeItem, updateQty } from "@/utils/cart";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const auth = useAuthStore();
 const router = useRouter();
@@ -259,87 +262,224 @@ const order = () => router.push("/order");
 </script>
 
 <style scoped>
-.cart-item {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding-bottom: 12px;
-  margin-bottom: 12px;
-  border-bottom: 1px solid #eee;
+.cart-page{
+  max-width:1100px;
 }
 
-.item-img {
-  width: 70px;
-  height: 100px;
-  object-fit: cover;
-  border-radius: 4px;
+/* item */
+
+.cart-item{
+  display:grid;
+  grid-template-columns:80px 1fr 120px 120px 40px;
+  align-items:center;
+  gap:16px;
+
+  padding:14px 0;
+  border-bottom:1px solid #f0f0f0;
 }
 
-.item-info {
-  flex: 1;
-  min-width: 200px;
+/* image */
+
+.item-img{
+  width:70px;
+  height:100px;
+  object-fit:cover;
+  border-radius:6px;
+  border:1px solid #eee;
 }
 
-.old-price {
-  text-decoration: line-through;
-  color: gray;
-  font-size: 14px;
+/* info */
+
+.item-info{
+  display:flex;
+  flex-direction:column;
+  gap:4px;
 }
 
-.new-price {
-  color: #dc3545;
-  font-weight: 600;
+.item-info .fw-semibold{
+  font-size:15px;
+  color:#111;
 }
 
-.qty-wrapper {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.old-price{
+  text-decoration:line-through;
+  color:#888;
+  font-size:13px;
 }
 
-.qty-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid #ddd;
-  background: #fff;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.new-price{
+  color:#e53935;
+  font-weight:600;
+  font-size:15px;
 }
 
-.qty-number {
-  width: 28px;
-  text-align: center;
+/* quantity */
+
+.qty-wrapper{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
 }
 
-.item-total {
-  min-width: 110px;
-  font-weight: 600;
+.qty-btn{
+  width:30px;
+  height:30px;
+
+  border:1px solid #ddd;
+  background:#fff;
+  border-radius:6px;
+
+  font-size:16px;
+  cursor:pointer;
+
+  transition:0.2s;
 }
 
-.btn-remove {
-  border: none;
-  background: transparent;
-  color: #999;
-  font-size: 18px;
-  cursor: pointer;
-
-  width: 36px;
-  height: 36px;
-
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  flex-shrink: 0;
-
-  position: relative;
-  z-index: 10;
+.qty-btn:hover{
+  background:#f5f5f5;
 }
 
-.empty-cart {
-  max-width: 900px;
-  margin: auto;
+.qty-number{
+  width:32px;
+  text-align:center;
+  font-weight:500;
+}
+
+/* total */
+
+.item-total{
+  font-weight:600;
+  text-align:right;
+}
+
+/* remove */
+
+.btn-remove{
+  border:none;
+  background:transparent;
+
+  color:#999;
+  font-size:18px;
+  cursor:pointer;
+
+  transition:0.2s;
+}
+
+.btn-remove:hover{
+  color:#e53935;
+}
+
+/* card */
+
+.card{
+  border:1px solid #eee;
+  border-radius:10px;
+}
+
+.card-header{
+  background:#fafafa;
+  border-bottom:1px solid #eee;
+}
+
+/* empty */
+
+.empty-cart{
+  max-width:700px;
+  margin:auto;
+}
+
+/* responsive */
+
+@media (max-width:768px){
+
+  .cart-item{
+    grid-template-columns:70px 1fr;
+    grid-template-rows:auto auto auto;
+    gap:10px;
+  }
+
+  .qty-wrapper{
+    justify-content:flex-start;
+  }
+
+  .item-total{
+    text-align:left;
+  }
+}
+/* ===== DARK MODE CART ===== */
+
+.dark .cart-page {
+  color: #e2e8f0;
+}
+
+.dark .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .card-header {
+  background: #0f172a;
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.dark .cart-item {
+  border-bottom: 1px solid #334155;
+}
+
+.dark .item-info .fw-semibold {
+  color: #f1f5f9;
+}
+
+.dark .old-price {
+  color: #94a3b8;
+}
+
+.dark .new-price {
+  color: #f87171;
+}
+
+.dark .item-img {
+  border-color: #334155;
+}
+
+/* quantity */
+
+.dark .qty-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .qty-btn:hover {
+  background: #1e293b;
+}
+
+.dark .qty-number {
+  color: #e2e8f0;
+}
+
+/* remove */
+
+.dark .btn-remove {
+  color: #94a3b8;
+}
+
+.dark .btn-remove:hover {
+  color: #f87171;
+}
+
+/* empty cart */
+
+.dark .empty-cart {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+/* voucher text */
+
+.dark .text-muted {
+  color: #94a3b8 !important;
 }
 </style>

@@ -98,6 +98,13 @@
         >
           Hoàn trả
         </button>
+        <button
+          class="btn btn-error"
+          :disabled="!canError"
+          @click="changeStatus(7)"
+        >
+          Lỗi
+        </button>
       </div>
     </div>
 
@@ -112,6 +119,9 @@
 import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const route = useRoute();
 const router = useRouter();
@@ -130,8 +140,6 @@ const order = ref({
   quocGia: "",
   trangThai: 0,
 });
-
-
 
 const orderItems = ref([]);
 
@@ -153,6 +161,7 @@ const canSuccess = computed(() => order.value.trangThai === 3);
 const canCancel = computed(() => ![4, 5, 6].includes(order.value.trangThai));
 
 const canReturn = computed(() => order.value.trangThai === 4);
+const canError = computed(() => ![4,5,6,7].includes(order.value.trangThai));
 
 const changeStatus = async (newStatus) => {
   const id = order.value.id;
@@ -174,201 +183,163 @@ const formatMoney = (value) => {
 };
 const goBack = () => {
   router.push("/management/orders");
-};  
+};
 </script>
 
 <style scoped>
-/* ===== PAGE ===== */
 .order-detail {
   max-width: 1000px;
   margin: auto;
-  padding: 40px;
-  background: #eef4ff;
+  padding: 30px;
+  background: #f6f7f9;
   min-height: 100vh;
 }
 
 h3 {
-  font-size: 24px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 30px;
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #333;
 }
 
-/* ===== CARD ===== */
+/* CARD */
+
 .card {
-  background: linear-gradient(145deg, #ffffff, #f4f9ff);
-  border-radius: 22px;
-  padding: 25px;
-  margin-bottom: 30px;
-  border: 2px solid #007bff;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 20px;
+  border: 1px solid #e5e5e5;
 }
 
 .card-header {
+  font-size: 15px;
   font-weight: 600;
-  font-size: 16px;
-  color: #007bff;
-  margin-bottom: 15px;
+  margin-bottom: 12px;
+  color: #333;
 }
 
 .card-body p {
-  margin-bottom: 8px;
+  margin-bottom: 6px;
   font-size: 14px;
 }
 
-.kh-info {
-  text-align: left;
-}
+/* PRODUCT */
 
 .product-list {
   display: flex;
-  gap: 16px;
-  flex-wrap: wrap;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .product-item {
   display: flex;
+  align-items: center;
   gap: 12px;
-  padding: 14px;
-  border-radius: 16px;
-  background: white;
-  border: 1px solid #e6eefc;
-  width: 260px;
-  transition: 0.25s;
-}
-
-.product-item:hover {
-  background: #f1f6ff;
-  transform: translateY(-4px);
-  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.2);
+  padding: 10px;
+  border: 1px solid #eee;
+  border-radius: 6px;
 }
 
 .product-image {
-  width: 60px;
-  height: 80px;
+  width: 50px;
+  height: 70px;
   object-fit: cover;
-  border-radius: 6px;
+  border-radius: 4px;
 }
 
 .product-name {
   font-weight: 600;
-  margin-bottom: 4px;
+  font-size: 14px;
 }
 
 .product-price {
   font-size: 13px;
-  color: #007bff;
+  color: #666;
 }
+
+/* STATUS */
 
 .status-actions {
   display: flex;
-  gap: 10px;
   flex-wrap: wrap;
+  gap: 8px;
 }
 
 .status-actions .btn {
-  padding: 8px 16px;
-  border-radius: 14px;
-  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #dcdcdc;
+  background: white;
   cursor: pointer;
-  transition: 0.25s;
-  border: 2px solid transparent;
-}
-
-.status-actions .btn:not(:disabled) {
-  border: 2px solid #007bff;
-}
-
-.status-actions .btn:not(:disabled):hover {
-  transform: translateY(-2px);
-  box-shadow: 
-    0 0 0 3px rgba(0, 123, 255, 0.25),
-    0 8px 20px rgba(0, 123, 255, 0.35);
-}
-
-.status-actions .btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  border: 2px solid transparent;
-  box-shadow: none;
-}
-
-.status-actions .btn:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.btn-secondary {
-  background: #e2e8f0;
-  color: #334155;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-}
-
-.btn-info {
-  background: #cffafe;
-  color: #0891b2;
-}
-
-.btn-warning {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.btn-success {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.btn-danger {
-  background: #fee2e2;
-  color: #dc2626;
 }
 
 .status-actions .btn:hover:not(:disabled) {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 123, 255, 0.25);
+  background: #f2f2f2;
 }
 
-.btn-delete {
-  padding: 10px 20px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+.status-actions .btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.status-actions .btn {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #dcdcdc;
+  background: #f8f8f8;
+  color: #333;
   cursor: pointer;
-  background: crimson;
+}
+.status-error {
+  color: #991b1b;
+  font-weight: 600;
+}
+.btn-error {
+  background: #991b1b;
   color: white;
-  transition: 0.25s;
+  border: none;
 }
 
-.btn-delete:hover {
-  background: #b3002d;
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(220, 20, 60, 0.4);
+.btn-error:hover:not(:disabled) {
+  background: #7f1d1d;
 }
+
+.status-actions .btn:hover:not(:disabled) {
+  background: #eeeeee;
+}
+
+/* BOTTOM ACTION */
+
 .action-bottom {
   display: flex;
   justify-content: flex-end;
-  gap: 12px;
-  margin-top: 10px;
+  gap: 10px;
 }
 
-.btn-back {
-  padding: 10px 20px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+.btn-back,
+.btn-delete {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 13px;
   cursor: pointer;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-  transition: 0.25s;
+  background: white;
 }
 
 .btn-back:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+  background: #f2f2f2;
+}
+
+.btn-delete {
+  background: #dc2626;
+  color: white;
+  border: none;
+}
+
+.btn-delete:hover {
+  background: #b91c1c;
 }
 </style>

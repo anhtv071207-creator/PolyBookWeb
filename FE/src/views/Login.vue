@@ -2,8 +2,8 @@
   <div class="login-wrapper">
     <div class="login-card">
       <div class="breadcrumb">
-        <router-link to="/">Trang chủ</router-link> 
-        <span class="divider">></span> 
+        <router-link to="/">Trang chủ</router-link>
+        <span class="divider">></span>
         <span class="current">Đăng nhập</span>
       </div>
 
@@ -12,12 +12,16 @@
         <router-link to="/register" class="tab tab-link">Đăng ký</router-link>
       </div>
 
-      <form v-if="activeTab === 'login'" @submit.prevent="login" class="login-form">
+      <form
+        v-if="activeTab === 'login'"
+        @submit.prevent="login"
+        class="login-form"
+      >
         <div class="form-group">
           <label>Email</label>
-          <input 
-            type="email" 
-            v-model="email" 
+          <input
+            type="email"
+            v-model="email"
             placeholder="example@gmail.com"
             :class="{ 'input-error': errors.email }"
           />
@@ -26,9 +30,9 @@
 
         <div class="form-group">
           <label>Mật khẩu</label>
-          <input 
-            type="password" 
-            v-model="password" 
+          <input
+            type="password"
+            v-model="password"
             placeholder="Nhập mật khẩu"
             :class="{ 'input-error': errors.password }"
           />
@@ -65,6 +69,9 @@ import { ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const errors = ref({});
 const serverError = ref("");
@@ -103,15 +110,12 @@ const login = async () => {
       password: password.value,
     });
 
-    // Lưu thông tin vào Auth Store (Pinia)
     authStore.setAuth({
       token: res.data.token,
       email: res.data.email,
       role: res.data.role,
       hoTen: res.data.hoTen,
     });
-
-    // Gán token vào header mặc định cho các request sau
     api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
 
     router.push("/");
@@ -123,7 +127,9 @@ const login = async () => {
       return;
     }
 
-    serverError.value = err.response?.data?.message || "Đăng nhập thất bại. Vui lòng kiểm tra lại.";
+    serverError.value =
+      err.response?.data?.message ||
+      "Đăng nhập thất bại. Vui lòng kiểm tra lại.";
   }
 };
 </script>
@@ -311,10 +317,97 @@ const login = async () => {
 }
 
 /* Animations */
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: opacity 0.3s ease;
 }
-.fade-enter-from, .fade-leave-to {
+.fade-enter-from,
+.fade-leave-to {
   opacity: 0;
+}
+
+/* ===== DARK MODE LOGIN ===== */
+
+.dark .login-wrapper {
+  background: #0f172a;
+}
+
+.dark .login-card {
+  background: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.dark .breadcrumb {
+  color: #94a3b8;
+}
+
+.dark .breadcrumb a {
+  color: #94a3b8;
+}
+
+.dark .breadcrumb .current {
+  color: #60a5fa;
+}
+
+.dark .tabs {
+  border-bottom-color: #334155;
+}
+
+.dark .tab {
+  color: #cbd5f5;
+}
+
+.dark .tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
+.dark .form-group label {
+  color: #e2e8f0;
+}
+
+.dark .form-group input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-group input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.25);
+}
+
+.dark .forgot-link a {
+  color: #60a5fa;
+}
+
+.dark .btn-submit {
+  background: #2563eb;
+}
+
+.dark .btn-submit:hover {
+  background: #3b82f6;
+}
+
+.dark .input-error {
+  background: #3b0d0d;
+  border-color: #ef4444 !important;
+}
+
+.dark .server-error {
+  background: #3b0d0d;
+  border-color: #ef4444;
+  color: #fecaca;
+}
+
+/* Popup vẫn giữ nền tối nhưng chỉnh cho đồng bộ */
+.dark .lock-popup {
+  background: #1e293b;
+  color: #f1f5f9;
+}
+
+.dark .lock-popup p {
+  color: #cbd5f5;
 }
 </style>

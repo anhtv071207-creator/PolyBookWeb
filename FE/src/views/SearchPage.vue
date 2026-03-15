@@ -2,7 +2,9 @@
 import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const route = useRoute();
 
 const books = ref([]);
@@ -18,7 +20,7 @@ const fetchBooks = async () => {
   const res = await api.get("/books/search", {
     params: {
       keyword: keyword.value,
-      page: 0,
+      page: 0,  
       size: 12
     }
   });

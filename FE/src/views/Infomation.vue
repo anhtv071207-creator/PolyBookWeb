@@ -3,87 +3,75 @@
     <div class="profile-card">
       <h2>Thông tin cá nhân</h2>
 
-      <form @submit.prevent="updateProfile">
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Họ tên</label></div>
-          <div class="col-9">
-            <input type="text" v-model="form.hoTen" class="form-control" />
-          </div>
+      <form class="profile-form" @submit.prevent="updateProfile">
+        <div class="form-group">
+          <label>Họ tên</label>
+          <input type="text" v-model="form.hoTen" class="form-control" />
         </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Số điện thoại</label></div>
-          <div class="col-9">
-            <input type="text" v-model="form.phone" class="form-control" />
-          </div>
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <input type="text" v-model="form.phone" class="form-control" />
         </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Quốc gia</label></div>
-          <div class="col-9">
-            <select class="form-select">
-              <option>Việt Nam</option>
-            </select>
-          </div>
-        </div>
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Tỉnh / Thành</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedProvince"
-              @change="onProvinceChange"
-            >
-              <option :value="null" disabled hidden>
-                -- Chọn tỉnh / thành --
-              </option>
-              <option v-for="p in provinces" :key="p.code" :value="p">
-                {{ p.name }}
-              </option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>Quốc gia</label>
+          <select class="form-select">
+            <option>Việt Nam</option>
+          </select>
         </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Quận / Huyện</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedDistrict"
-              @change="onDistrictChange"
-              :disabled="!districts.length"
-            >
-              <option :value="null">-- Chọn quận / huyện --</option>
+        <div class="form-group">
+          <label>Tỉnh / Thành</label>
+          <select
+            class="form-select"
+            v-model="selectedProvince"
+            @change="onProvinceChange"
+          >
+            <option :value="null" disabled hidden>
+              -- Chọn tỉnh / thành --
+            </option>
 
-              <option v-for="d in districts" :key="d.code" :value="d">
-                {{ d.name }}
-              </option>
-            </select>
-          </div>
+            <option v-for="p in provinces" :key="p.code" :value="p">
+              {{ p.name }}
+            </option>
+          </select>
         </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Phường / Xã</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedWard"
-              :disabled="!wards.length"
-            >
-              <option :value="null">-- Chọn phường / xã --</option>
+        <div class="form-group">
+          <label>Quận / Huyện</label>
+          <select
+            class="form-select"
+            v-model="selectedDistrict"
+            @change="onDistrictChange"
+            :disabled="!districts.length"
+          >
+            <option :value="null">-- Chọn quận / huyện --</option>
 
-              <option v-for="w in wards" :key="w.code" :value="w">
-                {{ w.name }}
-              </option>
-            </select>
-          </div>
+            <option v-for="d in districts" :key="d.code" :value="d">
+              {{ d.name }}
+            </option>
+          </select>
         </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label> Địa chỉ chi tiết</label></div>
-          <div class="col-9">
-            <input type="text" v-model="form.diaChi" class="form-control" />
-          </div>
+        <div class="form-group">
+          <label>Phường / Xã</label>
+          <select
+            class="form-select"
+            v-model="selectedWard"
+            :disabled="!wards.length"
+          >
+            <option :value="null">-- Chọn phường / xã --</option>
+
+            <option v-for="w in wards" :key="w.code" :value="w">
+              {{ w.name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Địa chỉ chi tiết</label>
+          <input type="text" v-model="form.diaChi" class="form-control" />
         </div>
 
         <button class="btn-save" :disabled="loading">
@@ -98,6 +86,9 @@
 import { ref, onMounted } from "vue";
 import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const authStore = useAuthStore();
 const loading = ref(false);
@@ -244,7 +235,7 @@ const mapAddressToSelect = async (data) => {
 
 .profile-card {
   width: 100%;
-  max-width: 640px;
+  max-width: 560px;
   background: #fff;
   padding: 28px 32px;
   border-radius: 10px;
@@ -256,7 +247,12 @@ const mapAddressToSelect = async (data) => {
   font-weight: 700;
   margin-bottom: 24px;
   color: #222;
-  text-align: center;
+  text-align: left;
+}
+.profile-form label {
+  display: block;
+  text-align: left;
+  margin-bottom: 4px;
 }
 
 .label-form label {
@@ -338,5 +334,92 @@ const mapAddressToSelect = async (data) => {
     flex: 0 0 100%;
     max-width: 100%;
   }
+}
+.profile-form {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+.form-control,
+.form-select {
+  width: 100%;
+}
+
+.form-group {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  align-items: center;
+  gap: 10px;
+}
+.form-group label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  text-align: left;
+}
+/* ===== DARK MODE PROFILE ===== */
+
+.dark .profile-wrapper {
+  background: #0f172a;
+}
+
+.dark .profile-card {
+  background: #1e293b;
+  box-shadow: none;
+  color: #e2e8f0;
+}
+
+/* title */
+
+.dark .profile-card h2 {
+  color: #f1f5f9;
+}
+
+/* label */
+
+.dark .form-group label {
+  color: #cbd5f5;
+}
+
+/* input + select */
+
+.dark .form-control,
+.dark .form-select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-control::placeholder {
+  color: #94a3b8;
+}
+
+.dark .form-control:focus,
+.dark .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+}
+
+/* select arrow */
+
+.dark .form-select {
+  background-image: url("data:image/svg+xml,%3Csvg width='12' height='12' viewBox='0 0 24 24' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M6 9L12 15L18 9' stroke='%23cbd5f5' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  background-size: 14px;
+}
+
+/* button */
+
+.dark .btn-save {
+  background: #2563eb;
+}
+
+.dark .btn-save:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.dark .btn-save:disabled {
+  background: #475569;
 }
 </style>

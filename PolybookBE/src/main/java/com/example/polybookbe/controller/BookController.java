@@ -51,8 +51,11 @@ public class BookController {
     }
 
     @GetMapping("/home")
-    public List<BookHomeDTO> home() {
-        return bookService.getBooksForHome();
+    public PageResponse<BookHomeDTO> getBooksForHome(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+
+        return bookService.getBooksForHome(page, size);
     }
 
     @PutMapping("/{id}")

@@ -84,7 +84,9 @@
 import { ref } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const router = useRouter();
 
 const hoTen = ref("");
@@ -222,7 +224,6 @@ const register = async () => {
   border-bottom-color: #1890ff;
 }
 
-/* Các nhóm nhập liệu */
 .form-group {
   margin-bottom: 20px;
   text-align: left;
@@ -284,5 +285,75 @@ const register = async () => {
   border-radius: 6px;
   margin-bottom: 20px;
   font-size: 14px;
+}
+/* ===== DARK MODE REGISTER ===== */
+
+.dark .login-wrapper {
+  background: #0f172a;
+}
+
+.dark .login-card {
+  background: #1e293b;
+  color: #e2e8f0;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+}
+
+.dark .breadcrumb {
+  color: #94a3b8;
+}
+
+.dark .breadcrumb a {
+  color: #94a3b8;
+}
+
+.dark .breadcrumb .current {
+  color: #60a5fa;
+}
+
+.dark .tabs {
+  border-bottom-color: #334155;
+}
+
+.dark .tab {
+  color: #cbd5f5;
+}
+
+.dark .tab.active {
+  color: #60a5fa;
+  border-bottom-color: #60a5fa;
+}
+
+.dark .form-group label {
+  color: #e2e8f0;
+}
+
+.dark .form-group input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-group input:focus {
+  border-color: #60a5fa;
+  box-shadow: 0 0 0 2px rgba(96,165,250,0.25);
+}
+
+.dark .btn-submit {
+  background: #2563eb;
+}
+
+.dark .btn-submit:hover {
+  background: #3b82f6;
+}
+
+.dark .input-error {
+  background: #3b0d0d;
+  border-color: #ef4444 !important;
+}
+
+.dark .server-error {
+  background: #3b0d0d;
+  border-color: #ef4444;
+  color: #fecaca;
 }
 </style>

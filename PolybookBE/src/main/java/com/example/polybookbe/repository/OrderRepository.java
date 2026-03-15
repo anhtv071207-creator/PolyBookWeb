@@ -33,4 +33,15 @@ public interface OrderRepository extends JpaRepository<Order,Integer> {
        WHERE o.trangThai = :status
        """)
     BigDecimal sumTongTienByTrangThai(Integer status);
+
+    @Query("""
+SELECT o FROM Order o
+ORDER BY
+CASE
+    WHEN o.trangThai IN (4,5,6) THEN 1
+    ELSE 0
+END,
+o.ngayTao DESC
+""")
+    Page<Order> findAllForManagement(Pageable pageable);
 }

@@ -2,7 +2,9 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const router = useRouter();
 
 const loading = ref(true);
@@ -86,100 +88,143 @@ onMounted(fetchStatistics);
 .container {
   max-width: 1200px;
   margin: 40px auto;
-  padding: 40px;
-  background: #eef4ff;
-  border-radius: 24px;
+  padding: 30px;
+  background: #f6f7f9;
   min-height: 100vh;
 }
 
-/* ===== HEADER ===== */
 .page-header {
-  position: relative;
-  text-align: center;
-  margin-bottom: 45px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 30px;
 }
 
 .page-header h2 {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0d6efd;
+  font-size: 22px;
+  font-weight: 600;
   margin: 0;
 }
 
 .btn-back {
-  position: absolute;
-  left: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+  background: white;
   cursor: pointer;
-  background: linear-gradient(135deg, #0d6efd, #00c6ff);
-  color: white;
-  transition: 0.3s;
+  font-size: 14px;
 }
 
 .btn-back:hover {
-  transform: translateY(-50%) translateY(-3px);
-  box-shadow: 0 10px 25px rgba(13, 110, 253, 0.35);
+  background: #f2f2f2;
 }
 
 .stats-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 28px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
 }
 
 .stat-card {
-  background: linear-gradient(145deg, #ffffff, #f4f9ff);
-  padding: 35px 25px;
-  border-radius: 22px;
-  text-align: center;
-  transition: 0.3s;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.06);
-  border: 2px solid transparent;
-}
-
-.stat-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 20px 45px rgba(0, 0, 0, 0.12);
+  background: white;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #e6e6e6;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .stat-icon {
-  font-size: 32px;
-  margin-bottom: 10px;
+  font-size: 22px;
 }
 
 .stat-card h4 {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 500;
   color: #666;
-  margin-bottom: 8px;
-  text-transform: uppercase;
-  letter-spacing: 1px;
+  margin: 0;
 }
 
 .stat-card p {
-  font-size: 30px;
-  font-weight: 800;
+  font-size: 26px;
+  font-weight: 700;
   margin: 0;
 }
 
 .blue {
-  border-color: #0d6efd;
+  border-left: 4px solid #0d6efd;
 }
 
 .green {
-  border-color: #198754;
+  border-left: 4px solid #198754;
 }
 
 .orange {
-  border-color: #fd7e14;
+  border-left: 4px solid #fd7e14;
 }
 
 .purple {
-  border-color: #6f42c1;
+  border-left: 4px solid #6f42c1;
+}
+/* ===== DARK MODE ===== */
+
+.dark .container {
+  background: #0f172a;
+}
+
+/* header */
+
+.dark .page-header h2 {
+  color: #f1f5f9;
+}
+
+.dark .btn-back {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-back:hover {
+  background: #334155;
+}
+
+/* stats card */
+
+.dark .stat-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .stat-card h4 {
+  color: #94a3b8;
+}
+
+.dark .stat-card p {
+  color: #f1f5f9;
+}
+
+/* icon */
+
+.dark .stat-icon {
+  filter: brightness(1.2);
+}
+
+/* border colors giữ nguyên nhưng nhẹ hơn trong dark */
+
+.dark .blue {
+  border-left-color: #3b82f6;
+}
+
+.dark .green {
+  border-left-color: #22c55e;
+}
+
+.dark .orange {
+  border-left-color: #f59e0b;
+}
+
+.dark .purple {
+  border-left-color: #a855f7;
 }
 </style>

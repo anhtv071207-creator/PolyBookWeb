@@ -31,6 +31,10 @@
         >
           <div class="card h-100 border-0 book-card">
             <div class="img-wrapper">
+              <div v-if="book.discount > 0" class="sale-badge">
+                -{{ book.discount }}%
+              </div>
+
               <img
                 :src="
                   book.images?.find((i) => i.biaSach)?.url ||
@@ -74,6 +78,9 @@
 import { ref, computed, watch } from "vue";
 import { useRoute } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const route = useRoute();
 
@@ -118,12 +125,13 @@ watch(
 }
 
 .breadcrumb-custom .current {
-  color: #d12e28;
-  font-weight: 600;
+  color: #333;
+  font-weight: 500;
 }
 
 .category-header h4 {
   font-size: 1.4rem;
+  font-weight: 600;
 }
 
 .empty-box {
@@ -132,51 +140,64 @@ watch(
   color: #888;
 }
 
+/* CARD */
+
+.book-card {
+  border-radius: 10px;
+  background: #fff;
+  border: 1px solid #eee;
+  transition: 0.2s;
+}
+
+.book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+}
+
+/* IMAGE */
+
 .img-wrapper {
   overflow: hidden;
-  border-radius: 12px;
+  border-radius: 10px 10px 0 0;
+  background: #fafafa;
 }
 
 .book-img {
   width: 100%;
   aspect-ratio: 2 / 3;
   object-fit: cover;
-  transition: transform 0.3s ease;
-}
-
-.book-card {
-  border-radius: 14px;
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.book-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 14px 28px rgba(0, 0, 0, 0.08);
+  transition: 0.25s;
 }
 
 .book-card:hover .book-img {
-  transform: scale(1.05);
+  transform: scale(1.04);
 }
+
+/* TITLE */
 
 .book-title {
   font-size: 0.95rem;
   font-weight: 600;
-  min-height: 42px;
+  color: #222;
   line-height: 1.4;
+  min-height: 40px;
 }
+
+/* AUTHOR */
 
 .book-author {
   font-size: 0.85rem;
   color: #777;
 }
 
+/* PRICE */
+
 .book-price {
-  font-weight: 700;
-  color: #d12e28;
-  font-size: 1rem;
+  font-weight: 600;
+  color: #222;
+  font-size: 0.95rem;
 }
+
 .price-box {
   display: flex;
   align-items: center;
@@ -185,13 +206,112 @@ watch(
 
 .old-price {
   text-decoration: line-through;
-  color: #999;
-  font-size: 0.85rem;
+  color: #aaa;
+  font-size: 0.8rem;
 }
 
 .new-price {
+  font-weight: 600;
+  color: #111;
+  font-size: 0.95rem;
+}
+.sale-badge {
+  position: absolute;
+  top: 10px;
+  left: -8px;
+  background: linear-gradient(135deg, #ff4d4f, #d12e28);
+  color: white;
+  font-size: 12px;
   font-weight: 700;
-  color: #d12e28;
-  font-size: 1rem;
+  padding: 4px 10px;
+  transform: rotate(-12deg);
+  border-radius: 4px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+.book-title {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+/* ===== DARK MODE CATEGORY PAGE ===== */
+
+.dark .container {
+  color: #e2e8f0;
+}
+
+/* breadcrumb */
+
+.dark .breadcrumb-custom {
+  color: #94a3b8;
+}
+
+.dark .breadcrumb-custom .current {
+  color: #e2e8f0;
+}
+
+/* header */
+
+.dark .category-header h4 {
+  color: #f1f5f9;
+}
+
+.dark .text-muted {
+  color: #94a3b8 !important;
+}
+
+/* empty */
+
+.dark .empty-box {
+  color: #94a3b8;
+}
+
+/* card */
+
+.dark .book-card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .book-card:hover {
+  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+}
+
+/* image */
+
+.dark .img-wrapper {
+  background: #0f172a;
+}
+
+/* title */
+
+.dark .book-title {
+  color: #f1f5f9;
+}
+
+/* author */
+
+.dark .book-author {
+  color: #94a3b8;
+}
+
+/* price */
+
+.dark .book-price {
+  color: #e2e8f0;
+}
+
+.dark .old-price {
+  color: #64748b;
+}
+
+.dark .new-price {
+  color: #f87171;
+}
+
+/* router link text */
+
+.dark a {
+  color: inherit;
 }
 </style>

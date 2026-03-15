@@ -1,11 +1,9 @@
 <template>
   <section class="order-management">
-<div class="page-header">
-  <button class="btn-back" @click="goBackManagement">
-    ← Quay lại
-  </button>
-  <h2>Quản lý sản phẩm</h2>
-</div>
+    <div class="page-header">
+      <button class="btn-back" @click="goBackManagement">← Quay lại</button>
+      <h2>Quản lý đơn hàng</h2>
+    </div>
 
     <table class="order-table">
       <thead>
@@ -22,8 +20,8 @@
       </thead>
 
       <tbody>
-        <tr v-for="order in orders" :key="order.id">
-          <td>{{ order.id }}</td>
+        <tr v-for="(order, index) in orders" :key="order.id">
+          <td>{{ currentPage * pageSize + index + 1 }}</td>
           <td>{{ order.maDonHang }}</td>
 
           <td>
@@ -56,7 +54,6 @@
       </tbody>
     </table>
     <div class="pagination" v-if="totalPages > 1">
-
       <button
         class="arrow"
         @click="changePage(currentPage - 1)"
@@ -89,6 +86,9 @@
 import { ref, onMounted } from "vue";
 import { useRouter } from "vue-router";
 import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const router = useRouter();
 
@@ -128,6 +128,7 @@ const STATUS_MAP = {
   4: { text: "Giao thành công", class: "status-success" },
   5: { text: "Hủy", class: "status-cancel" },
   6: { text: "Hoàn trả", class: "status-return" },
+  7: { text: "Lỗi", class: "status-error" },   // thêm dòng này
 };
 
 const statusInfo = (value) => {
@@ -146,103 +147,24 @@ const editOrder = (id) => {
 
 <style scoped>
 .order-management {
-  padding: 40px 5%;
-  background: #eef4ff;
+  padding: 32px 5%;
+  background: #f6f7f9;
   min-height: 100vh;
 }
 
-h2 {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 30px;
-}
+/* header */
 
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
-}
-
-.order-table thead {
-  background: #f1f6ff;
-}
-
-.order-table th {
-  padding: 16px;
-  font-weight: 600;
-  color: #007bff;
-  text-align: center;
-  font-size: 14px;
-}
-
-.order-table td {
-  padding: 16px;
-  text-align: center;
-  font-size: 14px;
-}
-
-.order-table tr {
-  transition: 0.2s;
-}
-
-.order-table tr:hover {
-  background: #f4f9ff;
-}
-
-.status-pill {
-  padding: 6px 14px;
-  border-radius: 999px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-pending {
-  background: #e2e8f0;
-  color: #334155;
-}
-
-.status-confirmed {
-  background: #dbeafe;
-  color: #007bff;
-}
-
-.status-packing {
-  background: #cffafe;
-  color: #0891b2;
-}
-
-.status-shipping {
-  background: #fef3c7;
-  color: #b45309;
-}
-
-.status-success {
-  background: #dcfce7;
-  color: #15803d;
-}
-
-.status-cancel {
-  background: #fee2e2;
-  color: #dc2626;
-}
-
-.status-return {
-  background: #e5e7eb;
-  color: #374151;
-}
 .page-header {
   position: relative;
-  margin-bottom: 35px;
+  margin-bottom: 24px;
 }
 
 .page-header h2 {
   text-align: center;
   margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
 }
 
 .btn-back {
@@ -250,78 +172,272 @@ h2 {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  background: white;
   cursor: pointer;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-  transition: 0.25s;
 }
 
 .btn-back:hover {
-  transform: translateY(-50%) translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+  background: #f2f2f2;
 }
 
-.btn-edit {
-  padding: 8px 16px;
-  border-radius: 14px;
-  font-size: 13px;
+/* table */
+
+.order-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border: 1px solid #e5e5e5;
+}
+
+.order-table thead {
+  background: #f4f4f4;
+}
+
+.order-table th {
+  padding: 12px;
   font-weight: 600;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  border: none;
-  color: white;
+  color: #444;
+  font-size: 13px;
+  text-align: center;
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.order-table td {
+  padding: 12px;
+  font-size: 13px;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.order-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* status */
+
+.status-pill {
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* status colors */
+
+.status-pending {
+  background: #f1f1f1;
+  color: #555;
+}
+
+.status-confirmed {
+  background: #e8f0ff;
+  color: #2563eb;
+}
+
+.status-packing {
+  background: #e6fffb;
+  color: #0891b2;
+}
+
+.status-shipping {
+  background: #fff7e6;
+  color: #d97706;
+}
+
+.status-success {
+  background: #e8f8ee;
+  color: #15803d;
+}
+
+.status-cancel {
+  background: #ffecec;
+  color: #dc2626;
+}
+
+.status-error {
+  background: #7f1d1d;
+  color: #fff;
+}
+.status-return {
+  background: #ececec;
+  color: #555;
+}
+
+/* button */
+
+.btn-edit {
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  border: 1px solid #dcdcdc;
+  background: white;
   cursor: pointer;
-  transition: 0.2s;
 }
 
 .btn-edit:hover {
-  opacity: 0.9;
-  transform: translateY(-2px);
+  background: #f2f2f2;
 }
+
+/* empty */
 
 .empty {
-  padding: 30px;
-  font-weight: 500;
-  color: #64748b;
+  padding: 24px;
+  color: #777;
+  font-size: 14px;
 }
 
+/* pagination */
+
 .pagination {
-  margin-top: 30px;
+  margin-top: 24px;
   display: flex;
   justify-content: center;
-  gap: 10px;
+  gap: 6px;
 }
 
 .pagination button {
-  padding: 8px 14px;
-  border-radius: 12px;
-  border: none;
-  background: #f1f6ff;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  background: white;
   cursor: pointer;
-  transition: 0.2s;
-  min-width: 40px;
-  font-weight: 500;
+  font-size: 13px;
 }
 
 .pagination button:hover {
-  background: #e2edff;
+  background: #f2f2f2;
 }
 
 .pagination button.active {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
+  background: #333;
   color: white;
-}
-
-.pagination button.arrow {
-  font-weight: bold;
-  font-size: 16px;
+  border-color: #333;
 }
 
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
+}
+/* ===== DARK MODE ===== */
+
+.dark .order-management {
+  background: #0f172a;
+}
+
+/* header */
+
+.dark .page-header h2 {
+  color: #f1f5f9;
+}
+
+.dark .btn-back {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-back:hover {
+  background: #334155;
+}
+
+/* table */
+
+.dark .order-table {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .order-table thead {
+  background: #0f172a;
+}
+
+.dark .order-table th {
+  color: #e2e8f0;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .order-table td {
+  color: #e2e8f0;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .order-table tbody tr:hover {
+  background: #334155;
+}
+
+/* status pills */
+
+.dark .status-pending {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+.dark .status-confirmed {
+  background: rgba(59,130,246,0.2);
+  color: #60a5fa;
+}
+
+.dark .status-packing {
+  background: rgba(6,182,212,0.2);
+  color: #22d3ee;
+}
+
+.dark .status-shipping {
+  background: rgba(245,158,11,0.2);
+  color: #fbbf24;
+}
+
+.dark .status-success {
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+}
+
+.dark .status-cancel {
+  background: rgba(239,68,68,0.2);
+  color: #f87171;
+}
+
+.dark .status-return {
+  background: #334155;
+  color: #e2e8f0;
+}
+
+/* button */
+
+.dark .btn-edit {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-edit:hover {
+  background: #334155;
+}
+
+/* empty */
+
+.dark .empty {
+  color: #94a3b8;
+}
+
+/* pagination */
+
+.dark .pagination button {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .pagination button:hover {
+  background: #334155;
+}
+
+.dark .pagination button.active {
+  background: #475569;
+  border-color: #475569;
+  color: white;
 }
 </style>

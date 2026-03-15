@@ -96,7 +96,9 @@ import api from "@/services/api";
 import { useRouter } from "vue-router";
 import { useAuthStore } from "@/stores/auth";
 import { computed } from "vue";
+import { useThemeStore } from "@/stores/theme";
 
+const theme = useThemeStore();
 const router = useRouter();
 const auth = useAuthStore();
 const userId = computed(() => auth.userId);
@@ -207,55 +209,54 @@ onMounted(() => {
 <style scoped>
 .lookup-wrapper {
   min-height: 100vh;
-  background: #f4f6f9;
+  background: #f6f7f9;
   display: flex;
-  align-items: center;
   justify-content: center;
   padding: 40px 16px;
 }
 
 .lookup-card {
   width: 100%;
-  max-width: 1100px;
+  max-width: 1000px;
   background: #fff;
-  border-radius: 14px;
-  padding: 32px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-
-  min-height: 550px;
-  display: flex;
-  flex-direction: column;
+  border-radius: 10px;
+  padding: 28px;
+  border: 1px solid #e6e6e6;
 }
+
+/* header */
 
 .lookup-header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 24px;
 }
 
 .lookup-header h3 {
-  margin-bottom: 6px;
+  font-size: 20px;
   font-weight: 600;
+  margin-bottom: 4px;
 }
 
 .lookup-header p {
-  color: #6c757d;
   font-size: 14px;
+  color: #666;
 }
+
+/* search */
 
 .search-box {
   display: flex;
-  gap: 0;
   margin-bottom: 20px;
 }
 
 .search-box input {
   flex: 1;
-  padding: 12px 16px;
-  border: 1px solid #dee2e6;
+  padding: 10px 14px;
+  border: 1px solid #ddd;
   border-right: none;
-  border-radius: 8px 0 0 8px;
-  outline: none;
+  border-radius: 6px 0 0 6px;
   font-size: 14px;
+  outline: none;
 }
 
 .search-box input:focus {
@@ -263,14 +264,13 @@ onMounted(() => {
 }
 
 .search-box button {
-  padding: 0 20px;
-  border: none;
+  padding: 0 18px;
+  border: 1px solid #0d6efd;
   background: #0d6efd;
-  color: #fff;
-  font-weight: 500;
-  border-radius: 0 8px 8px 0;
+  color: white;
+  border-radius: 0 6px 6px 0;
   cursor: pointer;
-  transition: 0.2s;
+  font-size: 14px;
 }
 
 .search-box button:hover {
@@ -278,39 +278,27 @@ onMounted(() => {
 }
 
 .search-box button:disabled {
-  opacity: 0.7;
+  opacity: 0.6;
   cursor: not-allowed;
 }
 
-.spinner {
-  width: 18px;
-  height: 18px;
-  border: 3px solid #fff;
-  border-top: 3px solid transparent;
-  border-radius: 50%;
-  display: inline-block;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
+/* message */
 
 .error-box {
   background: #ffe3e3;
   color: #dc3545;
-  padding: 12px;
-  border-radius: 8px;
-  margin-bottom: 20px;
+  padding: 10px;
+  border-radius: 6px;
+  margin-bottom: 16px;
 }
 
 .empty-box {
   text-align: center;
-  padding: 30px;
-  color: #6c757d;
+  padding: 25px;
+  color: #666;
 }
+
+/* table */
 
 .table-wrapper {
   overflow-x: auto;
@@ -325,20 +313,23 @@ thead {
   background: #f8f9fa;
 }
 
-th,
+th {
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px;
+}
+
 td {
-  padding: 12px 10px;
-  text-align: center;
-  font-size: 14px;
+  font-size: 13px;
+  padding: 10px;
 }
 
 tbody tr {
   border-bottom: 1px solid #eee;
-  transition: 0.2s;
 }
 
 tbody tr:hover {
-  background: #f9fbff;
+  background: #fafafa;
 }
 
 .money {
@@ -346,91 +337,232 @@ tbody tr:hover {
   color: #198754;
 }
 
+/* status */
+
 .status-pill {
-  padding: 5px 12px;
-  border-radius: 20px;
+  padding: 4px 10px;
+  border-radius: 12px;
   font-size: 12px;
   font-weight: 500;
-  color: #fff;
 }
 
+.status-pending {
+  background: #f1f3f5;
+  color: #495057;
+}
+
+.status-confirmed {
+  background: #e7f1ff;
+  color: #0d6efd;
+}
+
+.status-packing {
+  background: #e6f7ff;
+  color: #0dcaf0;
+}
+
+.status-shipping {
+  background: #fff4e6;
+  color: #f59f00;
+}
+
+.status-success {
+  background: #e6f7ee;
+  color: #198754;
+}
+
+.status-cancel {
+  background: #ffe3e3;
+  color: #dc3545;
+}
+
+.status-return {
+  background: #f1f3f5;
+  color: #6c757d;
+}
+
+/* button */
+
 .view-btn {
-  padding: 6px 12px;
-  border-radius: 6px;
-  border: 1px solid #dee2e6;
-  background: #fff;
+  padding: 5px 12px;
+  border-radius: 5px;
+  border: 1px solid #ddd;
+  background: white;
   cursor: pointer;
-  transition: 0.2s;
+  font-size: 13px;
 }
 
 .view-btn:hover {
-  background: #0d6efd;
-  color: #fff;
-  border-color: #0d6efd;
+  background: #f2f2f2;
 }
-/* Pagination */
+
+/* pagination */
+
 .pagination {
-  margin-top: 20px;
+  margin-top: 18px;
   display: flex;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
 }
 
 .pagination button {
-  padding: 6px 12px;
-  border: 1px solid #dee2e6;
-  background: #fff;
-  border-radius: 6px;
+  padding: 5px 10px;
+  border: 1px solid #ddd;
+  background: white;
+  border-radius: 5px;
   cursor: pointer;
-  transition: 0.2s;
-  min-width: 36px;
 }
 
 .pagination button:hover {
-  background: #f0f4ff;
+  background: #f5f5f5;
 }
 
 .pagination button.active {
   background: #0d6efd;
-  color: #fff;
+  color: white;
   border-color: #0d6efd;
-}
-
-.pagination button.arrow {
-  font-weight: bold;
 }
 
 .pagination button:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
-.status-pending {
-  background: #6c757d;
+/* ===== DARK MODE LOOKUP ORDER ===== */
+
+.dark .lookup-wrapper {
+  background: #0f172a;
 }
 
-.status-confirmed {
-  background: #0d6efd;
+.dark .lookup-card {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
 }
 
-.status-packing {
-  background: #0dcaf0;
+/* header */
+
+.dark .lookup-header p {
+  color: #94a3b8;
 }
 
-.status-shipping {
-  background: #ffc107;
-  color: #000;
+/* search */
+
+.dark .search-box input {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
 }
 
-.status-success {
-  background: #198754;
+.dark .search-box input::placeholder {
+  color: #94a3b8;
 }
 
-.status-cancel {
-  background: #dc3545;
+.dark .search-box button {
+  border-color: #2563eb;
+  background: #2563eb;
 }
 
-.status-return {
-  background: #adb5bd;
-  color: #000;
+.dark .search-box button:hover {
+  background: #1d4ed8;
+}
+
+/* message */
+
+.dark .error-box {
+  background: #3f1d1d;
+  color: #f87171;
+}
+
+.dark .empty-box {
+  color: #94a3b8;
+}
+
+/* table */
+
+.dark thead {
+  background: #0f172a;
+}
+
+.dark tbody tr {
+  border-bottom: 1px solid #334155;
+}
+
+.dark tbody tr:hover {
+  background: #1e293b;
+}
+
+.dark th,
+.dark td {
+  color: #e2e8f0;
+}
+
+.dark .money {
+  color: #4ade80;
+}
+
+/* status */
+
+.dark .status-pending {
+  background: #334155;
+  color: #cbd5f5;
+}
+
+.dark .status-confirmed {
+  background: #1e3a8a;
+  color: #93c5fd;
+}
+
+.dark .status-packing {
+  background: #0e7490;
+  color: #67e8f9;
+}
+
+.dark .status-shipping {
+  background: #78350f;
+  color: #facc15;
+}
+
+.dark .status-success {
+  background: #064e3b;
+  color: #4ade80;
+}
+
+.dark .status-cancel {
+  background: #7f1d1d;
+  color: #f87171;
+}
+
+.dark .status-return {
+  background: #334155;
+  color: #94a3b8;
+}
+
+/* button */
+
+.dark .view-btn {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .view-btn:hover {
+  background: #1e293b;
+}
+
+/* pagination */
+
+.dark .pagination button {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .pagination button:hover {
+  background: #1e293b;
+}
+
+.dark .pagination button.active {
+  background: #2563eb;
+  border-color: #2563eb;
 }
 </style>

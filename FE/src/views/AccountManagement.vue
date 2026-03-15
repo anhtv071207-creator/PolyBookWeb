@@ -2,7 +2,7 @@
   <div class="page">
     <div class="page-header">
       <button class="btn-back" @click="goBackManagement">← Quay lại</button>
-      <h2>Quản lý sản phẩm</h2>
+      <h2>Quản lý người dùng</h2>
     </div>
     <div class="form-wrapper">
       <div class="side-tabs">
@@ -133,10 +133,10 @@
 
         <tbody>
           <tr
-            v-for="user in users.filter((u) => u.role !== 'ADMIN')"
+            v-for="(user, index) in users.filter((u) => u.role !== 'ADMIN')"
             :key="user.id"
           >
-            <td>{{ user.id }}</td>
+            <td>{{ index + 1 }}</td>
             <td>{{ user.email }}</td>
             <td>{{ user.hoTen }}</td>
             <td>{{ user.role }}</td>
@@ -162,6 +162,9 @@ import { ref, onMounted } from "vue";
 import api from "@/services/api";
 import { useRouter } from "vue-router";
 const router = useRouter();
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const staffErrors = ref({});
 const staffServerError = ref("");
@@ -277,81 +280,24 @@ onMounted(() => {
 
 <style scoped>
 .page {
-  padding: 40px 5%;
-  background: #eef4ff;
+  padding: 32px 5%;
+  background: #f6f7f9;
+  min-height: 100vh;
 }
 
-h2 {
-  text-align: center;
-  font-size: 28px;
-  font-weight: 700;
-  color: #007bff;
-  margin-bottom: 30px;
-}
+/* header */
 
-.form-wrapper {
-  display: grid;
-  grid-template-columns: 220px 1fr;
-  gap: 30px;
-  margin-bottom: 40px;
-}
-
-.card {
-  background: white;
-  border-radius: 20px;
-  padding: 40px;
-  border: none;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
-}
-
-.side-tabs {
-  background: white;
-  padding: 25px;
-  border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0, 123, 255, 0.15);
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.tab-item {
-  padding: 14px;
-  text-align: center;
-  font-weight: 600;
-  border-radius: 14px;
-  cursor: pointer;
-  background: #f1f6ff;
-  transition: 0.2s;
-}
-
-.tab-item:hover {
-  background: #e2edff;
-}
-
-.tab-item.active-tab {
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-}
-
-.form-group {
-  margin-bottom: 22px;
-}
-
-.form-group label {
-  display: block;
-  font-weight: 600;
-  color: #007bff;
-  margin-bottom: 8px;
-}
 .page-header {
   position: relative;
-  margin-top: 40px;
-  margin-bottom: 35px;
+  margin-bottom: 24px;
 }
 
 .page-header h2 {
   text-align: center;
   margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  color: #333;
 }
 
 .btn-back {
@@ -359,91 +305,289 @@ h2 {
   left: 0;
   top: 50%;
   transform: translateY(-50%);
-  padding: 10px 18px;
-  border-radius: 14px;
-  border: none;
-  font-weight: 600;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
+  background: white;
   cursor: pointer;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
-  color: white;
-  transition: 0.25s;
 }
 
 .btn-back:hover {
-  transform: translateY(-50%) translateY(-2px);
-  box-shadow: 0 10px 25px rgba(0, 123, 255, 0.35);
+  background: #f2f2f2;
+}
+
+/* layout */
+
+.form-wrapper {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  margin-bottom: 30px;
+}
+
+/* card */
+
+.card {
+  background: white;
+  border-radius: 8px;
+  padding: 24px;
+  border: 1px solid #e5e5e5;
+}
+
+.card h2 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #333;
+}
+
+/* tabs */
+
+.side-tabs {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+}
+
+.tab-item {
+  padding: 12px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 500;
+  border-bottom: 1px solid #eee;
+}
+
+.tab-item:hover {
+  background: #f5f5f5;
+}
+
+.tab-item.active-tab {
+  background: #333;
+  color: white;
+}
+
+/* form */
+
+.form-group {
+  margin-bottom: 16px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  color: #444;
 }
 
 input,
 select {
   width: 100%;
-  padding: 14px 16px;
-  border-radius: 14px;
-  border: none;
-  background: #f1f6ff;
+  padding: 10px 12px;
+  border-radius: 6px;
+  border: 1px solid #dcdcdc;
   font-size: 14px;
-  transition: 0.2s;
+  background: white;
 }
 
 input:focus,
 select:focus {
   outline: none;
-  background: white;
-  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.2);
+  border-color: #888;
 }
+
+.input-error {
+  border-color: #dc2626;
+}
+
+.error-text {
+  font-size: 12px;
+  color: #dc2626;
+  margin-top: 4px;
+}
+
+/* buttons */
 
 .btn.primary {
   width: 100%;
-  padding: 16px;
-  border-radius: 14px;
-  font-size: 15px;
-  font-weight: 600;
-  background: linear-gradient(135deg, #007bff, #00c6ff);
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #333;
+  background: #333;
   color: white;
-  border: none;
-  transition: 0.2s;
+  cursor: pointer;
 }
 
 .btn.primary:hover {
   opacity: 0.9;
-  transform: translateY(-2px);
+}
+
+.btn.small {
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+/* user table */
+
+.list-card {
+  margin-top: 20px;
 }
 
 .user-table {
   width: 100%;
   border-collapse: collapse;
-  margin-top: 20px;
-  background: white;
-  border-radius: 20px;
-  overflow: hidden;
-  box-shadow: 0 10px 30px rgba(0, 123, 255, 0.1);
+  margin-top: 10px;
 }
 
 .user-table thead {
-  background: #f1f6ff;
+  background: #f4f4f4;
 }
 
 .user-table th {
-  padding: 16px;
+  padding: 12px;
+  font-size: 13px;
   font-weight: 600;
-  color: #007bff;
+  color: #444;
+  border-bottom: 1px solid #e5e5e5;
 }
 
 .user-table td {
-  padding: 16px;
+  padding: 12px;
+  font-size: 13px;
+  border-bottom: 1px solid #f0f0f0;
 }
 
-.user-table tr:hover {
-  background: #f4f9ff;
+.user-table tbody tr:hover {
+  background: #fafafa;
+}
+
+/* status badge */
+
+.badge {
+  padding: 4px 10px;
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .badge.active {
-  background: #d4f4ff;
-  color: #007bff;
+  background: #e8f8ee;
+  color: #15803d;
 }
 
 .badge.locked {
-  background: #ffe5e5;
+  background: #ffecec;
   color: #dc2626;
+}
+/* ===== DARK MODE ===== */
+
+.dark .page {
+  background: #0f172a;
+}
+
+/* header */
+
+.dark .page-header h2 {
+  color: #f1f5f9;
+}
+
+.dark .btn-back {
+  background: #1e293b;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .btn-back:hover {
+  background: #334155;
+}
+
+/* cards */
+
+.dark .card {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .card h2 {
+  color: #f1f5f9;
+}
+
+/* tabs */
+
+.dark .side-tabs {
+  background: #1e293b;
+  border-color: #334155;
+}
+
+.dark .tab-item {
+  border-bottom: 1px solid #334155;
+  color: #e2e8f0;
+}
+
+.dark .tab-item:hover {
+  background: #334155;
+}
+
+.dark .tab-item.active-tab {
+  background: #475569;
+  color: white;
+}
+
+/* form */
+
+.dark .form-group label {
+  color: #cbd5f5;
+}
+
+.dark input,
+.dark select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark input:focus,
+.dark select:focus {
+  border-color: #64748b;
+}
+
+/* button */
+
+.dark .btn.primary {
+  background: #475569;
+  border-color: #475569;
+}
+
+/* table */
+
+.dark .user-table thead {
+  background: #0f172a;
+}
+
+.dark .user-table th {
+  color: #e2e8f0;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .user-table td {
+  color: #e2e8f0;
+  border-bottom: 1px solid #334155;
+}
+
+.dark .user-table tbody tr:hover {
+  background: #334155;
+}
+
+/* badge */
+
+.dark .badge.active {
+  background: rgba(34,197,94,0.2);
+  color: #4ade80;
+}
+
+.dark .badge.locked {
+  background: rgba(239,68,68,0.2);
+  color: #f87171;
 }
 </style>

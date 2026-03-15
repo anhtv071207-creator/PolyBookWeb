@@ -1,180 +1,209 @@
 <template>
-  <div class="container checkout-page my-4">
-    <div class="checkout-box mb-3">
-      <div class="checkout-title">
-        <h5>Địa chỉ giao hàng</h5>
-      </div>
-
-      <div class="row g-2">
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Họ tên người nhận</label></div>
-          <div class="col-9">
-            <input class="form-control" v-model="orderForm.fullName" />
+  <div class="container checkout-page my-5">
+    <div class="row g-4">
+      <div class="col-lg-7">
+        <div class="checkout-box mb-4">
+          <div class="checkout-title">
+            <h5><i class="bi bi-geo-alt me-2"></i>Địa chỉ giao hàng</h5>
           </div>
-        </div>
 
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Email</label></div>
-          <div class="col-9">
-            <input class="form-control" v-model="orderForm.email" />
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Số điện thoại</label></div>
-          <div class="col-9">
-            <input class="form-control" v-model="orderForm.phone" />
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Quốc gia</label></div>
-          <div class="col-9">
-            <select class="form-select" disabled>
-              <option>Việt Nam</option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Tỉnh / Thành</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedProvince"
-              @change="onProvinceChange"
-            >
-              <option value="">-- Chọn tỉnh / thành --</option>
-              <option v-for="p in provinces" :key="p.code" :value="p">
-                {{ p.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Quận / Huyện</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedDistrict"
-              @change="onDistrictChange"
-              :disabled="!districts.length"
-            >
-              <option value="">-- Chọn quận / huyện --</option>
-              <option v-for="d in districts" :key="d.code" :value="d">
-                {{ d.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Phường / Xã</label></div>
-          <div class="col-9">
-            <select
-              class="form-select"
-              v-model="selectedWard"
-              :disabled="!wards.length"
-            >
-              <option value="">-- Chọn phường / xã --</option>
-              <option v-for="w in wards" :key="w.code" :value="w">
-                {{ w.name }}
-              </option>
-            </select>
-          </div>
-        </div>
-
-        <div class="row g-2 align-items-center">
-          <div class="col-3 label-form"><label>Địa chỉ nhận</label></div>
-          <div class="col-9">
-            <input class="form-control" v-model="orderForm.address" />
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="checkout-box mb-3">
-      <div class="checkout-title">Phương thức thanh toán</div>
-      <label class="radio-row" v-for="m in paymentMethods" :key="m.value">
-        <input
-          type="radio"
-          name="payment"
-          :value="m.value"
-          v-model="orderForm.phuongThucThanhToan"
-        />
-        {{ m.label }}
-      </label>
-    </div>
-
-    <div class="checkout-box mb-3">
-      <div class="checkout-title">Kiểm tra lại đơn hàng</div>
-
-      <table class="order-table">
-        <tr v-for="item in cartItems" :key="item.id">
-          <td class="img"><img :src="item.image" /></td>
-          <td>{{ item.name }}</td>
-          <td class="price">
-            <div v-if="item.discountPercent > 0">
-              <span class="old-price">
-                {{ formatPrice(item.originalPrice) }}
-              </span>
-
-              <span class="new-price">
-                {{ formatPrice(item.price) }}
-              </span>
+          <div class="row g-3">
+            <div class="col-12">
+              <label class="form-label">Họ tên người nhận</label>
+              <input
+                class="form-control"
+                v-model="orderForm.fullName"
+                placeholder="VD: Nguyễn Văn A"
+              />
             </div>
 
-            <div v-else>
-              {{ formatPrice(item.price) }}
+            <div class="col-md-6">
+              <label class="form-label">Email</label>
+              <input
+                type="email"
+                class="form-control"
+                v-model="orderForm.email"
+                placeholder="nva@gmail.com"
+              />
             </div>
-          </td>
-          <td>{{ item.qty }}</td>
-          <td>{{ formatPrice(item.price * item.qty) }}</td>
-        </tr>
-      </table>
-    </div>
 
-    <div class="checkout-box">
-      <div class="summary">
-        <div>
-          <span>Thành tiền</span><span>{{ formatPrice(subTotal) }}</span>
+            <div class="col-md-6">
+              <label class="form-label">Số điện thoại</label>
+              <input
+                class="form-control"
+                v-model="orderForm.phone"
+                placeholder="0901234xxx"
+              />
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Tỉnh / Thành</label>
+              <select
+                class="form-select"
+                v-model="selectedProvince"
+                @change="onProvinceChange"
+              >
+                <option value="">Chọn tỉnh</option>
+                <option v-for="p in provinces" :key="p.code" :value="p">
+                  {{ p.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Quận / Huyện</label>
+              <select
+                class="form-select"
+                v-model="selectedDistrict"
+                @change="onDistrictChange"
+                :disabled="!districts.length"
+              >
+                <option value="">Chọn huyện</option>
+                <option v-for="d in districts" :key="d.code" :value="d">
+                  {{ d.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-md-4">
+              <label class="form-label">Phường / Xã</label>
+              <select
+                class="form-select"
+                v-model="selectedWard"
+                :disabled="!wards.length"
+              >
+                <option value="">Chọn xã</option>
+                <option v-for="w in wards" :key="w.code" :value="w">
+                  {{ w.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Địa chỉ chi tiết</label>
+              <input
+                class="form-control"
+                v-model="orderForm.address"
+                placeholder="Số nhà, tên đường..."
+              />
+            </div>
+          </div>
         </div>
-        <div>
-          <span>Phí ship</span><span>{{ formatPrice(SHIPPING_FEE) }}</span>
-        </div>
-        <div class="sum">
-          <span>Tổng</span><span>{{ formatPrice(totalPrice) }}</span>
+
+        <div class="checkout-box">
+          <div class="checkout-title">
+            <h5>
+              <i class="bi bi-credit-card me-2"></i>Phương thức thanh toán
+            </h5>
+          </div>
+
+          <div class="payment-grid">
+            <label
+              class="payment-card"
+              v-for="m in paymentMethods"
+              :key="m.value"
+              :class="{ active: orderForm.phuongThucThanhToan === m.value }"
+            >
+              <input
+                type="radio"
+                name="payment"
+                :value="m.value"
+                v-model="orderForm.phuongThucThanhToan"
+                class="d-none"
+              />
+              <div class="d-flex align-items-center">
+                <div class="custom-radio me-3"></div>
+                <span class="fw-medium">{{ m.label }}</span>
+              </div>
+            </label>
+          </div>
         </div>
       </div>
 
-      <div class="row g-2">
-        <div class="col-6">
-          <label
-            ><input type="checkbox" v-model="agree" /> Với việc mua hàng bạn
-            đồng ý với
-            <a href="">Điều khoản và điêu kiện của chúng tôi</a></label
-          >
-        </div>
-        <div class="col-6">
+      <div class="col-lg-5">
+        <div class="checkout-box sticky-box">
+          <div class="checkout-title">
+            <h5>Đơn hàng của bạn ({{ cartItems.length }})</h5>
+          </div>
+
+          <div class="order-items-list">
+            <div class="order-item" v-for="item in cartItems" :key="item.id">
+              <div class="item-img">
+                <img :src="item.image" />
+                <span class="item-qty-badge">{{ item.qty }}</span>
+              </div>
+              <div class="item-info">
+                <p class="item-name">{{ item.name }}</p>
+                <div class="item-price">
+                  <span class="new-price">{{ formatPrice(item.price) }}</span>
+                  <span
+                    v-if="item.discountPercent > 0"
+                    class="old-price ms-2"
+                    >{{ formatPrice(item.originalPrice) }}</span
+                  >
+                </div>
+              </div>
+              <div class="item-total fw-semibold">
+                {{ formatPrice(item.price * item.qty) }}
+              </div>
+            </div>
+          </div>
+
+          <div class="summary-section mt-4">
+            <div class="d-flex justify-content-between mb-2">
+              <span class="text-muted">Tạm tính</span>
+              <span>{{ formatPrice(subTotal) }}</span>
+            </div>
+            <div class="d-flex justify-content-between mb-3">
+              <span class="text-muted">Phí vận chuyển</span>
+              <span>{{ formatPrice(SHIPPING_FEE) }}</span>
+            </div>
+            <div
+              class="total-row d-flex justify-content-between align-items-center"
+            >
+              <span class="fw-bold">Tổng cộng</span>
+              <span class="total-amount">{{ formatPrice(totalPrice) }}</span>
+            </div>
+          </div>
+
+          <div class="agree-box my-3">
+            <div class="form-check">
+              <input
+                class="form-check-input"
+                type="checkbox"
+                id="agreeCheck"
+                v-model="agree"
+              />
+              <label
+                class="form-check-label text-muted"
+                for="agreeCheck"
+                style="font-size: 0.9rem"
+              >
+                Tôi đã đọc và đồng ý với điều khoản mua hàng
+              </label>
+            </div>
+          </div>
+
           <button
-            class="btn btn-dark w-100"
+            class="btn btn-primary-custom w-100 btn-lg"
             :disabled="!agree"
             @click="placeOrder"
           >
-            Đặt hàng
+            ĐẶT HÀNG NGAY
           </button>
         </div>
       </div>
     </div>
   </div>
 
-  <div v-if="showToast" class="toast-overlay">
-    <div class="toast-box">
-      <div class="toast-icon">✔</div>
-      <div class="toast-text">{{ toastMessage }}</div>
+  <transition name="fade">
+    <div v-if="showToast" class="toast-custom-overlay">
+      <div class="toast-custom-card">
+        <div class="icon-circle mb-3">✔</div>
+        <p class="mb-0 fw-bold">{{ toastMessage }}</p>
+      </div>
     </div>
-  </div>
+  </transition>
 </template>
 
 <script setup>
@@ -182,6 +211,9 @@ import { ref, computed, onMounted, watch } from "vue";
 import { getItems } from "@/utils/cart";
 import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
+import { useThemeStore } from "@/stores/theme";
+
+const theme = useThemeStore();
 
 const auth = useAuthStore();
 
@@ -445,110 +477,355 @@ const loadUserAddress = async (data) => {
 </script>
 
 <style scoped>
+/* Layout */
 .checkout-page {
-  font-size: 14px;
+  max-width: 1200px;
+  font-family: "Inter", sans-serif;
 }
-.label-form {
-  text-align: left;
-}
+
+/* Box */
 .checkout-box {
-  border: 1px solid #bfbfbf;
-  padding: 12px;
-}
-.radio-row {
-  display: block;
-  margin-bottom: 8px;
-  text-align: left;
+  background: #fff;
+  border-radius: 14px;
+  padding: 26px;
+  border: 1px solid #e9ecef;
+  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
 }
 
 .checkout-title {
-  font-weight: 600;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #bfbfbf;
+  margin-bottom: 18px;
+  border-bottom: 1px solid #f1f3f5;
+  padding-bottom: 10px;
 }
-.order-table img {
-  width: 60px;
-}
-.summary {
-  width: 280px;
-  margin-left: auto;
-  font-size: 18px;
-}
-.summary div {
-  display: flex;
-  justify-content: space-between;
-}
-.summary .sum {
-  font-size: 20px;
+
+.checkout-title h5 {
   font-weight: 700;
-  border-top: 1px solid #ccc;
-  color: #ff0000;
+  font-size: 1.1rem;
+  margin: 0;
 }
-.toast-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0, 0, 0, 0.4);
-  display: flex;
-  align-items: center;
-  justify-content: center;
+
+/* Sticky order summary */
+.sticky-box {
+  position: sticky;
+  top: 90px;
 }
-.toast-box {
-  background: #222;
-  color: #fff;
-  padding: 24px;
+
+/* Form */
+.form-label {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #495057;
+}
+
+.form-control,
+.form-select {
   border-radius: 8px;
+  border: 1px solid #dee2e6;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
 }
-.toast-icon {
-  width: 48px;
-  height: 48px;
-  background: #4caf50;
+
+.form-control:hover,
+.form-select:hover {
+  border-color: #adb5bd;
+}
+
+.form-control:focus,
+.form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+}
+
+/* Payment */
+.payment-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.payment-card {
+  border: 1.5px solid #e5e7eb;
+  padding: 14px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.payment-card:hover {
+  background: #f8fafc;
+}
+
+.payment-card.active {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.custom-radio {
+  width: 18px;
+  height: 18px;
+  border: 2px solid #cbd5e1;
+  border-radius: 50%;
+  position: relative;
+}
+
+.payment-card.active .custom-radio {
+  border-color: #2563eb;
+}
+
+.payment-card.active .custom-radio::after {
+  content: "";
+  width: 9px;
+  height: 9px;
+  background: #2563eb;
+  border-radius: 50%;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+/* Order list */
+.order-items-list {
+  max-height: 320px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.order-item {
+  display: flex;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f3f5;
+  align-items: center;
+}
+
+.item-img img {
+  width: 60px;
+  height: 75px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #eee;
+}
+
+.item-qty-badge {
+  position: absolute;
+  top: -7px;
+  right: -7px;
+  background: #6c757d;
+  color: white;
+  font-size: 11px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  margin: 0 auto 12px;
-}
-.order-table {
-  width: 100%;
-  border-collapse: collapse;
 }
 
-.order-table td {
-  vertical-align: middle;
-}
-
-.order-table td.img {
-  width: 70px;
-}
-
-.order-table td.name {
-  width: 45%;
-}
-
-.order-table td.price {
-  width: 15%;
-  text-align: right;
-  padding-right: 24px;
-}
-
-.order-table td.qty {
-  width: 10%;
-  text-align: center;
-}
-
-.order-table td.total {
-  width: 15%;
-  text-align: right;
-}
-.old-price {
-  text-decoration: line-through;
-  color: #888;
-  font-size: 13px;
-  margin-right: 6px;
+.item-name {
+  font-size: 0.9rem;
+  font-weight: 500;
+  margin: 0;
 }
 
 .new-price {
-  color: #dc3545;
   font-weight: 600;
+}
+
+.old-price {
+  font-size: 0.8rem;
+  text-decoration: line-through;
+  color: #adb5bd;
+}
+
+.item-total {
+  font-size: 0.9rem;
+}
+
+/* Summary */
+.summary-section {
+  font-size: 0.95rem;
+}
+
+.total-row {
+  border-top: 2px dashed #e9ecef;
+  padding-top: 14px;
+  margin-top: 8px;
+}
+
+.total-amount {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #dc2626;
+}
+
+/* Button */
+.btn-primary-custom {
+  background: #2563eb;
+  border: none;
+  border-radius: 10px;
+  padding: 14px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.btn-primary-custom:hover:not(:disabled) {
+  background: #1d4ed8;
+}
+
+.btn-primary-custom:disabled {
+  opacity: 0.6;
+}
+
+/* Toast */
+.toast-custom-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  backdrop-filter: blur(3px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.toast-custom-card {
+  background: white;
+  padding: 28px 50px;
+  border-radius: 14px;
+  text-align: center;
+  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+}
+
+.icon-circle {
+  width: 58px;
+  height: 58px;
+  background: #22c55e;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  margin: 0 auto;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .3s;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+/* ===== DARK MODE CHECKOUT ===== */
+
+.dark .checkout-box {
+  background: #1e293b;
+  border-color: #334155;
+  box-shadow: none;
+}
+
+.dark .checkout-title {
+  border-bottom: 1px solid #334155;
+}
+
+.dark .checkout-title h5 {
+  color: #e2e8f0;
+}
+
+/* form */
+
+.dark .form-label {
+  color: #cbd5f5;
+}
+
+.dark .form-control,
+.dark .form-select {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .form-control::placeholder {
+  color: #94a3b8;
+}
+
+.dark .form-control:focus,
+.dark .form-select:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+}
+
+/* payment */
+
+.dark .payment-card {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e2e8f0;
+}
+
+.dark .payment-card:hover {
+  background: #1e293b;
+}
+
+.dark .payment-card.active {
+  background: #1e3a8a;
+  border-color: #3b82f6;
+}
+
+.dark .custom-radio {
+  border-color: #64748b;
+}
+
+/* order items */
+
+.dark .order-item {
+  border-bottom: 1px solid #334155;
+}
+
+.dark .item-img img {
+  border-color: #334155;
+}
+
+.dark .item-name {
+  color: #e2e8f0;
+}
+
+.dark .old-price {
+  color: #94a3b8;
+}
+
+.dark .new-price {
+  color: #f87171;
+}
+
+/* summary */
+
+.dark .summary-section {
+  color: #e2e8f0;
+}
+
+.dark .total-row {
+  border-top: 2px dashed #334155;
+}
+
+.dark .total-amount {
+  color: #f87171;
+}
+
+/* checkbox */
+
+.dark .form-check-label {
+  color: #cbd5f5 !important;
+}
+
+/* toast */
+
+.dark .toast-custom-card {
+  background: #1e293b;
+  color: #e2e8f0;
 }
 </style>
