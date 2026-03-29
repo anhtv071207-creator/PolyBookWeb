@@ -5,68 +5,54 @@ import { useAuthStore } from "@/stores/auth";
 import api from "@/services/api";
 import { useThemeStore } from "@/stores/theme";
 
-const theme = useThemeStore();
+const theme = useThemeStore(); // Centralized theme management
 const auth = useAuthStore();
 const router = useRouter();
 
 const parentCategories = ref([]);
 const childCategories = ref([]);
 const selectedParentId = ref(null);
-
-const darkMode = ref(false);
-
-const isLoggedIn = computed(() => auth.isLoggedIn);
-const role = computed(() => auth.role);
-const userName = computed(() => auth.user?.name || "ho_ten");
-const isAdmin = computed(() => role.value === "ADMIN");
-const isStaff = computed(() => role.value === "STAFF");
-const isUser = computed(() => role.value === "USER");
-
 const keyword = ref("");
 
-const toggleDarkMode = () => {
-  darkMode.value = !darkMode.value;
-
-  if (darkMode.value) {
-    document.documentElement.classList.add("dark");
-    localStorage.setItem("theme", "dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-    localStorage.setItem("theme", "light");
-  }
-};
+// Auth Computed
+const isLoggedIn = computed(() => auth.isLoggedIn);
+const userName = computed(() => auth.user?.name || "Khách");
+const isAdmin = computed(() => auth.role === "ADMIN");
+const isStaff = computed(() => auth.role === "STAFF");
+const isUser = computed(() => auth.role === "USER");
 
 const logout = () => {
   auth.logout();
-  router.push("/");
+  router.push("/login");
 };
 
 const fetchParentCategories = async () => {
-  const res = await api.get("http://localhost:8080/api/categories/root");
-  parentCategories.value = res.data;
-
-  if (res.data.length > 0) {
-    fetchChildCategories(res.data[0].id);
+  try {
+    const res = await api.get("http://localhost:8080/api/categories/root");
+    parentCategories.value = res.data;
+    if (res.data.length > 0) {
+      fetchChildCategories(res.data[0].id);
+    }
+  } catch (error) {
+    console.error("Failed to load categories", error);
   }
-};
-
-const searchBooks = () => {
-  if (!keyword.value.trim()) return;
-
-  router.push({
-    path: "/search",
-    query: { keyword: keyword.value },
-  });
 };
 
 const fetchChildCategories = async (parentId) => {
   if (selectedParentId.value === parentId) return;
-
   selectedParentId.value = parentId;
-  const res = await api.get(
-    `http://localhost:8080/api/categories/parent/${parentId}`,
-  );
-  childCategories.value = res.data;
+  try {
+    const res = await api.get(`http://localhost:8080/api/categories/parent/${parentId}`);
+    childCategories.value = res.data;
+  } catch (error) {
+    childCategories.value = [];
+  }
+};
+
+const searchBooks = () => {
+  const query = keyword.value.trim();
+  if (!query) return;
+  router.push({ path: "/search", query: { keyword: query } });
 };
 
 const goToCategory = (id) => {
@@ -75,13 +61,6 @@ const goToCategory = (id) => {
 
 onMounted(() => {
   fetchParentCategories();
-
-  const savedTheme = localStorage.getItem("theme");
-
-  if (savedTheme === "dark") {
-    darkMode.value = true;
-    document.documentElement.classList.add("dark");
-  }
 });
 </script>
 
@@ -107,6 +86,7 @@ onMounted(() => {
       <div class="header-actions">
         <router-link v-if="!isAdmin && !isStaff" to="/cart" class="action-btn">
           <i class="bi bi-cart"></i>
+          <span> Giỏ hàng</span>
         </router-link>
 
         <router-link
@@ -115,6 +95,7 @@ onMounted(() => {
           class="action-btn"
         >
           <i class="bi bi-receipt"></i>
+          <span> Đơn hàng</span>
         </router-link>
         <button class="action-btn" @click="theme.toggleTheme()">
           <i v-if="theme.darkMode" class="bi bi-sun"></i>
@@ -200,58 +181,60 @@ onMounted(() => {
 </template>
 
 <style scoped>
+/* ===== BASE STYLES ===== */
 .app-header {
   background: #ffffff;
   border-bottom: 1px solid #e2e8f0;
   position: sticky;
   top: 0;
   z-index: 1000;
+  transition: all 0.3s ease;
 }
-
-/* ===== HEADER TOP ===== */
 
 .header-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 14px 0;
+  padding: 12px 0;
 }
 
 /* LOGO */
-
 .logo-area {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   text-decoration: none;
 }
 
 .logo {
-  height: 40px;
+  height: 42px;
+  object-fit: contain;
 }
 
 .brand {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 22px;
+  font-weight: 800;
   color: #1e293b;
+  letter-spacing: -0.5px;
 }
 
-/* SEARCH */
-
+/* SEARCH BOX */
 .search-box {
   flex: 1;
   max-width: 550px;
   display: flex;
+  box-shadow: 0 1px 2px rgba(0,0,0,0.05);
 }
 
 .search-box input {
   flex: 1;
-  padding: 10px 14px;
+  padding: 10px 16px;
   border: 1px solid #cbd5e1;
   border-right: none;
   border-radius: 8px 0 0 8px;
   outline: none;
+  transition: border-color 0.2s;
 }
 
 .search-box input:focus {
@@ -262,143 +245,156 @@ onMounted(() => {
   border: none;
   background: #2563eb;
   color: white;
-  padding: 0 18px;
+  padding: 0 20px;
   border-radius: 0 8px 8px 0;
   cursor: pointer;
+  transition: background 0.2s;
 }
 
 .search-box button:hover {
   background: #1d4ed8;
 }
 
-/* HEADER ACTIONS */
-
+/* ACTIONS */
 .header-actions {
   display: flex;
   align-items: center;
-  gap: 16px;
+  gap: 12px;
 }
 
 .action-btn {
-  font-size: 20px;
-  color: #1e293b;
-  transition: 0.2s;
-}
-
-.action-btn:hover {
-  color: #2563eb;
-}
-
-/* LOGIN BUTTON */
-
-.login-btn {
-  background: #2563eb;
-  color: white;
-  padding: 8px 16px;
-  border-radius: 8px;
-  font-weight: 500;
-  text-decoration: none;
-}
-
-.login-btn:hover {
-  background: #1d4ed8;
-}
-
-/* USER BUTTON */
-
-.user-btn {
-  background: #f1f5f9;
-  border: none;
-  padding: 8px 12px;
-  border-radius: 8px;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 6px;
+  font-size: 13px;
+  color: #475569;
+  text-decoration: none;
+  background: none;
+  border: none;
+  padding: 8px;
+  border-radius: 8px;
+  transition: 0.2s;
   cursor: pointer;
 }
 
-/* ===== CATEGORY BAR ===== */
+.action-btn i {
+  font-size: 20px;
+  margin-bottom: 2px;
+}
 
+.action-btn:hover {
+  background: #f1f5f9;
+  color: #2563eb;
+}
+
+/* ACCOUNT & LOGIN */
+.login-btn {
+  background: #2563eb;
+  color: white;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.user-btn {
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 8px 16px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+  color: #1e293b;
+  cursor: pointer;
+}
+
+/* ===== CATEGORY BAR & MEGA MENU ===== */
 .category-bar {
   background: #f8fafc;
   border-top: 1px solid #e2e8f0;
 }
 
-.category-dropdown {
-  position: relative;
-}
-
 .category-trigger {
   border: none;
   background: none;
-  padding: 10px 0;
+  padding: 12px 0;
   font-weight: 600;
   color: #1e293b;
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
+  cursor: pointer;
 }
-
-/* ===== MEGA MENU ===== */
 
 .mega-menu {
-  width: 840px;
-  padding: 16px;
-  display: flex;
-  gap: 20px;
+  width: 900px;
+  padding: 0; /* Reset padding để chia cột đều */
+  overflow: hidden;
+  border: 1px solid #e2e8f0;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* LEFT SIDE */
-
 .mega-left {
-  width: 40%;
+  width: 35%;
+  background: #f8fafc;
+  padding: 10px;
   border-right: 1px solid #e2e8f0;
+  max-height: 450px;
+  overflow-y: auto;
 }
 
 .mega-parent {
-  padding: 10px 12px;
+  padding: 12px 16px;
   border-radius: 6px;
   cursor: pointer;
-  transition: 0.2s;
+  font-weight: 500;
+  transition: all 0.2s;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.mega-parent:hover {
-  background: #e2e8f0;
+.mega-parent:hover, .mega-parent.active {
+  background: #ffffff;
+  color: #2563eb;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
 }
-
-/* RIGHT SIDE */
 
 .mega-right {
-  width: 60%;
-  padding-left: 10px;
+  width: 65%;
+  padding: 20px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  gap: 12px;
+  align-content: start;
 }
 
 .mega-child {
-  padding: 8px 10px;
+  padding: 10px;
   border-radius: 6px;
   cursor: pointer;
+  color: #475569;
+  font-size: 14px;
   transition: 0.2s;
 }
 
 .mega-child:hover {
-  background: #e2e8f0;
+  background: #f1f5f9;
   color: #2563eb;
-}
-.category-dropdown .dropdown-menu {
-  display: none;
+  padding-left: 15px; /* Hiệu ứng dịch chuyển nhẹ */
 }
 
-.category-dropdown .dropdown-menu.show {
-  display: flex;
-}
-/* ===== DARK MODE HEADER ===== */
-
+/* ===== DARK MODE OVERRIDES ===== */
 .dark .app-header {
-  background: #1e293b;
-  border-bottom: 1px solid #334155;
+  background: #0f172a;
+  border-bottom: 1px solid #1e293b;
+}
+
+.dark .brand, .dark .category-trigger, .dark .user-btn {
+  color: #f1f5f9;
 }
 
 .dark .category-bar {
@@ -406,60 +402,92 @@ onMounted(() => {
   border-top: 1px solid #334155;
 }
 
-/* search */
-
 .dark .search-box input {
-  background: #0f172a;
+  background: #1e293b;
   border-color: #334155;
-  color: #e2e8f0;
+  color: #f1f5f9;
 }
-
-.dark .search-box input::placeholder {
-  color: #94a3b8;
-}
-
-/* icons */
 
 .dark .action-btn {
-  color: #e2e8f0;
+  color: #cbd5e1;
 }
 
 .dark .action-btn:hover {
+  background: #334155;
   color: #60a5fa;
 }
 
-/* account */
-
-.dark .user-btn {
-  background: #334155;
-  color: #e2e8f0;
-}
-
-/* category text */
-
-.dark .category-trigger {
-  color: #e2e8f0;
-}
-
-/* mega menu */
-
 .dark .mega-menu {
-  background: #1e293b;
-  border: 1px solid #334155;
+  background: #0f172a;
+  border-color: #334155;
 }
 
 .dark .mega-left {
-  border-right: 1px solid #334155;
+  background: #1e293b;
+  border-right-color: #334155;
 }
 
-.dark .mega-parent,
-.dark .mega-child {
-  color: #e2e8f0;
+.dark .mega-parent, .dark .mega-child {
+  color: #cbd5e1;
 }
 
-.dark .mega-parent:hover,
-.dark .mega-child:hover {
+.dark .mega-parent:hover {
   background: #334155;
   color: #60a5fa;
+}
+
+.dark .mega-child:hover {
+  background: #1e293b;
+  color: #60a5fa;
+}
+
+/* Bootstrap Dropdown Display */
+.category-dropdown .dropdown-menu {
+  display: none;
+}
+.category-dropdown .dropdown-menu.show {
+  display: flex;
+}
+/* 1. Sửa nút User (nút bấm hiện tên Drake Johnson) */
+.dark .user-btn {
+  background-color: #1e293b !important; /* Màu nền tối */
+  color: #f1f5f9 !important;            /* Màu chữ sáng */
+  border-color: #334155 !important;      /* Màu viền tối */
+}
+
+.dark .user-btn:hover {
+  background-color: #334155 !important;
+}
+
+/* 2. Sửa Menu xổ xuống (Dropdown Menu của Account) */
+.dark .dropdown-menu {
+  background-color: #1e293b !important; /* Nền menu tối */
+  border: 1px solid #334155 !important;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.5) !important;
+}
+
+/* 3. Sửa các mục bên trong menu (Thông tin, Quản trị, Đăng xuất) */
+.dark .dropdown-item {
+  color: #cbd5e1 !important;
+}
+
+.dark .dropdown-item:hover {
+  background-color: #334155 !important;
+  color: #60a5fa !important;
+}
+
+/* 4. Sửa đường gạch ngang chia cách trong menu */
+.dark .dropdown-divider {
+  border-top: 1px solid #334155 !important;
+  opacity: 1;
+}
+
+/* 5. Fix cho Mega Menu (Danh mục) nếu nó cũng đang bị trắng nền */
+.dark .mega-menu {
+  background-color: #0f172a !important;
+}
+
+.dark .mega-right {
+  background-color: #0f172a !important; /* Đảm bảo phần bên phải không bị trắng */
 }
 </style>

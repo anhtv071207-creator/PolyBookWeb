@@ -20,6 +20,11 @@ import report from "../views/report.vue";
 import CategoryPage from "../views/CategoryPage.vue";
 import PromotionManagement from "../views/PromotionManagement.vue";
 import SearchPage from "../views/SearchPage.vue";
+import AboutUs from "../views/AboutUs.vue";
+import PrivacyPolicy from "../views/PrivacyPolicy.vue";
+import ReturnPolicy from "../views/ReturnPolicy.vue";
+import PaymentPolicy from "../views/PaymentPolicy.vue";
+import Recruitment from "../views/Recruitment.vue";
 
 const routes = [
   { path: "/", component: Home },
@@ -29,16 +34,8 @@ const routes = [
   { path: "/order", component: Order },
   { path: "/management/orders", component: OrderManagement },
   { path: "/management/orders/:id", component: OrderDetail, props: true },
-  {
-    path: "/managements/account",
-    component: AccountManagement,
-    meta: { requiresAuth: true, roles: ["ADMIN"] },
-  },
-  {
-    path: "/admin/users/:id",
-    component: AccountManagementDetail,
-    meta: { requiresAuth: true, roles: ["ADMIN"] },
-  },
+  { path: "/managements/account",component: AccountManagement,meta: { requiresAuth: true, roles: ["ADMIN"] },},
+  { path: "/admin/users/:id",component: AccountManagementDetail,meta: { requiresAuth: true, roles: ["ADMIN"] },},
   { path: "/orders/view", component: ViewOrder },
   { path: "/orders/view/:id", component: ViewOrderDetail },
   { path: "/managements", component: RemoteManagement },
@@ -50,6 +47,11 @@ const routes = [
   { path: "/category/:id", component: CategoryPage, props: true },
   { path: "/promotions", component: PromotionManagement },
   { path: "/search", component: SearchPage },
+  { path: "/about", component: AboutUs},
+  { path: "/policy/privacy", component: PrivacyPolicy},
+  { path: "/policy/return", component: ReturnPolicy},
+  { path: "/policy/payment", component: PaymentPolicy},
+  { path: "/recruitment", component: Recruitment}
 ];
 
 const router = createRouter({

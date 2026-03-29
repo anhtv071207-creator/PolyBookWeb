@@ -31,7 +31,4 @@ public class Review {
     @Lob
     @Column(name = "noi_dung")
     private String noiDung;
-
-    @Column(name = "phe_duyet")
-    private Boolean pheDuyet;
 }

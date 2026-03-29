@@ -8,5 +8,5 @@ public interface ReviewService {
 
     List<Review> getByBook(Integer bookId);
 
-    Review save(Review review);
+    Review addOrUpdate(Integer userId, Integer bookId, Integer rating, String noiDung);
 }

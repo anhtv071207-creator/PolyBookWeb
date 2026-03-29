@@ -297,9 +297,9 @@ onMounted(loadBooks);
 }
 
 .page-btn.active {
-  background: #d12e28;
+  background: #2563eb;
   color: white;
-  border-color: #d12e28;
+  border-color: #2830d1;
 }
 
 .page-btn:disabled {
@@ -314,7 +314,20 @@ onMounted(loadBooks);
 }
 
 .home-books.dark .page-btn.active {
-  background: #ef4444;
-  border-color: #ef4444;
+  background: #2563eb;
+  border-color: #2563eb;
+}
+.home-banner {
+  margin-bottom: 28px;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid #eee;
+}
+
+.home-banner img {
+  width: 100%;
+  height: 280px;
+  object-fit: cover;
+  display: block;
 }
 </style>

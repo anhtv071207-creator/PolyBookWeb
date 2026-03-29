@@ -45,6 +45,9 @@ import { RouterLink } from "vue-router";
   background:#0f172a;
   color:#cbd5e1;
   margin-top:60px;
+  border:2px solid rgba(255, 255, 255, 0.635);
+  border-radius:8px;
+  box-shadow:0 0 0 1px rgba(255,255,255,0.05) inset;
 }
 
 .footer-grid{

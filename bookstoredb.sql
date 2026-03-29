@@ -239,7 +239,7 @@ CREATE TABLE Review (
     user_id INT NOT NULL,
     book_id INT NOT NULL,
     rating INT,
-    noi_dung TEXT,
+    noi_dung NTEXT,
     phe_duyet BIT,
 
     CONSTRAINT FK_Review_User
@@ -250,7 +250,10 @@ CREATE TABLE Review (
 )
 GO
 
-SELECt * From Users
+ALTER TABLE Review
+DROP COLUMN phe_duyet;
+
+SELECt * From Payment
 
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
 VALUES
