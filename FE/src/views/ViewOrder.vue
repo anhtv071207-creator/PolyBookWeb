@@ -142,6 +142,7 @@ const STATUS_MAP = {
   4: { text: "Giao thành công", class: "status-success" },
   5: { text: "Hủy", class: "status-cancel" },
   6: { text: "Hoàn trả", class: "status-return" },
+  7: { text: "Lỗi", class: "status-error" }, // Thêm dòng này
 };
 
 const lookup = async () => {
@@ -564,5 +565,15 @@ tbody tr:hover {
 .dark .pagination button.active {
   background: #2563eb;
   border-color: #2563eb;
+}
+/* Tìm đến khu vực status colors và thêm: */
+.status-error {
+  background: #7f1d1d; /* Đỏ đậm giống trang quản lý bạn gửi */
+  color: #ffffff;
+}/* Tìm đến khu vực .dark .status-... và thêm: */
+.dark .status-error {
+  background: rgba(220, 38, 38, 0.3); /* Đỏ nhạt nền trong suốt cho dễ nhìn trong darkmode */
+  color: #f87171;
+  border: 1px solid rgba(220, 38, 38, 0.5);
 }
 </style>

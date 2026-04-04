@@ -1,158 +1,158 @@
-<template>
-  <div class="login-wrapper">
-    <div class="login-card">
-      <div class="breadcrumb">
-        <router-link to="/">Trang chủ</router-link> 
-        <span class="divider">></span> 
-        <span class="current">Đăng ký</span>
-      </div>
-
-      <div class="tabs">
-        <router-link to="/login" class="tab tab-link">Đăng nhập</router-link>
-        <button class="tab active">Đăng ký</button>
-      </div>
-
-      <form @submit.prevent="register" class="register-form">
-        <div class="form-group">
-          <label>Họ tên</label>
-          <input
-            type="text"
-            placeholder="Nhập họ và tên"
-            v-model="hoTen"
-            :class="{ 'input-error': errors.hoTen }"
-          />
-          <p v-if="errors.hoTen" class="error-text">{{ errors.hoTen }}</p>
+  <template>
+    <div class="login-wrapper">
+      <div class="login-card">
+        <div class="breadcrumb">
+          <router-link to="/">Trang chủ</router-link> 
+          <span class="divider">></span> 
+          <span class="current">Đăng ký</span>
         </div>
 
-        <div class="form-group">
-          <label>Email</label>
-          <input
-            type="email"
-            placeholder="example@gmail.com"
-            v-model="email"
-            :class="{ 'input-error': errors.email }"
-          />
-          <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
+        <div class="tabs">
+          <router-link to="/login" class="tab tab-link">Đăng nhập</router-link>
+          <button class="tab active">Đăng ký</button>
         </div>
 
-        <div class="form-group">
-          <label>Số điện thoại</label>
-          <input
-            type="tel"
-            placeholder="Nhập số điện thoại"
-            v-model="phone"
-            :class="{ 'input-error': errors.phone }"
-          />
-          <p v-if="errors.phone" class="error-text">{{ errors.phone }}</p>
-        </div>
+        <form @submit.prevent="register" class="register-form">
+          <div class="form-group">
+            <label>Họ tên</label>
+            <input
+              type="text"
+              placeholder="Nhập họ và tên"
+              v-model="hoTen"
+              :class="{ 'input-error': errors.hoTen }"
+            />
+            <p v-if="errors.hoTen" class="error-text">{{ errors.hoTen }}</p>
+          </div>
 
-        <div class="form-group">
-          <label>Mật khẩu</label>
-          <input
-            type="password"
-            placeholder="Tối thiểu 6 ký tự"
-            v-model="password"
-            :class="{ 'input-error': errors.password }"
-          />
-          <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
-        </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input
+              type="email"
+              placeholder="example@gmail.com"
+              v-model="email"
+              :class="{ 'input-error': errors.email }"
+            />
+            <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
+          </div>
 
-        <div class="form-group">
-          <label>Nhập lại mật khẩu</label>
-          <input
-            type="password"
-            placeholder="Xác nhận lại mật khẩu"
-            v-model="confirmPassword"
-            :class="{ 'input-error': errors.confirmPassword }"
-          />
-          <p v-if="errors.confirmPassword" class="error-text">
-            {{ errors.confirmPassword }}
+          <div class="form-group">
+            <label>Số điện thoại</label>
+            <input
+              type="tel"
+              placeholder="Nhập số điện thoại"
+              v-model="phone"
+              :class="{ 'input-error': errors.phone }"
+            />
+            <p v-if="errors.phone" class="error-text">{{ errors.phone }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Mật khẩu</label>
+            <input
+              type="password"
+              placeholder="Tối thiểu 6 ký tự"
+              v-model="password"
+              :class="{ 'input-error': errors.password }"
+            />
+            <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Nhập lại mật khẩu</label>
+            <input
+              type="password"
+              placeholder="Xác nhận lại mật khẩu"
+              v-model="confirmPassword"
+              :class="{ 'input-error': errors.confirmPassword }"
+            />
+            <p v-if="errors.confirmPassword" class="error-text">
+              {{ errors.confirmPassword }}
+            </p>
+          </div>
+
+          <p v-if="serverError" class="server-error">
+            {{ serverError }}
           </p>
-        </div>
 
-        <p v-if="serverError" class="server-error">
-          {{ serverError }}
-        </p>
-
-        <button class="btn-submit" type="submit">Đăng ký ngay</button>
-      </form>
+          <button class="btn-submit" type="submit">Đăng ký ngay</button>
+        </form>
+      </div>
     </div>
-  </div>
-</template>
+  </template>
 
-<script setup>
-import { ref } from "vue";
-import { useRouter } from "vue-router";
-import api from "@/services/api";
-import { useThemeStore } from "@/stores/theme";
+  <script setup>
+  import { ref } from "vue";
+  import { useRouter } from "vue-router";
+  import api from "@/services/api";
+  import { useThemeStore } from "@/stores/theme";
 
-const theme = useThemeStore();
-const router = useRouter();
+  const theme = useThemeStore();
+  const router = useRouter();
 
-const hoTen = ref("");
-const email = ref("");
-const phone = ref("");
-const password = ref("");
-const confirmPassword = ref("");
-const errors = ref({});
-const serverError = ref("");
+  const hoTen = ref("");
+  const email = ref("");
+  const phone = ref("");
+  const password = ref("");
+  const confirmPassword = ref("");
+  const errors = ref({});
+  const serverError = ref("");
 
-const validate = () => {
-  errors.value = {};
-  serverError.value = "";
+  const validate = () => {
+    errors.value = {};
+    serverError.value = "";
 
-  if (!hoTen.value) {
-    errors.value.hoTen = "Họ tên không được để trống";
-  }
-
-  if (!email.value) {
-    errors.value.email = "Email không được để trống";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    errors.value.email = "Email không hợp lệ";
-  }
-
-  if (!phone.value) {
-    errors.value.phone = "Số điện thoại không được để trống";
-  }
-
-  if (!password.value) {
-    errors.value.password = "Mật khẩu không được để trống";
-  } else if (password.value.length < 6) {
-    errors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
-  }
-
-  if (!confirmPassword.value) {
-    errors.value.confirmPassword = "Vui lòng nhập lại mật khẩu";
-  } else if (password.value !== confirmPassword.value) {
-    errors.value.confirmPassword = "Mật khẩu không khớp";
-  }
-
-  return Object.keys(errors.value).length === 0;
-};
-
-const register = async () => {
-  if (!validate()) return;
-
-  try {
-    await api.post("/auth/register", {
-      hoTen: hoTen.value,
-      email: email.value,
-      phone: phone.value,
-      password: password.value,
-    });
-
-    alert("Đăng ký thành công, mời bạn đăng nhập");
-    router.push("/login");
-  } catch (err) {
-    const code = err.response?.data?.code;
-    if (code === "EMAIL_EXISTS") {
-      errors.value.email = "Email này đã được sử dụng";
-      return;
+    if (!hoTen.value) {
+      errors.value.hoTen = "Họ tên không được để trống";
     }
-    serverError.value = err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
-  }
-};
-</script>
+
+    if (!email.value) {
+      errors.value.email = "Email không được để trống";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+      errors.value.email = "Email không hợp lệ";
+    }
+
+    if (!phone.value) {
+      errors.value.phone = "Số điện thoại không được để trống";
+    }
+
+    if (!password.value) {
+      errors.value.password = "Mật khẩu không được để trống";
+    } else if (password.value.length < 6) {
+      errors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
+    }
+
+    if (!confirmPassword.value) {
+      errors.value.confirmPassword = "Vui lòng nhập lại mật khẩu";
+    } else if (password.value !== confirmPassword.value) {
+      errors.value.confirmPassword = "Mật khẩu không khớp";
+    }
+
+    return Object.keys(errors.value).length === 0;
+  };
+
+  const register = async () => {
+    if (!validate()) return;
+
+    try {
+      await api.post("/auth/register", {
+        hoTen: hoTen.value,
+        email: email.value,
+        phone: phone.value,
+        password: password.value,
+      });
+
+      alert("Đăng ký thành công, mời bạn đăng nhập");
+      router.push("/login");
+    } catch (err) {
+      const code = err.response?.data?.code;
+      if (code === "EMAIL_EXISTS") {
+        errors.value.email = "Email này đã được sử dụng";
+        return;
+      }
+      serverError.value = err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
+    }
+  };
+  </script>
 
 <style scoped>
 /* Bao phủ toàn bộ màn hình và căn giữa */

@@ -26,7 +26,7 @@ phuong_xa NVARCHAR(100),
         FOREIGN KEY (user_id) REFERENCES Users(id)
 )
 GO
-
+Select * from Address
 EXEC sp_rename 'Address.thanh_pho', 'tinh_thanh', 'COLUMN';
 GO
 
@@ -232,7 +232,7 @@ GO
 ALTER TABLE Payment
 ADD user_id INT NULL;
 GO
-Select * from Payment
+Select * from Address
 
 CREATE TABLE Review (
     id INT IDENTITY PRIMARY KEY,
@@ -252,7 +252,7 @@ GO
 
 ALTER TABLE Review
 DROP COLUMN phe_duyet;
-
+select * from Orders
 SELECt * From Payment
 
 INSERT INTO Users (email, password, ho_ten, role, phone, trang_thai)
