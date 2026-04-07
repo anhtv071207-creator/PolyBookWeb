@@ -29,13 +29,15 @@ public class BookServiceImpl implements BookService {
     private BookCategoryRepository bookCategoryRepository;
     @Autowired
     private PromotionRepository promotionRepository;
+
     @Override
-    public List<BookResponse> getAllBooks(){
+    public List<BookResponse> getAllBooks() {
         return bookRepository.findAll()
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
+
     @Autowired
     private CategoryRepository categoryRepository;
 
@@ -72,6 +74,19 @@ public class BookServiceImpl implements BookService {
         book.setGia(request.getGia());
         book.setHangTon(request.getHangTon());
         book.setMoTa(request.getMoTa());
+
+// ===== THÊM MỚI =====
+        book.setSoTrang(request.getSoTrang());
+        book.setNxb(request.getNxb());
+        book.setNamXuatBan(request.getNamXuatBan());
+        book.setKichThuoc(request.getKichThuoc());
+        book.setHinhThuc(request.getHinhThuc());
+        book.setTrongLuong(request.getTrongLuong());
+        book.setTenNhaCungCap(request.getTenNhaCungCap());
+
+        book.setNgonNgu(request.getNgonNgu());
+        book.setDichGia(request.getDichGia());
+// ====================
 
         book.setAvgRating(BigDecimal.ZERO);
         book.setTotalReviews(0);
@@ -125,6 +140,19 @@ public class BookServiceImpl implements BookService {
         book.setHangTon(request.getHangTon());
         book.setMoTa(request.getMoTa());
 
+// ===== THÊM MỚI =====
+        book.setSoTrang(request.getSoTrang());
+        book.setNxb(request.getNxb());
+        book.setNamXuatBan(request.getNamXuatBan());
+        book.setKichThuoc(request.getKichThuoc());
+        book.setHinhThuc(request.getHinhThuc());
+        book.setTrongLuong(request.getTrongLuong());
+        book.setTenNhaCungCap(request.getTenNhaCungCap());
+
+        book.setNgonNgu(request.getNgonNgu());
+        book.setDichGia(request.getDichGia());
+// ====================
+
         List<Integer> newIds = request.getCategoryIds();
 
         List<Integer> oldIds = book.getBookCategories()
@@ -172,6 +200,7 @@ public class BookServiceImpl implements BookService {
 
         return mapToResponse(book);
     }
+
     private BookResponse mapToResponse(Book book) {
 
         BookResponse response = new BookResponse();
@@ -185,6 +214,16 @@ public class BookServiceImpl implements BookService {
         response.setMoTa(book.getMoTa());
         response.setAvgRating(book.getAvgRating());
         response.setTotalReviews(book.getTotalReviews());
+        response.setSoTrang(book.getSoTrang());
+        response.setNxb(book.getNxb());
+        response.setNamXuatBan(book.getNamXuatBan());
+        response.setKichThuoc(book.getKichThuoc());
+        response.setHinhThuc(book.getHinhThuc());
+        response.setTrongLuong(book.getTrongLuong());
+        response.setTenNhaCungCap(book.getTenNhaCungCap());
+
+        response.setNgonNgu(book.getNgonNgu());
+        response.setDichGia(book.getDichGia());
         Integer discount = 0;
         BigDecimal salePrice = book.getGia();
 
@@ -270,41 +309,74 @@ public class BookServiceImpl implements BookService {
                 book.getTacGia(),
                 book.getGia(),
                 book.getHangTon(),
+
                 images.stream()
                         .filter(i -> Boolean.TRUE.equals(i.getBiaSach()))
                         .map(BookImage::getUrl)
                         .findFirst()
                         .orElse("/books/default.jpg"),
+
                 images.stream()
                         .map(BookImage::getUrl)
                         .toList(),
+
                 book.getMoTa(),
                 book.getAvgRating(),
                 book.getTotalReviews(),
                 categories,
+
                 discount,
-                salePrice
+                salePrice,
+
+                // ===== đúng thứ tự field trong DTO =====
+                book.getSoTrang(),
+                book.getTrongLuong(),
+                book.getDichGia(),
+                book.getNgonNgu(),
+                book.getHinhThuc(),
+                book.getTenNhaCungCap(),
+                book.getNamXuatBan(),
+                book.getNxb()
         );
     }
+
     @Override
     public PageResponse<BookHomeDTO> getBooksForHome(int page, int size) {
-        // 1. Tạo Pageable (mặc định sắp xếp theo ID giảm dần để sách mới hiện lên đầu)
         Pageable pageable = PageRequest.of(page, size, Sort.by("id").descending());
-
-        // 2. Gọi repository trả về Page thay vì List
-        // Lưu ý: Bạn cần vào BookRepository và sửa kiểu trả về của findBooksForHome thành Page<BookHomeDTO>
         Page<BookHomeDTO> bookPage = bookRepository.findBooksForHome(pageable);
 
-        // 3. Trả về kết quả bọc trong PageResponse để Frontend dễ xử lý
+        // Duyệt qua từng cuốn sách và tính toán lại khuyến mãi
+        List<BookHomeDTO> content = bookPage.getContent().stream().map(dto -> {
+            Promotion promo = promotionRepository
+                    .findActivePromotionByBookId(dto.getId(), LocalDateTime.now())
+                    .orElse(null);
+
+            if (promo != null) {
+                int discount = promo.getChietKhau();
+                BigDecimal salePrice = dto.getGia()
+                        .multiply(BigDecimal.valueOf(100 - discount))
+                        .divide(BigDecimal.valueOf(100), 2, RoundingMode.HALF_UP);
+
+                dto.setDiscount(discount);
+                dto.setSalePrice(salePrice);
+            } else {
+                dto.setDiscount(0);
+                dto.setSalePrice(dto.getGia());
+            }
+            return dto;
+        }).toList();
+
         return new PageResponse<>(
-                bookPage.getContent(),
+                content,
                 bookPage.getNumber(),
                 bookPage.getSize(),
                 bookPage.getTotalElements(),
                 bookPage.getTotalPages(),
                 bookPage.isLast()
         );
-    }@Override
+    }
+
+    @Override
     public PageResponse<BookResponse> getBooksWithPaging(
             int page,
             int size,
@@ -339,6 +411,7 @@ public class BookServiceImpl implements BookService {
                 bookPage.isLast()
         );
     }
+
     @Override
     public PageResponse<BookResponse> getBooksByCategory(
             Integer categoryId,
@@ -379,6 +452,7 @@ public class BookServiceImpl implements BookService {
                 bookPage.isLast()
         );
     }
+
     @Override
     public Book getBookEntityById(Integer id) {
         return bookRepository.findById(id)

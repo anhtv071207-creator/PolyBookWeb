@@ -56,6 +56,50 @@
                 <label>Mô tả</label>
                 <textarea v-model="form.moTa"></textarea>
               </div>
+              <div class="form-group">
+                <label>Số trang</label>
+                <input type="number" v-model="form.soTrang" />
+              </div>
+
+              <div class="form-group">
+                <label>Nhà xuất bản</label>
+                <input type="text" v-model="form.nxb" />
+              </div>
+
+              <div class="form-group">
+                <label>Năm xuất bản</label>
+                <input type="number" v-model="form.namXuatBan" />
+              </div>
+
+              <div class="form-group">
+                <label>Kích thước</label>
+                <input type="text" v-model="form.kichThuoc" />
+              </div>
+
+              <div class="form-group">
+                <label>Hình thức</label>
+                <input type="text" v-model="form.hinhThuc" />
+              </div>
+
+              <div class="form-group">
+                <label>Trọng lượng</label>
+                <input type="number" v-model="form.trongLuong" />
+              </div>
+
+              <div class="form-group">
+                <label>Nhà cung cấp</label>
+                <input type="text" v-model="form.tenNhaCungCap" />
+              </div>
+
+              <div class="form-group">
+                <label>Ngôn ngữ</label>
+                <input type="text" v-model="form.ngonNgu" />
+              </div>
+
+              <div class="form-group">
+                <label>Dịch giả</label>
+                <input type="text" v-model="form.dichGia" />
+              </div>
 
               <div class="form-group">
                 <label>Ảnh bìa</label>
@@ -126,6 +170,50 @@
               <div class="form-group">
                 <label>Mô tả</label>
                 <textarea v-model="editForm.moTa"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Số trang</label>
+                <input type="number" v-model="editForm.soTrang" />
+              </div>
+
+              <div class="form-group">
+                <label>Nhà xuất bản</label>
+                <input type="text" v-model="editForm.nxb" />
+              </div>
+
+              <div class="form-group">
+                <label>Năm xuất bản</label>
+                <input type="number" v-model="editForm.namXuatBan" />
+              </div>
+
+              <div class="form-group">
+                <label>Kích thước</label>
+                <input type="text" v-model="editForm.kichThuoc" />
+              </div>
+
+              <div class="form-group">
+                <label>Hình thức</label>
+                <input type="text" v-model="editForm.hinhThuc" />
+              </div>
+
+              <div class="form-group">
+                <label>Trọng lượng</label>
+                <input type="number" v-model="editForm.trongLuong" />
+              </div>
+
+              <div class="form-group">
+                <label>Nhà cung cấp</label>
+                <input type="text" v-model="editForm.tenNhaCungCap" />
+              </div>
+
+              <div class="form-group">
+                <label>Ngôn ngữ</label>
+                <input type="text" v-model="editForm.ngonNgu" />
+              </div>
+
+              <div class="form-group">
+                <label>Dịch giả</label>
+                <input type="text" v-model="editForm.dichGia" />
               </div>
 
               <div class="form-group">
@@ -317,6 +405,15 @@ const resetAddForm = (form) => {
   form.gia = "";
   form.hangTon = "";
   form.moTa = "";
+  form.soTrang = "";
+  form.nxb = "";
+  form.namXuatBan = "";
+  form.kichThuoc = "";
+  form.hinhThuc = "";
+  form.trongLuong = "";
+  form.tenNhaCungCap = "";
+  form.ngonNgu = "";
+  form.dichGia = "";
   form.coverImageUrl = "";
   selectedAddCategories.value = [];
   revokePreview(previewUrl);
@@ -330,6 +427,15 @@ const resetEditForm = (editForm) => {
   editForm.gia = "";
   editForm.hangTon = "";
   editForm.moTa = "";
+  editForm.soTrang = "";
+  editForm.nxb = "";
+  editForm.namXuatBan = "";
+  editForm.kichThuoc = "";
+  editForm.hinhThuc = "";
+  editForm.trongLuong = "";
+  editForm.tenNhaCungCap = "";
+  editForm.ngonNgu = "";
+  editForm.dichGia = "";
   editForm.coverImageUrl = "";
   selectedEditCategories.value = [];
   revokePreview(editPreviewUrl);
@@ -446,6 +552,16 @@ const form = reactive({
   hangTon: "",
   moTa: "",
   coverImageUrl: "",
+
+  soTrang: "",
+  nxb: "",
+  namXuatBan: "",
+  kichThuoc: "",
+  hinhThuc: "",
+  trongLuong: "",
+  tenNhaCungCap: "",
+  ngonNgu: "",
+  dichGia: "",
 });
 
 const editForm = reactive({
@@ -457,6 +573,16 @@ const editForm = reactive({
   hangTon: "",
   moTa: "",
   coverImageUrl: "",
+
+  soTrang: "",
+  nxb: "",
+  namXuatBan: "",
+  kichThuoc: "",
+  hinhThuc: "",
+  trongLuong: "",
+  tenNhaCungCap: "",
+  ngonNgu: "",
+  dichGia: "",
 });
 
 const openAddPopup = () => {
@@ -500,6 +626,16 @@ const submitForm = async () => {
       moTa: form.moTa,
       coverImageUrl: form.coverImageUrl,
       categoryIds: selectedAddCategories.value,
+
+      soTrang: Number(form.soTrang),
+      nxb: form.nxb,
+      namXuatBan: Number(form.namXuatBan),
+      kichThuoc: form.kichThuoc,
+      hinhThuc: form.hinhThuc,
+      trongLuong: Number(form.trongLuong),
+      tenNhaCungCap: form.tenNhaCungCap,
+      ngonNgu: form.ngonNgu,
+      dichGia: form.dichGia,
     });
 
     resetAddForm(form);
@@ -526,6 +662,16 @@ const startEdit = async (book) => {
       hangTon: detail.hangTon,
       moTa: detail.moTa,
       coverImageUrl: detail.mainImage || "",
+
+      soTrang: detail.soTrang,
+      nxb: detail.nxb,
+      namXuatBan: detail.namXuatBan,
+      kichThuoc: detail.kichThuoc,
+      hinhThuc: detail.hinhThuc,
+      trongLuong: detail.trongLuong,
+      tenNhaCungCap: detail.tenNhaCungCap,
+      ngonNgu: detail.ngonNgu,
+      dichGia: detail.dichGia,
     });
     selectedEditCategories.value = detail.categories
       ? detail.categories.map((c) => Number(c.id))
@@ -550,6 +696,16 @@ const updateBook = async () => {
       moTa: editForm.moTa,
       coverImageUrl: editForm.coverImageUrl,
       categoryIds: selectedEditCategories.value,
+
+      soTrang: Number(editForm.soTrang),
+      nxb: editForm.nxb,
+      namXuatBan: Number(editForm.namXuatBan),
+      kichThuoc: editForm.kichThuoc,
+      hinhThuc: editForm.hinhThuc,
+      trongLuong: Number(editForm.trongLuong),
+      tenNhaCungCap: editForm.tenNhaCungCap,
+      ngonNgu: editForm.ngonNgu,
+      dichGia: editForm.dichGia,
     });
 
     resetEditForm(editForm);
@@ -805,7 +961,7 @@ textarea {
 .popup-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -877,7 +1033,7 @@ textarea {
 .delete-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.4);
+  background: rgba(0, 0, 0, 0.4);
   display: flex;
   justify-content: center;
   align-items: center;

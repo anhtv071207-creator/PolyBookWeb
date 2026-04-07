@@ -19,8 +19,9 @@ public class CreateBookRequest {
     @DecimalMin(value = "0.0", inclusive = false)
     private BigDecimal gia;
 
-    @NotNull
+    @NotBlank
     private String isbn;
+
     @NotNull
     @Min(0)
     private Integer hangTon;
@@ -32,4 +33,35 @@ public class CreateBookRequest {
 
     @NotEmpty(message = "Phải chọn ít nhất 1 danh mục")
     private List<Integer> categoryIds;
+
+    // ====== THÊM MỚI (NOT NULL) ======
+
+    @NotNull
+    @Min(1)
+    private Integer soTrang;
+
+    @NotBlank
+    private String nxb;
+
+    @NotNull
+    private Integer namXuatBan;
+
+    @NotBlank
+    private String kichThuoc;
+
+    @NotBlank
+    private String hinhThuc;
+
+    @NotNull
+    @Min(0)
+    private Integer trongLuong;
+
+    @NotBlank
+    private String tenNhaCungCap;
+
+    // ====== NULL (optional) ======
+
+    private String ngonNgu;
+
+    private String dichGia;
 }

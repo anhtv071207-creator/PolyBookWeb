@@ -463,3 +463,16 @@ CREATE TABLE Promotions (
 go
 DELETE FROM Promotions
 Select * from Promotions
+
+ALTER TABLE Payment
+ADD CONSTRAINT FK_Payment_Users
+FOREIGN KEY (user_id) REFERENCES Users(id);
+GO 
+
+ALTER TABLE Books ADD so_trang INT DEFAULT 0;
+
+ALTER TABLE Books ADD nxb NVARCHAR(255);
+ALTER TABLE Books ADD kich_thuoc NVARCHAR(50);
+ALTER TABLE Books ADD hinh_thuc NVARCHAR(50);
+ALTER TABLE Books ADD ngon_ngu NVARCHAR(50);
+ 

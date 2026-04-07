@@ -20,9 +20,20 @@ public class BookResponse {
     private BigDecimal avgRating;
     private Integer totalReviews;
 
+    // ===== THÊM MỚI =====
+    private Integer soTrang;
+    private String nxb;
+    private Integer namXuatBan;
+    private String kichThuoc;
+    private String hinhThuc;
+    private Integer trongLuong;
+    private String tenNhaCungCap;
+    private String ngonNgu;
+    private String dichGia;
+    // ====================
+
     private List<BookImageResponse> images;
     private List<CategoryResponse> categories;
     private Integer discount;
     private BigDecimal salePrice;
 }
-

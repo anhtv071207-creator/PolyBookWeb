@@ -26,4 +26,14 @@ public class BookDetailResponse {
     private List<CategoryResponse> categories;
     private Integer discount;
     private BigDecimal salePrice;
+    private Integer soTrang;
+    private Integer trongLuong;
+    private String dichGia;
+    private String ngonNgu;
+    private String hinhThuc;
+    private String tenNhaCungCap;
+    private Integer namXuatBan;
+    private String nxb;
+
+
 }

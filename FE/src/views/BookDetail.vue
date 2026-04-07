@@ -53,7 +53,9 @@
               <div class="meta">
                 Tác giả: <b>{{ book.tacGia }}</b>
               </div>
-              <div class="meta">Hình thức: Bìa mềm</div>
+              <div class="meta">
+                Hình thức: <b>{{ book.hinhThuc }}</b>
+              </div>
 
               <div class="rating-line">
                 ★★★★★
@@ -110,24 +112,53 @@
             <table class="info-table">
               <tbody>
                 <tr>
-                  <td>Tác giả</td>
-                  <td>{{ book.tacGia }}</td>
-                </tr>
-                <tr>
                   <td>Danh mục</td>
-                  <td>Kỹ năng</td>
+                  <td>
+                    <span v-for="(c, i) in book.categories" :key="c.id">
+                      {{ c.ten
+                      }}<span v-if="i < book.categories.length - 1">, </span>
+                    </span>
+                  </td>
                 </tr>
+
                 <tr>
                   <td>Nhà xuất bản</td>
-                  <td>NXB Trẻ</td>
+                  <td>{{ book.nxb }}</td>
                 </tr>
+
                 <tr>
                   <td>Năm xuất bản</td>
-                  <td>2023</td>
+                  <td>{{ book.namXuatBan }}</td>
                 </tr>
+
                 <tr>
                   <td>Số trang</td>
-                  <td>320</td>
+                  <td>{{ book.soTrang }}</td>
+                </tr>
+
+                <tr>
+                  <td>Trọng lượng</td>
+                  <td>{{ book.trongLuong }} g</td>
+                </tr>
+
+                <tr>
+                  <td>Hình thức</td>
+                  <td>{{ book.hinhThuc }}</td>
+                </tr>
+
+                <tr>
+                  <td>Ngôn ngữ</td>
+                  <td>{{ book.ngonNgu }}</td>
+                </tr>
+
+                <tr>
+                  <td>Dịch giả</td>
+                  <td>{{ book.dichGia || "Không có" }}</td>
+                </tr>
+
+                <tr>
+                  <td>Nhà cung cấp</td>
+                  <td>{{ book.tenNhaCungCap }}</td>
                 </tr>
               </tbody>
             </table>
