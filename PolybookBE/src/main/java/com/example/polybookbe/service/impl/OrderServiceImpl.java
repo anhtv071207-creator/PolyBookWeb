@@ -362,7 +362,14 @@ public class OrderServiceImpl implements OrderService {
         res.setItems(
                 order.getItems()
                         .stream()
-                        .map(OrderItemResponse::new)
+                        .map(item -> {
+                            var promo = promotionService.getActivePromotionByBookId(item.getBook().getId());
+
+                            return new OrderItemResponse(
+                                    item,
+                                    promo.orElse(null)
+                            );
+                        })
                         .toList()
         );
 

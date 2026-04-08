@@ -4,6 +4,7 @@
       <button class="btn-back" @click="goBackManagement">← Quay lại</button>
       <h2>Quản lý sản phẩm</h2>
     </div>
+
     <div class="form-wrapper">
       <div class="side-tabs">
         <div
@@ -22,83 +23,187 @@
           Sửa
         </div>
       </div>
+
       <div class="tab-content">
         <div v-if="currentMode === 'add'">
           <div class="card add-form">
             <h2>Thêm sách</h2>
+
             <form @submit.prevent="submitForm">
               <div class="form-group">
                 <label>Tiêu đề</label>
-                <input type="text" v-model="form.tieuDe" required />
+                <input
+                  type="text"
+                  v-model="form.tieuDe"
+                  :class="{ 'input-error': errors.tieuDe }"
+                />
+                <p v-if="errors.tieuDe" class="error-text">
+                  {{ errors.tieuDe }}
+                </p>
               </div>
 
               <div class="form-group">
                 <label>Tác giả</label>
-                <input type="text" v-model="form.tacGia" required />
+                <input
+                  type="text"
+                  v-model="form.tacGia"
+                  :class="{ 'input-error': errors.tacGia }"
+                />
+                <p v-if="errors.tacGia" class="error-text">
+                  {{ errors.tacGia }}
+                </p>
               </div>
 
               <div class="form-group">
                 <label>ISBN</label>
-                <input type="text" v-model="form.isbn" required />
+                <input
+                  type="text"
+                  v-model="form.isbn"
+                  :class="{ 'input-error': errors.isbn }"
+                />
+                <p v-if="errors.isbn" class="error-text">
+                  {{ errors.isbn }}
+                </p>
               </div>
 
-              <div class="form-group">
-                <label>Giá</label>
-                <input type="number" v-model="form.gia" required />
-              </div>
+              <div class="row-flex" style="display: flex; gap: 15px">
+                <div class="form-group" style="flex: 1">
+                  <label>Giá</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="form.gia"
+                    :class="{ 'input-error': errors.gia }"
+                  />
+                  <p v-if="errors.gia" class="error-text">
+                    {{ errors.gia }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Hàng tồn</label>
-                <input type="number" v-model="form.hangTon" required />
+                <div class="form-group" style="flex: 1">
+                  <label>Hàng tồn</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="form.hangTon"
+                    :class="{ 'input-error': errors.hangTon }"
+                  />
+                  <p v-if="errors.hangTon" class="error-text">
+                    {{ errors.hangTon }}
+                  </p>
+                </div>
               </div>
 
               <div class="form-group">
                 <label>Mô tả</label>
-                <textarea v-model="form.moTa"></textarea>
+                <textarea
+                  v-model="form.moTa"
+                  :class="{ 'input-error': errors.moTa }"
+                ></textarea>
+                <p v-if="errors.moTa" class="error-text">
+                  {{ errors.moTa }}
+                </p>
               </div>
-              <div class="form-group">
-                <label>Số trang</label>
-                <input type="number" v-model="form.soTrang" />
-              </div>
-
               <div class="form-group">
                 <label>Nhà xuất bản</label>
-                <input type="text" v-model="form.nxb" />
+                <input
+                  type="text"
+                  v-model="form.nxb"
+                  :class="{ 'input-error': errors.nxb }"
+                />
+                <p v-if="errors.nxb" class="error-text">
+                  {{ errors.nxb }}
+                </p>
               </div>
 
-              <div class="form-group">
-                <label>Năm xuất bản</label>
-                <input type="number" v-model="form.namXuatBan" />
+              <div class="row-flex" style="display: flex; gap: 15px">
+                <div class="form-group" style="flex: 1">
+                  <label>Số trang</label>
+                  <input
+                    type="number"
+                    v-model.number="form.soTrang"
+                    :class="{ 'input-error': errors.soTrang }"
+                  />
+                  <p v-if="errors.soTrang" class="error-text">
+                    {{ errors.soTrang }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1">
+                  <label>Năm xuất bản</label>
+                  <input
+                    type="number"
+                    v-model.number="form.namXuatBan"
+                    :class="{ 'input-error': errors.namXuatBan }"
+                  />
+                  <p v-if="errors.namXuatBan" class="error-text">
+                    {{ errors.namXuatBan }}
+                  </p>
+                </div>
               </div>
 
-              <div class="form-group">
-                <label>Kích thước</label>
-                <input type="text" v-model="form.kichThuoc" />
-              </div>
+              <div
+                class="row-flex"
+                style="display: flex; flex-wrap: wrap; gap: 15px"
+              >
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Kích thước</label>
+                  <input
+                    type="text"
+                    v-model="form.kichThuoc"
+                    :class="{ 'input-error': errors.kichThuoc }"
+                  />
+                  <p v-if="errors.kichThuoc" class="error-text">
+                    {{ errors.kichThuoc }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Hình thức</label>
-                <input type="text" v-model="form.hinhThuc" />
-              </div>
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Hình thức</label>
+                  <input
+                    type="text"
+                    v-model="form.hinhThuc"
+                    :class="{ 'input-error': errors.hinhThuc }"
+                  />
+                  <p v-if="errors.hinhThuc" class="error-text">
+                    {{ errors.hinhThuc }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Trọng lượng</label>
-                <input type="number" v-model="form.trongLuong" />
-              </div>
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Trọng lượng</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="form.trongLuong"
+                    :class="{ 'input-error': errors.trongLuong }"
+                  />
+                  <p v-if="errors.trongLuong" class="error-text">
+                    {{ errors.trongLuong }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Nhà cung cấp</label>
-                <input type="text" v-model="form.tenNhaCungCap" />
-              </div>
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Nhà cung cấp</label>
+                  <input
+                    type="text"
+                    v-model="form.tenNhaCungCap"
+                    :class="{ 'input-error': errors.tenNhaCungCap }"
+                  />
+                  <p v-if="errors.tenNhaCungCap" class="error-text">
+                    {{ errors.tenNhaCungCap }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Ngôn ngữ</label>
-                <input type="text" v-model="form.ngonNgu" />
-              </div>
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Ngôn ngữ</label>
+                  <input type="text" v-model="form.ngonNgu" />
+                </div>
 
-              <div class="form-group">
-                <label>Dịch giả</label>
-                <input type="text" v-model="form.dichGia" />
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Dịch giả</label>
+                  <input type="text" v-model="form.dichGia" />
+                </div>
               </div>
 
               <div class="form-group">
@@ -107,17 +212,28 @@
                   type="file"
                   accept="image/*"
                   @change="onSelectImage"
-                  required
+                  :class="{ 'input-error': errors.coverImageUrl }"
                 />
+                <p v-if="errors.coverImageUrl" class="error-text">
+                  {{ errors.coverImageUrl }}
+                </p>
               </div>
 
               <div v-if="previewUrl" class="preview-box">
                 <img :src="previewUrl" />
               </div>
 
-              <button type="button" class="btn-category" @click="openAddPopup">
+              <button class="btn btn-category" @click="openAddPopup">
                 Chọn danh mục
               </button>
+
+              <p v-if="errors.categories" class="error-text">
+                {{ errors.categories }}
+              </p>
+
+              <p v-if="errors.category" class="error-text">
+                {{ errors.category }}
+              </p>
 
               <div class="selected-tags">
                 <span
@@ -141,83 +257,186 @@
         <div v-if="currentMode === 'edit'">
           <div class="card edit-form">
             <h2>Sửa sách</h2>
+
             <form @submit.prevent="updateBook">
               <div class="form-group">
                 <label>Tiêu đề</label>
-                <input type="text" v-model="editForm.tieuDe" required />
+                <input
+                  type="text"
+                  v-model="editForm.tieuDe"
+                  :class="{ 'input-error': errors.tieuDe }"
+                />
+                <p v-if="errors.tieuDe" class="error-text">
+                  {{ errors.tieuDe }}
+                </p>
               </div>
 
               <div class="form-group">
                 <label>Tác giả</label>
-                <input type="text" v-model="editForm.tacGia" required />
+                <input
+                  type="text"
+                  v-model="editForm.tacGia"
+                  :class="{ 'input-error': errors.tacGia }"
+                />
+                <p v-if="errors.tacGia" class="error-text">
+                  {{ errors.tacGia }}
+                </p>
               </div>
 
               <div class="form-group">
                 <label>ISBN</label>
-                <input type="text" v-model="editForm.isbn" required />
+                <input
+                  type="text"
+                  v-model="editForm.isbn"
+                  :class="{ 'input-error': errors.isbn }"
+                />
+                <p v-if="errors.isbn" class="error-text">
+                  {{ errors.isbn }}
+                </p>
               </div>
 
-              <div class="form-group">
-                <label>Giá</label>
-                <input type="number" v-model="editForm.gia" required />
-              </div>
+              <div class="row-flex" style="display: flex; gap: 15px">
+                <div class="form-group" style="flex: 1">
+                  <label>Giá</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="editForm.gia"
+                    :class="{ 'input-error': errors.gia }"
+                  />
+                  <p v-if="errors.gia" class="error-text">
+                    {{ errors.gia }}
+                  </p>
+                </div>
 
-              <div class="form-group">
-                <label>Hàng tồn</label>
-                <input type="number" v-model="editForm.hangTon" required />
+                <div class="form-group" style="flex: 1">
+                  <label>Hàng tồn</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="editForm.hangTon"
+                    :class="{ 'input-error': errors.hangTon }"
+                  />
+                  <p v-if="errors.hangTon" class="error-text">
+                    {{ errors.hangTon }}
+                  </p>
+                </div>
               </div>
 
               <div class="form-group">
                 <label>Mô tả</label>
-                <textarea v-model="editForm.moTa"></textarea>
+                <textarea
+                  v-model="editForm.moTa"
+                  :class="{ 'input-error': errors.moTa }"
+                ></textarea>
+                <p v-if="errors.moTa" class="error-text">
+                  {{ errors.moTa }}
+                </p>
               </div>
-              <div class="form-group">
-                <label>Số trang</label>
-                <input type="number" v-model="editForm.soTrang" />
-              </div>
-
               <div class="form-group">
                 <label>Nhà xuất bản</label>
-                <input type="text" v-model="editForm.nxb" />
+                <input
+                  type="text"
+                  v-model="editForm.nxb"
+                  :class="{ 'input-error': errors.nxb }"
+                />
+                <p v-if="errors.nxb" class="error-text">
+                  {{ errors.nxb }}
+                </p>
+              </div>
+
+              <div class="row-flex" style="display: flex; gap: 15px">
+                <div class="form-group" style="flex: 1">
+                  <label>Số trang</label>
+                  <input
+                    type="number"
+                    v-model.number="editForm.soTrang"
+                    :class="{ 'input-error': errors.soTrang }"
+                  />
+                  <p v-if="errors.soTrang" class="error-text">
+                    {{ errors.soTrang }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1">
+                  <label>Năm xuất bản</label>
+                  <input
+                    type="number"
+                    v-model.number="editForm.namXuatBan"
+                    :class="{ 'input-error': errors.namXuatBan }"
+                  />
+                  <p v-if="errors.namXuatBan" class="error-text">
+                    {{ errors.namXuatBan }}
+                  </p>
+                </div>
+              </div>
+
+              <div
+                class="row-flex"
+                style="display: flex; flex-wrap: wrap; gap: 15px"
+              >
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Kích thước</label>
+                  <input
+                    type="text"
+                    v-model="editForm.kichThuoc"
+                    :class="{ 'input-error': errors.kichThuoc }"
+                  />
+                  <p v-if="errors.kichThuoc" class="error-text">
+                    {{ errors.kichThuoc }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Hình thức</label>
+                  <input
+                    type="text"
+                    v-model="editForm.hinhThuc"
+                    :class="{ 'input-error': errors.hinhThuc }"
+                  />
+                  <p v-if="errors.hinhThuc" class="error-text">
+                    {{ errors.hinhThuc }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Trọng lượng</label>
+                  <input
+                    type="number"
+                    min="0"
+                    v-model.number="editForm.trongLuong"
+                    :class="{ 'input-error': errors.trongLuong }"
+                  />
+                  <p v-if="errors.trongLuong" class="error-text">
+                    {{ errors.trongLuong }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Nhà cung cấp</label>
+                  <input
+                    type="text"
+                    v-model="editForm.tenNhaCungCap"
+                    :class="{ 'input-error': errors.tenNhaCungCap }"
+                  />
+                  <p v-if="errors.tenNhaCungCap" class="error-text">
+                    {{ errors.tenNhaCungCap }}
+                  </p>
+                </div>
+
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Ngôn ngữ</label>
+                  <input type="text" v-model="editForm.ngonNgu" />
+                </div>
+
+                <div class="form-group" style="flex: 1 1 calc(50% - 7.5px)">
+                  <label>Dịch giả</label>
+                  <input type="text" v-model="editForm.dichGia" />
+                </div>
               </div>
 
               <div class="form-group">
-                <label>Năm xuất bản</label>
-                <input type="number" v-model="editForm.namXuatBan" />
-              </div>
-
-              <div class="form-group">
-                <label>Kích thước</label>
-                <input type="text" v-model="editForm.kichThuoc" />
-              </div>
-
-              <div class="form-group">
-                <label>Hình thức</label>
-                <input type="text" v-model="editForm.hinhThuc" />
-              </div>
-
-              <div class="form-group">
-                <label>Trọng lượng</label>
-                <input type="number" v-model="editForm.trongLuong" />
-              </div>
-
-              <div class="form-group">
-                <label>Nhà cung cấp</label>
-                <input type="text" v-model="editForm.tenNhaCungCap" />
-              </div>
-
-              <div class="form-group">
-                <label>Ngôn ngữ</label>
-                <input type="text" v-model="editForm.ngonNgu" />
-              </div>
-
-              <div class="form-group">
-                <label>Dịch giả</label>
-                <input type="text" v-model="editForm.dichGia" />
-              </div>
-
-              <div class="form-group">
-                <label>Ảnh bìa</label>
+                <label>Thay đổi ảnh bìa</label>
                 <input
                   type="file"
                   accept="image/*"
@@ -229,9 +448,13 @@
                 <img :src="editPreviewUrl" />
               </div>
 
-              <button type="button" class="btn-category" @click="openEditPopup">
+              <button class="btn btn-category" @click="openEditPopup">
                 Chọn danh mục
               </button>
+
+              <p v-if="errors.categories" class="error-text">
+                {{ errors.categories }}
+              </p>
 
               <div class="selected-tags">
                 <span
@@ -286,12 +509,11 @@
           </button>
         </div>
       </div>
-      <!-- Loading -->
+
       <div v-if="loading" style="text-align: center; padding: 10px">
         Đang tải...
       </div>
 
-      <!-- Pagination -->
       <div class="pagination" v-if="totalPages > 1">
         <button @click="prevPage" :disabled="page === 0">←</button>
 
@@ -308,6 +530,7 @@
       </div>
     </div>
   </div>
+
   <div
     v-if="showPopup"
     class="popup-overlay"
@@ -316,7 +539,6 @@
     <div class="popup-wrapper">
       <div class="popup-header">
         <h3>Chọn danh mục</h3>
-
         <button class="btn-confirm" @click="showPopup = false">Xác nhận</button>
       </div>
 
@@ -346,6 +568,7 @@
       </div>
     </div>
   </div>
+
   <div v-if="showDeleteConfirm" class="delete-overlay">
     <div class="delete-box">
       <h3>Xác nhận xoá</h3>
@@ -357,6 +580,15 @@
       </div>
     </div>
   </div>
+  <div v-if="showToast" class="toast-overlay">
+    <div class="toast-box" :class="toastType">
+      <div class="toast-icon">
+        <span v-if="toastType === 'success'">✔</span>
+        <span v-else>✕</span>
+      </div>
+      <div class="toast-text">{{ toastMessage }}</div>
+    </div>
+  </div>
 </template>
 <script setup>
 import { reactive, ref, onMounted, computed } from "vue";
@@ -364,7 +596,19 @@ import api from "@/services/api";
 import { useRoute, useRouter } from "vue-router";
 import { watch } from "vue";
 import { useThemeStore } from "@/stores/theme";
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
 
+const showToastMsg = (type, message) => {
+  toastType.value = type;
+  toastMessage.value = message;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 1800);
+};
 const theme = useThemeStore();
 
 const currentMode = ref("add");
@@ -384,7 +628,7 @@ const route = useRoute();
 const router = useRouter();
 const showDeleteConfirm = ref(false);
 const deleteTargetId = ref(null);
-
+const errors = ref({});
 const setMode = (mode) => {
   currentMode.value = mode;
 };
@@ -614,35 +858,93 @@ const toggleCategory = (id) => {
 };
 
 const submitForm = async () => {
-  try {
-    const normalizedIsbn = (form.isbn || "").replace(/-/g, "");
+  errors.value = {};
 
+  const isEmpty = (val) => !val || !val.toString().trim();
+  const minLength = (val, len) => val && val.trim().length >= len;
+
+  // ===== STRING (>=3 ký tự) =====
+  if (!minLength(form.tieuDe, 3))
+    errors.value.tieuDe = "Tiêu đề phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.tacGia, 3))
+    errors.value.tacGia = "Tên tác giả phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.isbn, 3))
+    errors.value.isbn = "ISBN phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.moTa, 3))
+    errors.value.moTa = "Mô tả phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.kichThuoc, 3))
+    errors.value.kichThuoc = "Kích thước phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.hinhThuc, 3))
+    errors.value.hinhThuc = "Hình thức phải tối thiểu 3 ký tự";
+
+  if (!minLength(form.tenNhaCungCap, 3))
+    errors.value.tenNhaCungCap = "Nhà cung cấp phải tối thiểu 3 ký tự";
+
+  // OPTIONAL (chỉ check nếu có nhập)
+  if (form.ngonNgu && !minLength(form.ngonNgu, 3))
+    errors.value.ngonNgu = "Ngôn ngữ tối thiểu 3 ký tự";
+
+  if (form.dichGia && !minLength(form.dichGia, 3))
+    errors.value.dichGia = "Dịch giả tối thiểu 3 ký tự";
+
+  // ===== NUMBER =====
+  if (isEmpty(form.gia) || form.gia <= 0)
+    errors.value.gia = "Giá phải lớn hơn 0";
+
+  if (isEmpty(form.hangTon) || form.hangTon <= 0)
+    errors.value.hangTon = "Số lượng tồn không hợp lệ";
+
+  if (isEmpty(form.soTrang) || form.soTrang <= 0)
+    errors.value.soTrang = "Số trang phải > 0";
+
+  if (isEmpty(form.namXuatBan) || form.namXuatBan < 1900)
+    errors.value.namXuatBan = "Năm xuất bản không hợp lệ";
+
+  if (isEmpty(form.trongLuong) || form.trongLuong <= 0)
+    errors.value.trongLuong = "Trọng lượng phải > 0";
+
+  // ===== IMAGE =====
+  if (!form.coverImageUrl) errors.value.coverImageUrl = "Vui lòng chọn ảnh";
+
+  // ===== CATEGORY =====
+  if (!selectedAddCategories.value.length)
+    errors.value.categories = "Chọn ít nhất 1 danh mục";
+
+  // Nếu có lỗi -> dừng
+  if (Object.keys(errors.value).length > 0) return;
+
+  try {
     await api.post("/books", {
-      tieuDe: form.tieuDe,
-      tacGia: form.tacGia,
-      isbn: normalizedIsbn,
+      tieuDe: form.tieuDe.trim(),
+      tacGia: form.tacGia.trim(),
+      isbn: form.isbn.trim(),
       gia: Number(form.gia),
       hangTon: Number(form.hangTon),
-      moTa: form.moTa,
+      moTa: form.moTa.trim(),
       coverImageUrl: form.coverImageUrl,
       categoryIds: selectedAddCategories.value,
 
       soTrang: Number(form.soTrang),
-      nxb: form.nxb,
+      nxb: form.nxb?.trim() || "",
       namXuatBan: Number(form.namXuatBan),
-      kichThuoc: form.kichThuoc,
-      hinhThuc: form.hinhThuc,
+      kichThuoc: form.kichThuoc.trim(),
+      hinhThuc: form.hinhThuc.trim(),
       trongLuong: Number(form.trongLuong),
-      tenNhaCungCap: form.tenNhaCungCap,
-      ngonNgu: form.ngonNgu,
-      dichGia: form.dichGia,
+      tenNhaCungCap: form.tenNhaCungCap.trim(),
+      ngonNgu: form.ngonNgu?.trim() || "",
+      dichGia: form.dichGia?.trim() || "",
     });
 
+    showToastMsg("success", "Thêm sách thành công");
     resetAddForm(form);
-    page.value = 0;
     await fetchBooks();
   } catch (err) {
-    console.error("Lỗi thêm sách:", err);
+    showToastMsg("error", "Thêm sách thất bại");
   }
 };
 
@@ -684,7 +986,64 @@ const startEdit = async (book) => {
 };
 
 const updateBook = async () => {
-  if (!editForm.id) return;
+  errors.value = {};
+
+  const isEmpty = (val) => !val || !val.toString().trim();
+  const minLength = (val, len) => val && val.trim().length >= len;
+
+  if (!minLength(editForm.tieuDe, 3))
+    errors.value.tieuDe = "Tiêu đề phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.tacGia, 3))
+    errors.value.tacGia = "Tên tác giả phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.isbn, 3))
+    errors.value.isbn = "ISBN phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.moTa, 3))
+    errors.value.moTa = "Mô tả phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.kichThuoc, 3))
+    errors.value.kichThuoc = "Kích thước phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.hinhThuc, 3))
+    errors.value.hinhThuc = "Hình thức phải tối thiểu 3 ký tự";
+
+  if (!minLength(editForm.tenNhaCungCap, 3))
+    errors.value.tenNhaCungCap = "Nhà cung cấp phải tối thiểu 3 ký tự";
+
+  // OPTIONAL
+  if (editForm.ngonNgu && !minLength(editForm.ngonNgu, 3))
+    errors.value.ngonNgu = "Ngôn ngữ tối thiểu 3 ký tự";
+
+  if (editForm.dichGia && !minLength(editForm.dichGia, 3))
+    errors.value.dichGia = "Dịch giả tối thiểu 3 ký tự";
+
+  // ===== NUMBER =====
+  if (isEmpty(editForm.gia) || editForm.gia <= 0)
+    errors.value.gia = "Giá phải lớn hơn 0";
+
+  if (isEmpty(editForm.hangTon) || editForm.hangTon <= 0)
+    errors.value.hangTon = "Số lượng tồn không hợp lệ";
+
+  if (isEmpty(editForm.soTrang) || editForm.soTrang <= 0)
+    errors.value.soTrang = "Số trang phải > 0";
+
+  if (isEmpty(editForm.namXuatBan) || editForm.namXuatBan < 1900)
+    errors.value.namXuatBan = "Năm xuất bản không hợp lệ";
+
+  if (isEmpty(editForm.trongLuong) || editForm.trongLuong <= 0)
+    errors.value.trongLuong = "Trọng lượng phải > 0";
+
+  // ===== IMAGE =====
+  if (!editForm.coverImageUrl) errors.value.coverImageUrl = "Vui lòng chọn ảnh";
+
+  // ===== CATEGORY =====
+  if (!selectedEditCategories.value.length)
+    errors.value.categories = "Chọn ít nhất 1 danh mục";
+
+  // Nếu có lỗi -> dừng
+  if (Object.keys(errors.value).length > 0) return;
 
   try {
     await api.put(`/books/${editForm.id}`, {
@@ -707,11 +1066,11 @@ const updateBook = async () => {
       ngonNgu: editForm.ngonNgu,
       dichGia: editForm.dichGia,
     });
-
-    resetEditForm(editForm);
-    await fetchBooks();
+    showToastMsg("success", "Cập nhật thành công");
+    fetchBooks(); // Load lại danh sách
   } catch (err) {
-    console.error("Lỗi cập nhật:", err);
+    showToastMsg("error", "Cập nhật thất bại");
+    console.error(err);
   }
 };
 
@@ -723,13 +1082,14 @@ const confirmDeleteBook = async () => {
   try {
     await api.delete(`/books/${deleteTargetId.value}`);
 
+    showToastMsg("success", "Xóa thành công");
     if (books.value.length === 1 && page.value > 0) {
       page.value--;
     }
 
     await fetchBooks();
   } catch (err) {
-    console.error("Lỗi xoá:", err);
+    showToastMsg("error", "Xóa thất bại");
   } finally {
     showDeleteConfirm.value = false;
     deleteTargetId.value = null;
@@ -1237,5 +1597,92 @@ textarea {
 
 .dark .btn-category:hover {
   background: #334155;
+}
+.alert {
+  margin: 10px 0;
+  padding: 10px 14px;
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.alert.success {
+  background: #e6fffa;
+  color: #065f46;
+  border: 1px solid #34d399;
+}
+
+.alert.error {
+  background: #ffe6e6;
+  color: #7f1d1d;
+  border: 1px solid #f87171;
+}
+.input-error {
+  border-color: #ff4d4f !important;
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.1);
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 5px;
+  font-weight: 500;
+  text-align: left;
+}
+
+/* Dark mode */
+.dark .input-error {
+  background: #3b0d0d;
+  border-color: #ef4444 !important;
+}
+/* Style này dùng chung cho cả Form Thêm và Sửa */
+.input-error {
+  border-color: #ff4d4f !important;
+  background-color: #fff1f0;
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
+  font-weight: 500;
+}
+
+/* Hiệu ứng focus khi có lỗi */
+.input-error:focus {
+  box-shadow: 0 0 0 2px rgba(255, 77, 79, 0.2) !important;
+}
+.toast-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast-box {
+  min-width: 280px;
+  background: #0f172a;
+  color: #fff;
+  padding: 12px 14px;
+  border-radius: 10px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.toast-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.toast-box.success .toast-icon {
+  background: #10b981;
+}
+
+.toast-box.error .toast-icon {
+  background: #ef4444;
 }
 </style>

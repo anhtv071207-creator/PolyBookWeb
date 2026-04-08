@@ -40,8 +40,10 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="o in paginatedOrders" :key="o.id">
-              <td>#{{ o.id }}</td>
+            <tr v-for="(o, index) in paginatedOrders" :key="o.id">
+              <td>
+                {{ (currentPage - 1) * pageSize + index + 1 }}
+              </td>
               <td>{{ o.maDonHang }}</td>
               <td>{{ formatDate(o.ngayTao) }}</td>
               <td class="money">{{ formatMoney(o.tongTien) }}</td>
@@ -115,7 +117,7 @@ const totalPages = computed(() => Math.ceil(orders.value.length / pageSize));
 
 const paginatedOrders = computed(() => {
   const start = (currentPage.value - 1) * pageSize;
-  return orders.value.slice(start, start + pageSize);
+  return sortedOrders.value.slice(start, start + pageSize);
 });
 
 const changePage = (page) => {
@@ -144,10 +146,39 @@ const STATUS_MAP = {
   6: { text: "Hoàn trả", class: "status-return" },
   7: { text: "Lỗi", class: "status-error" }, // Thêm dòng này
 };
+const sortedOrders = computed(() => {
+  return [...orders.value].sort((a, b) => {
+    const statusA = Number(a.trangThai);
+    const statusB = Number(b.trangThai);
 
+    const isDoneA = [4, 5, 6, 7].includes(statusA);
+    const isDoneB = [4, 5, 6, 7].includes(statusB);
+
+    // 1. Nhóm chưa hoàn thành lên trước
+    if (isDoneA !== isDoneB) {
+      return isDoneA ? 1 : -1;
+    }
+
+    // 2. Nếu đều là nhóm chưa hoàn thành → sort theo ngày mới nhất
+    if (!isDoneA && !isDoneB) {
+      return new Date(b.ngayTao) - new Date(a.ngayTao);
+    }
+
+    // 3. Nếu đều thuộc nhóm hoàn thành
+    // Ưu tiên status = 4
+    if (statusA === 4 && statusB !== 4) return -1;
+    if (statusB === 4 && statusA !== 4) return 1;
+
+    // 4. 5,6,7 như nhau → sort theo ngày (mới nhất trước)
+    return new Date(b.ngayTao) - new Date(a.ngayTao);
+  });
+});
 const lookup = async () => {
   const trimmed = keyword.value.trim();
-
+  if (!trimmed && !userId.value) {
+    error.value = "Vui lòng nhập email hoặc số điện thoại";
+    return;
+  }
   orders.value = [];
   error.value = "";
   searched.value = true;
@@ -570,9 +601,14 @@ tbody tr:hover {
 .status-error {
   background: #7f1d1d; /* Đỏ đậm giống trang quản lý bạn gửi */
   color: #ffffff;
-}/* Tìm đến khu vực .dark .status-... và thêm: */
+} /* Tìm đến khu vực .dark .status-... và thêm: */
 .dark .status-error {
-  background: rgba(220, 38, 38, 0.3); /* Đỏ nhạt nền trong suốt cho dễ nhìn trong darkmode */
+  background: rgba(
+    220,
+    38,
+    38,
+    0.3
+  ); /* Đỏ nhạt nền trong suốt cho dễ nhìn trong darkmode */
   color: #f87171;
   border: 1px solid rgba(220, 38, 38, 0.5);
 }

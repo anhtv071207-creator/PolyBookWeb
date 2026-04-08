@@ -31,6 +31,7 @@ public class BookDetailResponse {
     private String dichGia;
     private String ngonNgu;
     private String hinhThuc;
+    private String kichThuoc;
     private String tenNhaCungCap;
     private Integer namXuatBan;
     private String nxb;

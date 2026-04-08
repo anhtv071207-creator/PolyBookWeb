@@ -64,11 +64,5 @@ public class OrderDetailResponse {
 
             this.ngayTao = time;
         }
-
-        this.items = order.getItems()
-                .stream()
-                .map(OrderItemResponse::new)
-                .toList();
     }
-    
 }

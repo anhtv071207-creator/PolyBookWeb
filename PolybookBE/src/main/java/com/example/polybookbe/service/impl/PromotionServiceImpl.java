@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 
@@ -156,5 +157,12 @@ public class PromotionServiceImpl implements PromotionService {
     @Override
     public List<Promotion> findAll() {
         return promotionRepository.findAll();
+    }
+    @Override
+    public Optional<Promotion> getActivePromotionByBookId(Integer bookId) {
+        return promotionRepository.findActivePromotionByBookId(
+                bookId,
+                LocalDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"))
+        );
     }
 }

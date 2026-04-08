@@ -469,10 +469,43 @@ ADD CONSTRAINT FK_Payment_Users
 FOREIGN KEY (user_id) REFERENCES Users(id);
 GO 
 
-ALTER TABLE Books ADD so_trang INT DEFAULT 0;
+SElect * from books
+CREATE TABLE Books (
+    id INT IDENTITY PRIMARY KEY,
+    tieu_de NVARCHAR(255) NOT NULL,
+    tac_gia NVARCHAR(255),
+    ISBN VARCHAR(255),
+    mo_ta NTEXT,
+    gia DECIMAL(10,2),
+    hang_ton INT,
+    avg_rating DECIMAL(3,2),
+    total_reviews INT
+)
+GO
+ALTER TABLE Books ADD so_trang INT NOT NULL DEFAULT 0;
 
-ALTER TABLE Books ADD nxb NVARCHAR(255);
-ALTER TABLE Books ADD kich_thuoc NVARCHAR(50);
-ALTER TABLE Books ADD hinh_thuc NVARCHAR(50);
-ALTER TABLE Books ADD ngon_ngu NVARCHAR(50);
- 
+ALTER TABLE Books ADD nxb NVARCHAR(255) NOT NULL DEFAULT N'';
+
+ALTER TABLE Books ADD nam_xuat_ban INT NOT NULL DEFAULT 0;
+
+ALTER TABLE Books ADD kich_thuoc NVARCHAR(255) NOT NULL DEFAULT N'';
+
+ALTER TABLE Books ADD hinh_thuc NVARCHAR(50) NOT NULL DEFAULT N'';
+
+ALTER TABLE Books ADD ngon_ngu NVARCHAR(50) NULL;
+
+ALTER TABLE Books ADD dich_gia NVARCHAR(255) NULL;
+
+ALTER TABLE Books ADD trong_luong NVARCHAR(50) NOT NULL DEFAULT N'';
+
+ALTER TABLE Books ADD ten_nha_cung_cap NVARCHAR(255) NOT NULL DEFAULT N'';
+
+ALTER TABLE Books 
+DROP CONSTRAINT DF__Books__trong_luo__5224328E;
+UPDATE Books
+SET trong_luong = 0
+WHERE ISNUMERIC(trong_luong) = 0 OR trong_luong IS NULL;
+ALTER TABLE Books
+ALTER COLUMN trong_luong INT NOT NULL;
+ALTER TABLE Books
+ADD CONSTRAINT DF_Books_TrongLuong DEFAULT 0 FOR trong_luong;

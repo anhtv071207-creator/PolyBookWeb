@@ -334,6 +334,7 @@ public class BookServiceImpl implements BookService {
                 book.getDichGia(),
                 book.getNgonNgu(),
                 book.getHinhThuc(),
+                book.getKichThuoc(),
                 book.getTenNhaCungCap(),
                 book.getNamXuatBan(),
                 book.getNxb()

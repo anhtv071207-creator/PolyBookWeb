@@ -7,82 +7,12 @@ import { useThemeStore } from "@/stores/theme";
 const theme = useThemeStore();
 const router = useRouter();
 
-const loading = ref(true);
-
-const stats = ref({
-  totalOrders: 0,
-  totalRevenue: 0,
-  totalUsers: 0,
-  totalBooks: 0,
-});
-
-const goBackManagement = () => {
-  router.back();
-};
-
-const formatCurrency = (value) => {
-  return new Intl.NumberFormat("vi-VN").format(value || 0);
-};
-
-const fetchStatistics = async () => {
-  try {
-    loading.value = true;
-
-    const [orderRes, revenueRes, userRes, bookRes] = await Promise.all([
-      api.get("/management/orders?page=0&size=1000"),
-      api.get("/management/payments/revenue"),
-      api.get("/account-management/admin/users"),
-      api.get("/books?page=0&size=1000"),
-    ]);
-
-    stats.value.totalOrders = orderRes?.data?.totalElements ?? 0;
-    stats.value.totalRevenue = revenueRes?.data ?? 0;
-    stats.value.totalUsers =
-      userRes?.data?.totalElements ?? userRes?.data?.length ?? 0;
-    stats.value.totalBooks = bookRes?.data?.totalElements ?? 0;
-  } catch (error) {
-    console.error("Lỗi thống kê:", error);
-  } finally {
-    loading.value = false;
-  }
-};
 
 onMounted(fetchStatistics);
 </script>
 
 <template>
-  <div class="container">
-    <div class="page-header">
-      <button class="btn-back" @click="goBackManagement">← Quay lại</button>
-      <h2>Thống kê báo cáo</h2>
-    </div>
 
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-icon">📦</div>
-        <h4>Tổng đơn hàng</h4>
-        <p>{{ stats.totalOrders }}</p>
-      </div>
-
-      <div class="stat-card green">
-        <div class="stat-icon">💰</div>
-        <h4>Doanh thu (đã giao)</h4>
-        <p>{{ formatCurrency(stats.totalRevenue) }} đ</p>
-      </div>
-
-      <div class="stat-card orange">
-        <div class="stat-icon">👤</div>
-        <h4>Tổng người dùng</h4>
-        <p>{{ stats.totalUsers }}</p>
-      </div>
-
-      <div class="stat-card purple">
-        <div class="stat-icon">📚</div>
-        <h4>Tổng sách</h4>
-        <p>{{ stats.totalBooks }}</p>
-      </div>
-    </div>
-  </div>
 </template>
 <style scoped>
 .container {

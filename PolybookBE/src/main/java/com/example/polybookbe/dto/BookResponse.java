@@ -20,7 +20,6 @@ public class BookResponse {
     private BigDecimal avgRating;
     private Integer totalReviews;
 
-    // ===== THÊM MỚI =====
     private Integer soTrang;
     private String nxb;
     private Integer namXuatBan;
@@ -30,7 +29,6 @@ public class BookResponse {
     private String tenNhaCungCap;
     private String ngonNgu;
     private String dichGia;
-    // ====================
 
     private List<BookImageResponse> images;
     private List<CategoryResponse> categories;

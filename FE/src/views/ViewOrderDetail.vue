@@ -1,12 +1,8 @@
 <template>
   <div class="container py-4 order-detail">
-    <button class="btn btn-link mb-3" @click="router.back()">
-      ← Quay lại
-    </button>
+    <button class="btn btn-link mb-3" @click="router.back()">← Quay lại</button>
 
-    <div v-if="loading" class="text-center py-5">
-      Đang tải...
-    </div>
+    <div v-if="loading" class="text-center py-5">Đang tải...</div>
 
     <div v-else-if="error" class="alert alert-danger">
       {{ error }}
@@ -28,6 +24,10 @@
               {{ statusInfo.text }}
             </span>
           </p>
+          <p>
+            <b>Phí giao hàng:</b>
+            {{ formatPrice(shippingFee) }}
+          </p>
           <p class="text-danger fw-bold">
             Tổng tiền: {{ formatPrice(order.tongTien) }}
           </p>
@@ -37,12 +37,12 @@
       <hr />
 
       <h5>Thông tin người nhận</h5>
-      <p class="mb-1"><b>{{ order.hoTenNguoiNhan }}</b></p>
+      <p class="mb-1">
+        <b>{{ order.hoTenNguoiNhan }}</b>
+      </p>
       <p class="mb-1">{{ order.phone }} – {{ order.email }}</p>
       <p>
-        {{ order.diaChiNhanHang }},
-        {{ order.phuongXa }},
-        {{ order.quanHuyen }},
+        {{ order.diaChiNhanHang }}, {{ order.phuongXa }}, {{ order.quanHuyen }},
         {{ order.tinhThanh }},
         {{ order.quocGia }}
       </p>
@@ -56,11 +56,7 @@
         :key="item.bookId"
         class="product-item d-flex align-items-center mb-3"
       >
-        <img
-          :src="getImageUrl(item.anhBia)"
-          class="product-img"
-          alt="book"
-        />
+        <img :src="getImageUrl(item.anhBia)" class="product-img" alt="book" />
 
         <div class="flex-grow-1 ms-3">
           <div class="fw-semibold">{{ item.tieuDe }}</div>
@@ -68,7 +64,16 @@
         </div>
 
         <div class="text-end">
-          <div>{{ formatPrice(item.donGia) }}</div>
+          <div class="price-row">
+            <span v-if="item.isPromotion" class="original-price me-2">
+              {{ formatPrice(item.giaGoc) }}
+            </span>
+
+            <span class="sale-price">
+              {{ formatPrice(item.donGia) }}
+            </span>
+          </div>
+
           <div class="fw-bold text-danger">
             {{ formatPrice(item.thanhTien) }}
           </div>
@@ -76,21 +81,21 @@
       </div>
 
       <div class="mt-4 d-flex gap-2">
-<button
-  class="btn btn-cancel"
-  :disabled="!canCancel"
-  @click="cancelOrder"
->
-  Hủy đơn
-</button>
+        <button
+          class="btn btn-cancel"
+          :disabled="!canCancel"
+          @click="cancelOrder"
+        >
+          Hủy đơn
+        </button>
 
-<button
-  class="btn btn-return"
-  :disabled="!canReturn"
-  @click="returnOrder"
->
-  Hoàn trả
-</button>
+        <button
+          class="btn btn-return"
+          :disabled="!canReturn"
+          @click="returnOrder"
+        >
+          Hoàn trả
+        </button>
       </div>
     </div>
   </div>
@@ -144,23 +149,19 @@ const loadDetail = async () => {
 
 onMounted(loadDetail);
 
-const canCancel = computed(() =>
-  order.value &&
-  [0, 1].includes(order.value.trangThai)
+const canCancel = computed(
+  () => order.value && [0, 1].includes(order.value.trangThai),
 );
 
-const canReturn = computed(() =>
-  order.value && order.value.trangThai === 4
-);
-
+const canReturn = computed(() => order.value && order.value.trangThai === 4);
+const shippingFee = 10000;
 const cancelOrder = async () => {
   if (!confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
 
   try {
-    const res = await api.put(
-      `/orders/${order.value.id}/status`,
-      { trangThai: 5 }
-    );
+    const res = await api.put(`/orders/${order.value.id}/status`, {
+      trangThai: 5,
+    });
     order.value = res.data;
   } catch {
     alert("Hủy đơn thất bại");
@@ -171,16 +172,14 @@ const returnOrder = async () => {
   if (!confirm("Bạn có chắc muốn hoàn trả đơn hàng này?")) return;
 
   try {
-    const res = await api.put(
-      `/orders/${order.value.id}/status`,
-      { trangThai: 6 }
-    );
+    const res = await api.put(`/orders/${order.value.id}/status`, {
+      trangThai: 6,
+    });
     order.value = res.data;
   } catch {
     alert("Hoàn trả thất bại");
   }
 };
-
 
 const formatPrice = (price) => {
   return new Intl.NumberFormat("vi-VN", {
@@ -194,7 +193,7 @@ const formatDate = (date) => {
 };
 
 const getImageUrl = (path) => {
-return path;
+  return path;
 };
 </script>
 
@@ -415,5 +414,24 @@ return path;
 
 .dark hr {
   border-color: #334155;
+}
+.price-row {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 6px;
+}
+
+.original-price {
+  text-decoration: line-through;
+  color: #6c757d;
+  font-size: 13px;
+}
+
+.sale-price {
+  font-weight: 600;
+}
+.dark .original-price {
+  color: #94a3b8;
 }
 </style>
