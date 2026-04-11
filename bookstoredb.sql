@@ -509,3 +509,30 @@ ALTER TABLE Books
 ALTER COLUMN trong_luong INT NOT NULL;
 ALTER TABLE Books
 ADD CONSTRAINT DF_Books_TrongLuong DEFAULT 0 FOR trong_luong;
+
+CREATE TABLE Payment (
+    id INT IDENTITY PRIMARY KEY,
+    user_id INT NULL,
+    order_id INT NOT NULL,
+    so_tien DECIMAL(10,2),
+    phuong_thuc VARCHAR(50),
+    trang_thai BIT,
+
+    CONSTRAINT FK_Payment_Users
+        FOREIGN KEY (user_id) REFERENCES Users(id),
+
+    CONSTRAINT FK_Payment_Orders
+        FOREIGN KEY (order_id) REFERENCES Orders(id)
+)
+GO
+Select * from Payment
+ALTER TABLE Payment
+ADD created_at DATETIME DEFAULT GETDATE();
+
+UPDATE Payment
+SET created_at = DATEADD(
+    DAY,
+    ABS(CHECKSUM(NEWID())) % 31, -- random từ 0 → 30
+    '2026-04-01'
+)
+WHERE created_at IS NULL;

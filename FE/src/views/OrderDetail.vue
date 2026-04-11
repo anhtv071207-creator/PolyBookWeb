@@ -34,7 +34,13 @@
               <div class="product-name">{{ item.tieuDe }}</div>
 
               <div class="product-price">
-                {{ formatMoney(item.donGia) }} x {{ item.soLuong }}
+                <span class="unit-price">
+                  {{ formatMoney(item.donGia) }} x {{ item.soLuong }}
+                </span>
+
+                <span class="total-price">
+                  {{ formatMoney(item.donGia * item.soLuong) }}
+                </span>
               </div>
             </div>
           </div>
@@ -54,7 +60,7 @@
         <button
           class="btn btn-primary"
           :disabled="!canConfirm"
-          @click="changeStatus(1)"
+          @click="openConfirm(1)"
         >
           Đã xác nhận
         </button>
@@ -62,7 +68,7 @@
         <button
           class="btn btn-info"
           :disabled="!canPacking"
-          @click="changeStatus(2)"
+          @click="openConfirm(2)"
         >
           Đang đóng gói
         </button>
@@ -70,7 +76,7 @@
         <button
           class="btn btn-warning"
           :disabled="!canShipping"
-          @click="changeStatus(3)"
+          @click="openConfirm(3)"
         >
           Đang giao hàng
         </button>
@@ -78,7 +84,7 @@
         <button
           class="btn btn-success"
           :disabled="!canSuccess"
-          @click="changeStatus(4)"
+          @click="openConfirm(4)"
         >
           Giao thành công
         </button>
@@ -86,7 +92,7 @@
         <button
           class="btn btn-danger"
           :disabled="!canCancel"
-          @click="changeStatus(5)"
+          @click="openConfirm(5)"
         >
           Hủy đơn hàng
         </button>
@@ -94,14 +100,14 @@
         <button
           class="btn btn-secondary"
           :disabled="!canReturn"
-          @click="changeStatus(6)"
+          @click="openConfirm(6)"
         >
           Hoàn trả
         </button>
         <button
           class="btn btn-error"
           :disabled="!canError"
-          @click="changeStatus(7)"
+          @click="openConfirm(7)"
         >
           Lỗi
         </button>
@@ -113,6 +119,23 @@
       <button class="btn-delete" @click="deleteOrder(order.id)">Xóa</button>
     </div>
   </div>
+  <div v-if="showConfirm" class="confirm-overlay">
+  <div class="confirm-box">
+    <p>
+      Bạn có muốn chuyển trạng thái đơn hàng sang
+      <strong>{{ getStatusName(pendingStatus) }}</strong> không?
+    </p>
+
+    <div class="confirm-actions">
+      <button class="btn-confirm" @click="confirmChangeStatus">
+        Có
+      </button>
+      <button class="btn-cancel" @click="cancelConfirm">
+        Không
+      </button>
+    </div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -120,9 +143,29 @@ import { ref, computed, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import api from "@/services/api";
 import { useThemeStore } from "@/stores/theme";
-
+const showConfirm = ref(false);
+const pendingStatus = ref(null);
 const theme = useThemeStore();
+const openConfirm = (status) => {
+  pendingStatus.value = status;
+  showConfirm.value = true;
+};
 
+const confirmChangeStatus = async () => {
+  const id = order.value.id;
+
+  await api.put(`/management/orders/${id}/status`, {
+    trangThai: pendingStatus.value,
+  });
+
+  order.value.trangThai = pendingStatus.value;
+  showConfirm.value = false;
+};
+
+const cancelConfirm = () => {
+  showConfirm.value = false;
+  pendingStatus.value = null;
+};
 const route = useRoute();
 const router = useRouter();
 
@@ -161,16 +204,19 @@ const canSuccess = computed(() => order.value.trangThai === 3);
 const canCancel = computed(() => ![4, 5, 6].includes(order.value.trangThai));
 
 const canReturn = computed(() => order.value.trangThai === 4);
-const canError = computed(() => ![4,5,6,7].includes(order.value.trangThai));
-
-const changeStatus = async (newStatus) => {
-  const id = order.value.id;
-
-  await api.put(`/management/orders/${id}/status`, {
-    trangThai: newStatus,
-  });
-
-  order.value.trangThai = newStatus;
+const canError = computed(() => ![4, 5, 6, 7].includes(order.value.trangThai));
+const getStatusName = (status) => {
+  const map = {
+    0: "Chờ xác nhận",
+    1: "Đã xác nhận",
+    2: "Đang đóng gói",
+    3: "Đang giao hàng",
+    4: "Giao thành công",
+    5: "Hủy đơn hàng",
+    6: "Hoàn trả",
+    7: "Lỗi",
+  };
+  return map[status] || "";
 };
 
 const deleteOrder = async (id) => {
@@ -341,5 +387,47 @@ h3 {
 
 .btn-delete:hover {
   background: #b91c1c;
+}
+.confirm-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 999;
+}
+
+.confirm-box {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 350px;
+  text-align: center;
+}
+
+.confirm-actions {
+  margin-top: 15px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-confirm {
+  background: #16a34a;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.btn-cancel {
+  background: #e5e5e5;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
 }
 </style>
