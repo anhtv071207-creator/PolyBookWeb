@@ -155,6 +155,15 @@
       </table>
     </div>
   </div>
+  <div v-if="showToast" class="toast-overlay">
+    <div class="toast-box" :class="toastType">
+      <div class="toast-icon">
+        <span v-if="toastType === 'success'">✔</span>
+        <span v-else>✕</span>
+      </div>
+      <div class="toast-text">{{ toastMessage }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -165,6 +174,19 @@ const router = useRouter();
 import { useThemeStore } from "@/stores/theme";
 
 const theme = useThemeStore();
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
+
+const showToastMsg = (type, message) => {
+  toastType.value = type;
+  toastMessage.value = message;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 1800);
+};
 
 const staffErrors = ref({});
 const staffServerError = ref("");
@@ -172,21 +194,31 @@ const validateStaff = () => {
   staffErrors.value = {};
   staffServerError.value = "";
 
-  if (!staff.value.hoTen) {
+  const isEmpty = (val) => !val || !val.toString().trim();
+
+  // ===== HỌ TÊN =====
+  if (isEmpty(staff.value.hoTen)) {
     staffErrors.value.hoTen = "Họ tên không được để trống";
+  } else if (staff.value.hoTen.trim().length < 3) {
+    staffErrors.value.hoTen = "Họ tên phải ít nhất 3 ký tự";
   }
 
-  if (!staff.value.email) {
+  // ===== EMAIL =====
+  if (isEmpty(staff.value.email)) {
     staffErrors.value.email = "Email không được để trống";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(staff.value.email)) {
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(staff.value.email.trim())) {
     staffErrors.value.email = "Email không hợp lệ";
   }
 
-  if (!staff.value.phone) {
+  // ===== SĐT =====
+  if (isEmpty(staff.value.phone)) {
     staffErrors.value.phone = "Số điện thoại không được để trống";
+  } else if (!/^\d{9,11}$/.test(staff.value.phone.trim())) {
+    staffErrors.value.phone = "Số điện thoại phải từ 9-11 số";
   }
 
-  if (!staff.value.password) {
+  // ===== PASSWORD =====
+  if (isEmpty(staff.value.password)) {
     staffErrors.value.password = "Mật khẩu không được để trống";
   } else if (staff.value.password.length < 6) {
     staffErrors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
@@ -254,7 +286,8 @@ const createStaff = async () => {
 
   try {
     await api.post("/account-management/admin/staff", staff.value);
-    alert("Tạo staff thành công");
+
+    showToastMsg("success", "Tạo staff thành công");
 
     staff.value = {
       email: "",
@@ -263,10 +296,14 @@ const createStaff = async () => {
       phone: "",
     };
 
+    staffErrors.value = {}; 
+
     fetchAllUsers();
   } catch (err) {
-    staffServerError.value =
-      err.response?.data?.message || "Tạo staff thất bại";
+    const msg = err.response?.data?.message || "Tạo staff thất bại";
+
+    staffServerError.value = msg;
+    showToastMsg("error", msg);
   }
 };
 const goBackManagement = () => {
@@ -582,12 +619,85 @@ select:focus {
 /* badge */
 
 .dark .badge.active {
-  background: rgba(34,197,94,0.2);
+  background: rgba(34, 197, 94, 0.2);
   color: #4ade80;
 }
 
 .dark .badge.locked {
-  background: rgba(239,68,68,0.2);
+  background: rgba(239, 68, 68, 0.2);
   color: #f87171;
+}
+.toast-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast-box {
+  min-width: 300px;
+  max-width: 380px;
+  padding: 14px 16px;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+  animation: slideIn 0.3s ease;
+}
+
+.toast-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+.toast-box.success {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.toast-box.success .toast-icon {
+  background: #10b981;
+  color: white;
+}
+.toast-box.error {
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+.toast-box.error .toast-icon {
+  background: #ef4444;
+  color: white;
+}
+.dark .toast-box.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.dark .toast-box.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 </style>

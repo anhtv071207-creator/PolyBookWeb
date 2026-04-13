@@ -71,19 +71,17 @@ public class PromotionController {
         return promotionService.save(promotion);
     }
 
-    @PutMapping("/{bookId}")
+    @PutMapping("/{id}")
     public Promotion updatePromotion(
-            @PathVariable Integer bookId,
+            @PathVariable Integer id,
             @RequestBody PromotionRequest req
     ) {
 
-        Promotion promotion = promotionService
-                .findByBookId(bookId, LocalDateTime.now())
-                .orElseThrow(() ->
-                        new ResponseStatusException(
-                                HttpStatus.NOT_FOUND,
-                                "Promotion not found"
-                        ));
+        Promotion promotion = promotionService.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Promotion not found"
+                ));
 
         promotion.setChietKhau(req.getChietKhau());
         promotion.setActive(req.getActive());
@@ -93,16 +91,16 @@ public class PromotionController {
         return promotionService.update(promotion);
     }
 
-    @DeleteMapping("/{bookId}")
-    public void deletePromotion(@PathVariable Integer bookId) {
+    @DeleteMapping("/{id}")
+    public void deletePromotion(@PathVariable Integer id) {
 
-        if (promotionService.findByBookId(bookId, LocalDateTime.now()).isEmpty()) {
+        if (promotionService.findById(id).isEmpty()) {
             throw new ResponseStatusException(
                     HttpStatus.NOT_FOUND,
                     "Promotion not found"
             );
         }
 
-        promotionService.deleteByBookId(bookId);
+        promotionService.deleteById(id);
     }
 }

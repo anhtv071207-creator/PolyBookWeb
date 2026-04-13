@@ -5,6 +5,19 @@ import { useRouter } from "vue-router";
 import { useThemeStore } from "@/stores/theme";
 
 const theme = useThemeStore();
+const errors = ref({});
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success"); // success | error
+const triggerToast = (message, type = "success") => {
+  toastMessage.value = message;
+  toastType.value = type;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 3000);
+};
 
 const router = useRouter();
 
@@ -73,31 +86,51 @@ const clearSelection = () => {
 const isAddDisabled = computed(() => selectedCategory.value !== null);
 const isEditDisabled = computed(() => selectedCategory.value === null);
 const isDeleteDisabled = computed(() => selectedCategory.value === null);
-
 const submitAdd = async () => {
-  if (!form.value.tenDanhMuc) return;
+  errors.value = {};
+
+  if (!form.value.tenDanhMuc || !form.value.tenDanhMuc.trim()) {
+    errors.value.tenDanhMuc = "Tên danh mục không được để trống";
+    return;
+  }
 
   const payload = {
-    tenDanhMuc: form.value.tenDanhMuc,
+    tenDanhMuc: form.value.tenDanhMuc.trim(),
     danhMucCha: form.value.parentId ? { id: form.value.parentId } : null,
   };
 
-  await api.post(API, payload);
-  await fetchCategories();
-  clearSelection();
+  try {
+    await api.post(API, payload);
+    await fetchCategories();
+    clearSelection();
+
+    triggerToast("Thêm danh mục thành công");
+  } catch (e) {
+    triggerToast("Thêm danh mục thất bại", "error");
+  }
 };
-
 const submitEdit = async () => {
-  if (!selectedCategory.value) return;
+  errors.value = {};
+
+  if (!form.value.tenDanhMuc || !form.value.tenDanhMuc.trim()) {
+    errors.value.tenDanhMuc = "Tên danh mục không được để trống";
+    return;
+  }
 
   const payload = {
-    tenDanhMuc: form.value.tenDanhMuc,
+    tenDanhMuc: form.value.tenDanhMuc.trim(),
     danhMucCha: form.value.parentId ? { id: form.value.parentId } : null,
   };
 
-  await api.put(`${API}/${form.value.id}`, payload);
-  await fetchCategories();
-  clearSelection();
+  try {
+    await api.put(`${API}/${form.value.id}`, payload);
+    await fetchCategories();
+    clearSelection();
+
+    triggerToast("Cập nhật danh mục thành công");
+  } catch (e) {
+    triggerToast("Cập nhật danh mục thất bại", "error");
+  }
 };
 const onlyRootCategories = rootCategories;
 
@@ -105,11 +138,17 @@ const deleteCategory = async () => {
   if (!selectedCategory.value) return;
   showConfirm.value = true;
 };
-
 const confirmDelete = async () => {
-  await api.delete(`${API}/${selectedCategory.value.id}`);
-  await fetchCategories();
-  clearSelection();
+  try {
+    await api.delete(`${API}/${selectedCategory.value.id}`);
+    await fetchCategories();
+    clearSelection();
+
+    triggerToast("Xóa danh mục thành công");
+  } catch (e) {
+    triggerToast("Xóa thất bại", "error");
+  }
+
   showConfirm.value = false;
 };
 
@@ -143,8 +182,15 @@ const cancelDelete = () => {
       <h2>Quản lý danh mục</h2>
     </div>
     <div class="form-box">
-      <input v-model="form.tenDanhMuc" placeholder="Tên danh mục" />
+      <input
+        v-model="form.tenDanhMuc"
+        placeholder="Tên danh mục"
+        :class="{ 'input-error': errors.tenDanhMuc }"
+      />
 
+      <p v-if="errors.tenDanhMuc" class="error-text">
+        {{ errors.tenDanhMuc }}
+      </p>
       <select v-model="form.parentId">
         <option :value="null">-- Không có danh mục cha --</option>
         <option
@@ -214,6 +260,15 @@ const cancelDelete = () => {
         <button class="btn-cancel" @click="cancelDelete">Hủy</button>
         <button class="btn-confirm" @click="confirmDelete">Xóa</button>
       </div>
+    </div>
+  </div>
+  <div v-if="showToast" class="toast-overlay">
+    <div class="toast-box" :class="toastType">
+      <div class="toast-icon">
+        <span v-if="toastType === 'success'">✔</span>
+        <span v-else>✕</span>
+      </div>
+      <div class="toast-text">{{ toastMessage }}</div>
     </div>
   </div>
 </template>
@@ -459,7 +514,7 @@ button:disabled {
 }
 
 .dark .btn-delete:hover:not(:disabled) {
-  background: rgba(239,68,68,0.15);
+  background: rgba(239, 68, 68, 0.15);
 }
 
 /* list */
@@ -508,5 +563,88 @@ button:disabled {
   background: #1e293b;
   border-color: #334155;
   color: #e2e8f0;
+}
+.toast-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast-box {
+  min-width: 300px;
+  max-width: 380px;
+  padding: 14px 16px;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+  animation: slideIn 0.3s ease;
+}
+
+.toast-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+.toast-box.success {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.toast-box.success .toast-icon {
+  background: #10b981;
+  color: white;
+}
+.toast-box.error {
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+.toast-box.error .toast-icon {
+  background: #ef4444;
+  color: white;
+}
+.dark .toast-box.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.dark .toast-box.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.input-error {
+  border-color: #ff4d4f !important;
+  background-color: #fff1f0;
+}
+
+.error-text {
+  color: #ff4d4f;
+  font-size: 12px;
+  margin-top: 4px;
 }
 </style>

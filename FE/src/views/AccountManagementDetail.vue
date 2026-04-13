@@ -71,14 +71,23 @@
           {{ user.trangThai ? "Khóa tài khoản" : "Mở khóa" }}
         </button>
 
-        <button class="btn secondary" @click="$router.back()">
-          Quay lại
-        </button>
+        <button class="btn secondary" @click="$router.back()">Quay lại</button>
       </div>
     </div>
   </div>
 
   <div class="loading" v-else>Đang tải dữ liệu...</div>
+  <div v-if="showToast" class="toast-overlay">
+    <div class="toast-box" :class="toastType">
+      <div class="toast-icon">
+        <span v-if="toastType === 'unlock'">🔓</span>
+        <span v-else-if="toastType === 'lock'">🔒</span>
+        <span v-else-if="toastType === 'success'">✔</span>
+        <span v-else>✕</span>
+      </div>
+      <div class="toast-text">{{ toastMessage }}</div>
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -88,6 +97,19 @@ import api from "@/services/api";
 import { useThemeStore } from "@/stores/theme";
 
 const theme = useThemeStore();
+const showToast = ref(false);
+const toastMessage = ref("");
+const toastType = ref("success");
+
+const showToastMsg = (type, message) => {
+  toastType.value = type;
+  toastMessage.value = message;
+  showToast.value = true;
+
+  setTimeout(() => {
+    showToast.value = false;
+  }, 1800);
+};
 
 const route = useRoute();
 const user = ref(null);
@@ -108,16 +130,27 @@ onMounted(() => {
   fetchUserDetail();
 });
 const toggleStatus = async () => {
-  await api.put(
-    `/account-management/admin/users/${user.value.id}/status`,
-    {
-      trangThai: !user.value.trangThai,
+  const isLocking = user.value.trangThai; // thêm dòng này
+
+  try {
+    const newStatus = !user.value.trangThai;
+
+    await api.put(`/account-management/admin/users/${user.value.id}/status`, {
+      trangThai: newStatus,
+    });
+
+    user.value.trangThai = newStatus;
+
+    if (isLocking) {
+      showToastMsg("lock", "Khóa tài khoản thành công");
+    } else {
+      showToastMsg("unlock", "Mở khóa tài khoản thành công");
     }
-  );
-
-  user.value.trangThai = !user.value.trangThai;
+  } catch (err) {
+    const msg = err.response?.data?.message || "Cập nhật trạng thái thất bại";
+    showToastMsg("error", msg);
+  }
 };
-
 </script>
 
 <style scoped>
@@ -274,5 +307,75 @@ h2 {
 
 .dark .info-item p {
   color: #e2e8f0;
+}
+.toast-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+.toast-box {
+  min-width: 300px;
+  max-width: 380px;
+  padding: 14px 16px;
+  border-radius: 12px;
+
+  display: flex;
+  align-items: center;
+  gap: 12px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+  animation: slideIn 0.3s ease;
+}
+
+.toast-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+}
+.toast-box.lock {
+  background: #fef2f2;
+  color: #7f1d1d;
+}
+.toast-box.lock .toast-icon {
+  background: #ef4444;
+  color: white;
+}
+
+.toast-box.unlock {
+  background: #ecfdf5;
+  color: #065f46;
+}
+.toast-box.unlock .toast-icon {
+  background: #10b981;
+  color: white;
+}
+/* dark mode */
+.dark .toast-box.lock {
+  background: #7f1d1d;
+  color: #fee2e2;
 }
 </style>

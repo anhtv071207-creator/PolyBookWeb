@@ -128,7 +128,7 @@ const STATUS_MAP = {
   4: { text: "Giao thành công", class: "status-success" },
   5: { text: "Hủy", class: "status-cancel" },
   6: { text: "Hoàn trả", class: "status-return" },
-  7: { text: "Lỗi", class: "status-error" },   // thêm dòng này
+  7: { text: "Lỗi", class: "status-error" },   
 };
 
 const statusInfo = (value) => {

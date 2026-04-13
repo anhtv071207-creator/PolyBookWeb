@@ -354,6 +354,7 @@ public class OrderServiceImpl implements OrderService {
                             .toLocalDateTime()
             );
         }
+        res.setMaDonHang(order.getMaDonHang());
 
         if (order.getUser() != null) {
             res.setUserId(order.getUser().getId());

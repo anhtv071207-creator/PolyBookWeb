@@ -166,7 +166,19 @@
 
           <div class="info-right">
             <h4>Mô tả</h4>
-            <p class="desc-text">{{ book.moTa }}</p>
+            <div class="desc-box">
+              <p class="desc-text">
+                {{ isLongDesc ? displayDesc : book.moTa }}
+              </p>
+
+              <button
+                v-if="isLongDesc"
+                class="toggle-btn"
+                @click="isExpanded = !isExpanded"
+              >
+                {{ isExpanded ? "Thu gọn" : "Xem thêm" }}
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -332,7 +344,17 @@ const addToCart = async () => {
 };
 
 const activeTab = ref("info");
+const isExpanded = ref(false);
+const MAX_LENGTH = 20000;
 
+const isLongDesc = computed(() => {
+  return (book.value.moTa || "").length > MAX_LENGTH;
+});
+
+const displayDesc = computed(() => {
+  if (isExpanded.value) return book.value.moTa;
+  return (book.value.moTa || "").slice(0, MAX_LENGTH) + "...";
+});
 const buyNow = async () => {
   const ok = await addToCart();
   if (ok) router.push("/order");
@@ -758,34 +780,71 @@ const submitReview = async () => {
   top: 20px;
   right: 20px;
   z-index: 9999;
-  pointer-events: none;
 }
 .toast-box {
   min-width: 300px;
-  background: #0f172a;
-  color: #fff;
+  max-width: 380px;
   padding: 14px 16px;
-  border-radius: 10px;
+  border-radius: 12px;
+
   display: flex;
-  gap: 12px;
   align-items: center;
-  pointer-events: auto;
-  box-shadow: 0 12px 30px rgba(2, 6, 23, 0.4);
+  gap: 12px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+  animation: slideIn 0.3s ease;
 }
 .toast-icon {
-  width: 40px;
-  height: 40px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 18px;
+
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+.toast-box.success {
+  background: #ecfdf5;
+  color: #065f46;
 }
 .toast-box.success .toast-icon {
   background: #10b981;
+  color: white;
+}
+.toast-box.error {
+  background: #fef2f2;
+  color: #7f1d1d;
 }
 .toast-box.error .toast-icon {
   background: #ef4444;
+  color: white;
+}
+.dark .toast-box.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.dark .toast-box.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 .toast-text {
   font-weight: 600;
@@ -910,5 +969,45 @@ const submitReview = async () => {
 
 .dark .empty-review {
   color: #94a3b8;
+}
+.desc-box {
+  position: relative;
+}
+
+/* vùng mô tả có scroll */
+.desc-text {
+  max-height: 272px;
+  overflow-y: auto;
+  line-height: 1.6;
+  padding-right: 6px;
+}
+
+/* scrollbar đẹp hơn */
+.desc-text::-webkit-scrollbar {
+  width: 6px;
+}
+.desc-text::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+/* nút toggle */
+.toggle-btn {
+  margin-top: 8px;
+  background: none;
+  border: none;
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+}
+.toggle-btn:hover {
+  text-decoration: underline;
+}
+.dark .desc-text::-webkit-scrollbar-thumb {
+  background: #475569;
+}
+
+.dark .toggle-btn {
+  color: #60a5fa;
 }
 </style>

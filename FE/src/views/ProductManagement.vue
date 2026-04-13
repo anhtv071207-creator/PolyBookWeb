@@ -223,7 +223,11 @@
                 <img :src="previewUrl" />
               </div>
 
-              <button class="btn btn-category" @click="openAddPopup">
+              <button
+                type="button"
+                class="btn btn-category"
+                @click="openAddPopup"
+              >
                 Chọn danh mục
               </button>
 
@@ -448,7 +452,11 @@
                 <img :src="editPreviewUrl" />
               </div>
 
-              <button class="btn btn-category" @click="openEditPopup">
+              <button
+                type="button"
+                class="btn btn-category"
+                @click="openEditPopup"
+              >
                 Chọn danh mục
               </button>
 
@@ -923,7 +931,7 @@ const submitForm = async () => {
       tieuDe: form.tieuDe.trim(),
       tacGia: form.tacGia.trim(),
       isbn: form.isbn.trim(),
-      gia: Number(form.gia),
+      gia: parseInt(form.gia),
       hangTon: Number(form.hangTon),
       moTa: form.moTa.trim(),
       coverImageUrl: form.coverImageUrl,
@@ -992,32 +1000,25 @@ const updateBook = async () => {
   const minLength = (val, len) => val && val.trim().length >= len;
 
   if (!minLength(editForm.tieuDe, 3))
-    errors.value.tieuDe = "Tiêu đề phải tối thiểu 3 ký tự";
+    errors.value.tieuDe = "Tiêu đề không thể quá ngắn";
 
-  if (!minLength(editForm.tacGia, 3))
-    errors.value.tacGia = "Tên tác giả phải tối thiểu 3 ký tự";
-
-  if (!minLength(editForm.isbn, 3))
-    errors.value.isbn = "ISBN phải tối thiểu 3 ký tự";
+  if (!minLength(editForm.tacGia, 2))
+    errors.value.tacGia = "Tên tác giả không thể quá ngắn";
 
   if (!minLength(editForm.moTa, 3))
-    errors.value.moTa = "Mô tả phải tối thiểu 3 ký tự";
+    errors.value.moTa = "Mô tả phải không thể quá ngắn";
 
   if (!minLength(editForm.kichThuoc, 3))
-    errors.value.kichThuoc = "Kích thước phải tối thiểu 3 ký tự";
+    errors.value.kichThuoc = "Kích thước không thể quá ngắn";
 
   if (!minLength(editForm.hinhThuc, 3))
-    errors.value.hinhThuc = "Hình thức phải tối thiểu 3 ký tự";
+    errors.value.hinhThuc = "Hình thức không thể quá ngắn";
 
   if (!minLength(editForm.tenNhaCungCap, 3))
-    errors.value.tenNhaCungCap = "Nhà cung cấp phải tối thiểu 3 ký tự";
+    errors.value.tenNhaCungCap = "Nhà cung cấp không thể quá ngắn";
 
-  // OPTIONAL
-  if (editForm.ngonNgu && !minLength(editForm.ngonNgu, 3))
-    errors.value.ngonNgu = "Ngôn ngữ tối thiểu 3 ký tự";
-
-  if (editForm.dichGia && !minLength(editForm.dichGia, 3))
-    errors.value.dichGia = "Dịch giả tối thiểu 3 ký tự";
+  if (!minLength(editForm.nxb, 3))
+    errors.value.nxb = "Nhà xuất bản không thể quá ngắn";
 
   // ===== NUMBER =====
   if (isEmpty(editForm.gia) || editForm.gia <= 0)
@@ -1067,7 +1068,8 @@ const updateBook = async () => {
       dichGia: editForm.dichGia,
     });
     showToastMsg("success", "Cập nhật thành công");
-    fetchBooks(); // Load lại danh sách
+    resetEditForm(editForm);
+    fetchBooks();
   } catch (err) {
     showToastMsg("error", "Cập nhật thất bại");
     console.error(err);
@@ -1659,30 +1661,69 @@ textarea {
 }
 
 .toast-box {
-  min-width: 280px;
-  background: #0f172a;
-  color: #fff;
-  padding: 12px 14px;
-  border-radius: 10px;
+  min-width: 300px;
+  max-width: 380px;
+  padding: 14px 16px;
+  border-radius: 12px;
+
   display: flex;
-  gap: 10px;
   align-items: center;
+  gap: 12px;
+
+  font-size: 14px;
+  font-weight: 500;
+
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+
+  animation: slideIn 0.3s ease;
 }
 
 .toast-icon {
-  width: 36px;
-  height: 36px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
+
   display: flex;
   align-items: center;
   justify-content: center;
-}
 
+  flex-shrink: 0;
+  font-size: 16px;
+  font-weight: bold;
+}
+.toast-box.success {
+  background: #ecfdf5;
+  color: #065f46;
+}
 .toast-box.success .toast-icon {
   background: #10b981;
+  color: white;
 }
-
+.toast-box.error {
+  background: #fef2f2;
+  color: #7f1d1d;
+}
 .toast-box.error .toast-icon {
   background: #ef4444;
+  color: white;
+}
+.dark .toast-box.success {
+  background: #064e3b;
+  color: #d1fae5;
+}
+
+.dark .toast-box.error {
+  background: #7f1d1d;
+  color: #fee2e2;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
 }
 </style>

@@ -3,11 +3,13 @@
     <nav class="breadcrumb-custom mb-3">
       <span>Trang chủ</span>
       <span class="divider">/</span>
-      <span class="current">Danh mục</span>
+      <span>Danh mục</span>
+      <span class="divider">/</span>
+      <span class="current">{{ categoryName }}</span>
     </nav>
 
     <div class="category-header mb-4">
-      <h4 class="fw-bold mb-1">Sách theo danh mục</h4>
+      <h4 class="fw-bold mb-1">Sách theo danh mục: {{ categoryName }}</h4>
       <p class="text-muted small mb-0">{{ books.length }} sản phẩm</p>
     </div>
 
@@ -87,7 +89,15 @@ const route = useRoute();
 const books = ref([]);
 const loading = ref(false);
 const error = ref(null);
-
+const categoryName = ref("");
+const fetchCategory = async (id) => {
+  try {
+    const res = await api.get(`/categories/${id}`);
+    categoryName.value = res.data.tenDanhMuc;
+  } catch (err) {
+    categoryName.value = "Danh mục";
+  }
+};
 const categoryId = computed(() => route.params.id);
 
 const fetchBooks = async (id) => {
@@ -109,6 +119,7 @@ watch(
   categoryId,
   (newId) => {
     if (newId) fetchBooks(newId);
+    fetchCategory(newId);
   },
   { immediate: true },
 );
@@ -274,7 +285,7 @@ watch(
 }
 
 .dark .book-card:hover {
-  box-shadow: 0 6px 18px rgba(0,0,0,0.5);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5);
 }
 
 /* image */

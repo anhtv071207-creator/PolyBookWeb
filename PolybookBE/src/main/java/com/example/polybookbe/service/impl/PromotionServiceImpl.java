@@ -126,7 +126,9 @@ public class PromotionServiceImpl implements PromotionService {
     public Promotion save(Promotion promotion) {
         return promotionRepository.save(promotion);
     }
-
+    public Optional<Promotion> findById(Integer id) {
+        return promotionRepository.findById(id);
+    }
     @Override
     public Optional<Promotion> findByBookId(Integer bookId, LocalDateTime now) {
 
@@ -151,8 +153,8 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionRepository.save(promotion);
     }
     @Override
-    public void deleteByBookId(Integer bookId ) {
-        promotionRepository.deleteById(bookId);
+    public void deleteById(Integer id) {
+        promotionRepository.deleteById(id);
     }
     @Override
     public List<Promotion> findAll() {

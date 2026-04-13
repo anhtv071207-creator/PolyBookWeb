@@ -33,6 +33,7 @@ public class OrderDetailResponse {
     private BigDecimal tongTien;
 
     private LocalDateTime ngayTao;
+    private String maDonHang;
 
     private List<OrderItemResponse> items;
 

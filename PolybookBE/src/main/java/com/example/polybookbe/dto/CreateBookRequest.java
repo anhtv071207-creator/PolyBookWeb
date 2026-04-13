@@ -29,7 +29,7 @@ public class CreateBookRequest {
     @NotNull(message = "Hàng tồn không được để trống")
     @Min(value = 0, message = "Hàng tồn phải >= 0")
     private Integer hangTon;
-    @Size(max = 1000, message = "Mô tả tối đa 1000 ký tự")
+    @Size(max = 10000, message = "Mô tả tối đa 10000 ký tự")
     private String moTa;
 
     @NotBlank(message = "Ảnh bìa không được để trống")

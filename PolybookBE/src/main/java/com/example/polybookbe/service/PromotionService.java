@@ -28,7 +28,9 @@ public interface PromotionService {
 
     List<Promotion> findAll();
 
-    void deleteByBookId(Integer bookId);
+    void deleteById(Integer bookId);
 
     Optional<Promotion> getActivePromotionByBookId(Integer bookId);
+
+    Optional <Promotion> findById(Integer id);
 }

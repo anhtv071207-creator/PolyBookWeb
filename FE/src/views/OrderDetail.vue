@@ -1,7 +1,9 @@
 <template>
   <div class="order-detail container">
-    <h3 class="mb-4">Chi tiết đơn hàng &gt; {{ order.maDonHang }}</h3>
-
+    <div class="header-top">
+      <button class="btn-back" @click="goBack">← Quay lại</button>
+      <h3>Chi tiết đơn hàng &gt; {{ order.maDonHang }}</h3>
+    </div>
     <div class="card mb-4 kh-info">
       <div class="card-body">
         <p><strong>Tên khách hàng:</strong> {{ order.hoTenNguoiNhan }}</p>
@@ -115,27 +117,30 @@
     </div>
 
     <div class="action-bottom">
-      <button class="btn-back" @click="goBack">Quay lại</button>
-      <button class="btn-delete" @click="deleteOrder(order.id)">Xóa</button>
+      <!-- <button class="btn-delete" @click="deleteOrder(order.id)">Xóa</button> -->
     </div>
   </div>
   <div v-if="showConfirm" class="confirm-overlay">
-  <div class="confirm-box">
-    <p>
-      Bạn có muốn chuyển trạng thái đơn hàng sang
-      <strong>{{ getStatusName(pendingStatus) }}</strong> không?
-    </p>
+    <div class="confirm-box">
+      <p>
+        Bạn có muốn chuyển trạng thái đơn hàng sang
+        <strong>{{ getStatusName(pendingStatus) }}</strong> không?
+      </p>
 
-    <div class="confirm-actions">
-      <button class="btn-confirm" @click="confirmChangeStatus">
-        Có
-      </button>
-      <button class="btn-cancel" @click="cancelConfirm">
-        Không
-      </button>
+      <div class="confirm-actions">
+        <button class="btn-confirm" @click="confirmChangeStatus">Có</button>
+        <button class="btn-cancel" @click="cancelConfirm">Không</button>
+      </div>
     </div>
   </div>
-</div>
+  <transition name="fade">
+    <div v-if="showToast" class="toast-custom-overlay">
+      <div class="toast-custom-card">
+        <div class="icon-circle">✔</div>
+        <p>{{ toastMessage }}</p>
+      </div>
+    </div>
+  </transition>
 </template>
 
 <script setup>
@@ -154,12 +159,26 @@ const openConfirm = (status) => {
 const confirmChangeStatus = async () => {
   const id = order.value.id;
 
-  await api.put(`/management/orders/${id}/status`, {
-    trangThai: pendingStatus.value,
-  });
+  try {
+    await api.put(`/management/orders/${id}/status`, {
+      trangThai: pendingStatus.value,
+    });
 
-  order.value.trangThai = pendingStatus.value;
-  showConfirm.value = false;
+    order.value.trangThai = pendingStatus.value;
+
+    // ===== TOAST =====
+    toastMessage.value =
+      "Đã chuyển trạng thái sang: " + getStatusName(pendingStatus.value);
+
+    showToast.value = true;
+    setTimeout(() => (showToast.value = false), 3000);
+
+    showConfirm.value = false;
+  } catch (e) {
+    toastMessage.value = "Cập nhật trạng thái thất bại";
+    showToast.value = true;
+    setTimeout(() => (showToast.value = false), 3000);
+  }
 };
 
 const cancelConfirm = () => {
@@ -168,6 +187,8 @@ const cancelConfirm = () => {
 };
 const route = useRoute();
 const router = useRouter();
+const showToast = ref(false);
+const toastMessage = ref("");
 
 const order = ref({
   id: null,
@@ -429,5 +450,59 @@ h3 {
   border: none;
   padding: 6px 14px;
   border-radius: 6px;
+}
+.toast-custom-overlay {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 99999;
+}
+
+.toast-custom-card {
+  min-width: 260px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  background: #ecfdf5;
+  color: #065f46;
+
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.icon-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #10b981;
+  color: white;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.header-top h3 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
 }
 </style>

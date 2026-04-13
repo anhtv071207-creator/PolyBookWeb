@@ -526,6 +526,8 @@ CREATE TABLE Payment (
 )
 GO
 Select * from Payment
+Select * from Orders
+
 ALTER TABLE Payment
 ADD created_at DATETIME DEFAULT GETDATE();
 
