@@ -538,3 +538,6 @@ SET created_at = DATEADD(
     '2026-04-01'
 )
 WHERE created_at IS NULL;
+
+
+SELECT * From Books

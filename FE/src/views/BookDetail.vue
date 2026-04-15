@@ -980,6 +980,7 @@ const submitReview = async () => {
   overflow-y: auto;
   line-height: 1.6;
   padding-right: 6px;
+  white-space: pre-line;
 }
 
 /* scrollbar đẹp hơn */
