@@ -15,6 +15,10 @@
         <div class="col-md-6">
           <p><b>Mã đơn:</b> #{{ order.id }}</p>
           <p><b>Ngày tạo:</b> {{ formatDate(order.ngayTao) }}</p>
+          <p>
+            <b>Thành tiền:</b>
+            {{ formatPrice(subTotal) }}
+          </p>
         </div>
 
         <div class="col-md-6 text-md-end">
@@ -114,7 +118,10 @@ const router = useRouter();
 const order = ref(null);
 const loading = ref(true);
 const error = ref("");
-
+const subTotal = computed(() => {
+  if (!order.value) return 0;
+  return order.value.tongTien - shippingFee;
+});
 const STATUS_MAP = {
   0: { text: "Chờ xác nhận", class: "status-pending" },
   1: { text: "Đã xác nhận", class: "status-confirmed" },

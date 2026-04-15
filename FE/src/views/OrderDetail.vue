@@ -9,7 +9,14 @@
         <p><strong>Tên khách hàng:</strong> {{ order.hoTenNguoiNhan }}</p>
         <p><strong>Số điện thoại:</strong> {{ order.phone }}</p>
         <p><strong>Email:</strong> {{ order.email }}</p>
-        <p><strong>Tổng số tiền:</strong> {{ formatMoney(order.tongTien) }}</p>
+        <p><strong>Tạm tính:</strong> {{ formatMoney(subTotal) }}</p>
+        <p><strong>Phí giao hàng:</strong> {{ formatMoney(shippingFee) }}</p>
+        <p>
+          <strong>Tổng số tiền:</strong>
+          <span style="color: #dc2626; font-weight: 600">
+            {{ formatMoney(order.tongTien) }}
+          </span>
+        </p>
         <p>
           <strong>Địa chỉ:</strong>
           {{ order.diaChiNhanHang }}, {{ order.phuongXa }},
@@ -134,7 +141,7 @@
     </div>
   </div>
   <transition name="fade">
-    <div v-if="showToast" class="toast-custom-overlay">
+    <div v-if="showToast" :key="toastMessage" class="toast-custom-overlay">
       <div class="toast-custom-card">
         <div class="icon-circle">✔</div>
         <p>{{ toastMessage }}</p>
@@ -155,7 +162,22 @@ const openConfirm = (status) => {
   pendingStatus.value = status;
   showConfirm.value = true;
 };
+let toastTimer = null;
 
+const triggerToast = (msg) => {
+  showToast.value = false;
+
+  setTimeout(() => {
+    toastMessage.value = msg;
+    showToast.value = true;
+
+    if (toastTimer) clearTimeout(toastTimer);
+
+    toastTimer = setTimeout(() => {
+      showToast.value = false;
+    }, 3000);
+  }, 50);
+};
 const confirmChangeStatus = async () => {
   const id = order.value.id;
 
@@ -167,17 +189,13 @@ const confirmChangeStatus = async () => {
     order.value.trangThai = pendingStatus.value;
 
     // ===== TOAST =====
-    toastMessage.value =
-      "Đã chuyển trạng thái sang: " + getStatusName(pendingStatus.value);
-
-    showToast.value = true;
-    setTimeout(() => (showToast.value = false), 3000);
+    triggerToast(
+      "Đã chuyển trạng thái sang: " + getStatusName(pendingStatus.value),
+    );
 
     showConfirm.value = false;
   } catch (e) {
-    toastMessage.value = "Cập nhật trạng thái thất bại";
-    showToast.value = true;
-    setTimeout(() => (showToast.value = false), 3000);
+    triggerToast("Cập nhật trạng thái thất bại");
   }
 };
 
@@ -239,6 +257,11 @@ const getStatusName = (status) => {
   };
   return map[status] || "";
 };
+const shippingFee = 10000;
+
+const subTotal = computed(() => {
+  return Math.max(0, order.value.tongTien - shippingFee);
+});
 
 const deleteOrder = async (id) => {
   await api.delete(`/management/orders/${id}`);
