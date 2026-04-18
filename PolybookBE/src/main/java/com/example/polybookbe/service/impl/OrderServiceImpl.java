@@ -12,6 +12,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -135,7 +137,9 @@ public class OrderServiceImpl implements OrderService {
             cartItemRepository.deleteAll(cartItems);
         }
 
-        order.setTongTien(tongTien.add(SHIPPING_FEE));
+        BigDecimal shippingFee = calculateShippingFee(order, tongTien);
+
+        order.setTongTien(tongTien.add(shippingFee));
         order.setItems(items);
 
         orderRepository.save(order);
@@ -415,5 +419,60 @@ public class OrderServiceImpl implements OrderService {
     @Override
     public BigDecimal getRevenueByStatus(Integer status) {
         return orderRepository.sumTongTienByTrangThai(status);
+    }
+    private String normalizeProvince(String input) {
+        if (input == null) return "";
+
+        return input
+                .toLowerCase()
+                .replace("thành phố", "")
+                .replace("tỉnh", "")
+                .trim();
+    }
+    private BigDecimal calculateShippingFee(Order order, BigDecimal tongTien) {
+
+        // ===== 1. ĐƠN CŨ =====
+        if (order.getNgayTao() != null) {
+            LocalDate cutoff = LocalDate.of(2026, 4, 18);
+
+            LocalDate orderDate = order.getNgayTao()
+                    .toInstant()
+                    .atZone(ZoneId.systemDefault())
+                    .toLocalDate();
+
+            if (orderDate.isBefore(cutoff)) {
+                return BigDecimal.valueOf(10000);
+            }
+        }
+
+        // ===== 2. FREE SHIP =====
+        if (tongTien.compareTo(BigDecimal.valueOf(2_000_000)) > 0) {
+            return BigDecimal.ZERO;
+        }
+
+        // ===== 3. THEO TỈNH =====
+        String tinh = normalizeProvince(order.getTinhThanh());
+
+        if (tinh.contains("hà nội")) {
+            return BigDecimal.valueOf(10000);
+        }
+
+        if (tinh.contains("hồ chí minh")) {
+            return BigDecimal.valueOf(20000);
+        }
+
+        if (tinh.contains("đà nẵng")) {
+            return BigDecimal.valueOf(25000);
+        }
+
+        if (tinh.contains("hải phòng")) {
+            return BigDecimal.valueOf(22000);
+        }
+
+        if (tinh.contains("cần thơ")) {
+            return BigDecimal.valueOf(30000);
+        }
+
+        return BigDecimal.valueOf(35000);
     }
 }

@@ -118,10 +118,7 @@ const router = useRouter();
 const order = ref(null);
 const loading = ref(true);
 const error = ref("");
-const subTotal = computed(() => {
-  if (!order.value) return 0;
-  return order.value.tongTien - shippingFee;
-});
+const subTotal = computed(() => subTotalFromItems.value);
 const STATUS_MAP = {
   0: { text: "Chờ xác nhận", class: "status-pending" },
   1: { text: "Đã xác nhận", class: "status-confirmed" },
@@ -161,7 +158,51 @@ const canCancel = computed(
 );
 
 const canReturn = computed(() => order.value && order.value.trangThai === 4);
-const shippingFee = 10000;
+const normalizeProvince = (input) => {
+  if (!input) return "";
+
+  return input
+    .toLowerCase()
+    .replace("thành phố", "")
+    .replace("tỉnh", "")
+    .replace("tp.", "")
+    .trim();
+};
+
+const subTotalFromItems = computed(() => {
+  if (!order.value?.items) return 0;
+
+  return order.value.items.reduce(
+    (s, i) => s + i.donGia * i.soLuong,
+    0
+  );
+});
+
+const shippingFee = computed(() => {
+  if (!order.value) return 0;
+
+  // ===== đơn cũ =====
+  if (order.value.ngayTao) {
+    const orderDate = new Date(order.value.ngayTao);
+    const cutoff = new Date("2026-04-18");
+
+    if (orderDate < cutoff) return 10000;
+  }
+
+  // ===== miễn ship =====
+  if (subTotalFromItems.value >= 2000000) return 0;
+
+  const tinh = normalizeProvince(order.value.tinhThanh);
+
+  if (tinh.includes("hà nội")) return 10000;
+  if (tinh.includes("hồ chí minh")) return 20000;
+  if (tinh.includes("đà nẵng")) return 25000;
+  if (tinh.includes("hải phòng")) return 22000;
+  if (tinh.includes("cần thơ")) return 30000;
+
+  return 35000;
+});
+
 const cancelOrder = async () => {
   if (!confirm("Bạn có chắc muốn hủy đơn hàng này?")) return;
 

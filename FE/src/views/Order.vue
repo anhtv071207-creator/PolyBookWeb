@@ -156,8 +156,25 @@
             </div>
             <div class="d-flex justify-content-between mb-3">
               <span class="text-muted">Phí vận chuyển</span>
-              <span>{{ formatPrice(SHIPPING_FEE) }}</span>
+              <span>{{ formatPrice(shippingFee) }}</span>
             </div>
+            <div class="free-ship-box mb-3">
+              <div class="free-ship-text">
+                <span v-if="remainToFreeShip > 0">
+                  Mua thêm <b>{{ formatPrice(remainToFreeShip) }}</b> để được
+                  miễn phí vận chuyển
+                </span>
+                <span v-else> Đơn hàng đã được miễn phí vận chuyển </span>
+              </div>
+
+              <div class="progress-bar-wrapper">
+                <div
+                  class="progress-bar-fill"
+                  :style="{ width: freeShipProgress * 100 + '%' }"
+                ></div>
+              </div>
+            </div>
+
             <div
               class="total-row d-flex justify-content-between align-items-center"
             >
@@ -187,7 +204,7 @@
           <button
             class="btn btn-primary-custom w-100 btn-lg"
             :disabled="!agree"
-            @click="placeOrder"
+            @click="showConfirm = true"
           >
             ĐẶT HÀNG NGAY
           </button>
@@ -195,7 +212,35 @@
       </div>
     </div>
   </div>
+<div v-if="showConfirm" class="confirm-overlay">
+  <div class="confirm-box">
+    <h5>Xác nhận đặt hàng</h5>
 
+    <p class="confirm-text">
+      Bạn có chắc muốn đặt đơn hàng này?
+    </p>
+
+    <div class="confirm-summary">
+      <div>
+        <span>Tổng tiền:</span>
+        <b>{{ formatPrice(totalPrice) }}</b>
+      </div>
+      <div>
+        <span>Phương thức:</span>
+        <b>{{ orderForm.phuongThucThanhToan }}</b>
+      </div>
+    </div>
+
+    <div class="confirm-actions">
+      <button class="btn-confirm" @click="handleConfirmOrder">
+        Xác nhận
+      </button>
+      <button class="btn-cancel" @click="showConfirm = false">
+        Hủy
+      </button>
+    </div>
+  </div>
+</div>
   <transition name="fade">
     <div v-if="showToast" class="toast-custom-overlay">
       <div class="toast-custom-card">
@@ -212,12 +257,49 @@ import { getItems } from "@/utils/cart";
 import api from "@/services/api";
 import { useAuthStore } from "@/stores/auth";
 import { useThemeStore } from "@/stores/theme";
-
+const showConfirm = ref(false);
 const theme = useThemeStore();
+const FREE_SHIP_THRESHOLD = 2000000;
 
+const freeShipProgress = computed(() => {
+  return Math.min(subTotal.value / FREE_SHIP_THRESHOLD, 1);
+});
+const handleConfirmOrder = async () => {
+  showConfirm.value = false;
+  await placeOrder();
+};
+const remainToFreeShip = computed(() => {
+  return Math.max(FREE_SHIP_THRESHOLD - subTotal.value, 0);
+});
 const auth = useAuthStore();
+const normalizeProvince = (input) => {
+  if (!input) return "";
 
-const SHIPPING_FEE = 10000;
+  return input
+    .toLowerCase()
+    .replace("thành phố", "")
+    .replace("tỉnh", "")
+    .trim();
+};
+const shippingFee = computed(() => {
+  if (subTotal.value >= 2000000) return 0;
+
+  const tinh = normalizeProvince(orderForm.value.tinhThanh);
+
+  if (!tinh) return 35000;
+
+  if (tinh.includes("hà nội")) return 10000;
+
+  if (tinh.includes("hồ chí minh")) return 20000;
+
+  if (tinh.includes("đà nẵng")) return 25000;
+
+  if (tinh.includes("hải phòng")) return 22000;
+
+  if (tinh.includes("cần thơ")) return 30000;
+
+  return 35000;
+});
 const cartItems = ref([]);
 
 onMounted(async () => {
@@ -269,8 +351,7 @@ const subTotal = computed(() =>
   cartItems.value.reduce((s, i) => s + i.price * i.qty, 0),
 );
 
-const totalPrice = computed(() => subTotal.value + SHIPPING_FEE);
-
+const totalPrice = computed(() => subTotal.value + shippingFee.value);
 const formatPrice = (v) => v.toLocaleString("vi-VN") + " đ";
 
 const orderForm = ref({
@@ -489,7 +570,7 @@ const loadUserAddress = async (data) => {
   border-radius: 14px;
   padding: 26px;
   border: 1px solid #e9ecef;
-  box-shadow: 0 8px 20px rgba(0,0,0,0.04);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.04);
 }
 
 .checkout-title {
@@ -534,7 +615,7 @@ const loadUserAddress = async (data) => {
 .form-control:focus,
 .form-select:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.15);
 }
 
 /* Payment */
@@ -682,7 +763,7 @@ const loadUserAddress = async (data) => {
 .toast-custom-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.35);
+  background: rgba(0, 0, 0, 0.35);
   backdrop-filter: blur(3px);
   display: flex;
   align-items: center;
@@ -695,7 +776,7 @@ const loadUserAddress = async (data) => {
   padding: 28px 50px;
   border-radius: 14px;
   text-align: center;
-  box-shadow: 0 15px 30px rgba(0,0,0,0.15);
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
 }
 
 .icon-circle {
@@ -713,7 +794,7 @@ const loadUserAddress = async (data) => {
 
 .fade-enter-active,
 .fade-leave-active {
-  transition: opacity .3s;
+  transition: opacity 0.3s;
 }
 
 .fade-enter-from,
@@ -756,7 +837,7 @@ const loadUserAddress = async (data) => {
 .dark .form-control:focus,
 .dark .form-select:focus {
   border-color: #3b82f6;
-  box-shadow: 0 0 0 3px rgba(59,130,246,0.25);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
 }
 
 /* payment */
@@ -827,5 +908,118 @@ const loadUserAddress = async (data) => {
 .dark .toast-custom-card {
   background: #1e293b;
   color: #e2e8f0;
+}
+.free-ship-box {
+  background: #f8fafc;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid #e5e7eb;
+}
+
+.free-ship-text {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+.progress-bar-wrapper {
+  width: 100%;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #22c55e, #16a34a);
+  transition: width 0.3s ease;
+}
+.dark .free-ship-box {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+.dark .progress-bar-wrapper {
+  background: #334155;
+}
+.confirm-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.confirm-box {
+  background: white;
+  padding: 22px;
+  border-radius: 12px;
+  width: 360px;
+  text-align: center;
+  animation: fadeIn 0.2s ease;
+}
+
+.confirm-text {
+  margin: 10px 0 14px;
+  font-size: 14px;
+}
+
+.confirm-summary {
+  text-align: left;
+  font-size: 13px;
+  margin-bottom: 15px;
+}
+
+.confirm-summary div {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.btn-confirm {
+  background: #2563eb;
+  color: white;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+.btn-confirm:hover {
+  background: #1d4ed8;
+}
+
+.btn-cancel {
+  background: #e5e7eb;
+  border: none;
+  padding: 6px 14px;
+  border-radius: 6px;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.dark .confirm-box {
+  background: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .btn-cancel {
+  background: #334155;
+  color: #cbd5f5;
 }
 </style>

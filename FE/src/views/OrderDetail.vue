@@ -257,10 +257,51 @@ const getStatusName = (status) => {
   };
   return map[status] || "";
 };
-const shippingFee = 10000;
+const normalizeProvince = (input) => {
+  if (!input) return "";
+
+  return input
+    .toLowerCase()
+    .replace("thành phố", "")
+    .replace("tỉnh", "")
+    .replace("tp.", "")
+    .trim();
+};
+const shippingFee = computed(() => {
+  if (!order.value) return 0;
+
+  // ===== đơn cũ =====
+  if (order.value.ngayTao) {
+    const orderDate = new Date(order.value.ngayTao);
+    const cutoff = new Date("2026-04-18");
+
+    if (orderDate < cutoff) return 10000;
+  }
+
+  // ===== tính subtotal đúng =====
+  const sub = orderItems.value.reduce(
+    (s, i) => s + i.donGia * i.soLuong,
+    0
+  );
+
+  if (sub >= 2000000) return 0;
+
+  const tinh = normalizeProvince(order.value.tinhThanh);
+
+  if (tinh.includes("hà nội")) return 10000;
+  if (tinh.includes("hồ chí minh")) return 20000;
+  if (tinh.includes("đà nẵng")) return 25000;
+  if (tinh.includes("hải phòng")) return 22000;
+  if (tinh.includes("cần thơ")) return 30000;
+
+  return 35000;
+});
 
 const subTotal = computed(() => {
-  return Math.max(0, order.value.tongTien - shippingFee);
+  return orderItems.value.reduce(
+    (s, i) => s + i.donGia * i.soLuong,
+    0
+  );
 });
 
 const deleteOrder = async (id) => {
