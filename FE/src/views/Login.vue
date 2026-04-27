@@ -30,12 +30,26 @@
 
         <div class="form-group">
           <label>Mật khẩu</label>
-          <input
-            type="password"
-            v-model="password"
-            placeholder="Nhập mật khẩu"
-            :class="{ 'input-error': errors.password }"
-          />
+          <div class="password-wrapper">
+            <input
+              :type="showPassword ? 'text' : 'password'"
+              v-model="password"
+              placeholder="Nhập mật khẩu"
+              :class="{ 'input-error': errors.password }"
+            />
+
+            <button
+              type="button"
+              class="btn-eye"
+              @mousedown="showPassword = true"
+              @mouseup="showPassword = false"
+              @mouseleave="showPassword = false"
+              @touchstart="showPassword = true"
+              @touchend="showPassword = false"
+            >
+              👁
+            </button>
+          </div>
           <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
         </div>
 
@@ -83,7 +97,7 @@ const authStore = useAuthStore();
 const email = ref("");
 const password = ref("");
 const activeTab = ref("login");
-
+const showPassword = ref(false);
 const validate = () => {
   errors.value = {};
   serverError.value = "";
@@ -335,7 +349,7 @@ const login = async () => {
 .dark .login-card {
   background: #1e293b;
   color: #e2e8f0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .dark .breadcrumb {
@@ -375,7 +389,7 @@ const login = async () => {
 
 .dark .form-group input:focus {
   border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96,165,250,0.25);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
 }
 
 .dark .forgot-link a {
@@ -409,5 +423,28 @@ const login = async () => {
 
 .dark .lock-popup p {
   color: #cbd5f5;
+}
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.btn-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.6;
+}
+
+.btn-eye:hover {
+  opacity: 1;
 }
 </style>

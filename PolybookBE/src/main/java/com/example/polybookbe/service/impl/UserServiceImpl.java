@@ -183,7 +183,6 @@ public class UserServiceImpl implements UserService {
     }
 
 
-
     @Override
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
@@ -191,6 +190,7 @@ public class UserServiceImpl implements UserService {
                 .map(this::toResponse)
                 .collect(Collectors.toList());
     }
+
     private UserResponse toResponse(User user) {
         UserResponse res = new UserResponse();
         res.setId(user.getId());
@@ -229,6 +229,7 @@ public class UserServiceImpl implements UserService {
                 .diaChi(address != null ? address.getDiaChi() : "")
                 .build();
     }
+
     @Override
     @Transactional
     public User updateProfile(UpdateProfileRequest request) {
@@ -298,5 +299,40 @@ public class UserServiceImpl implements UserService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
 
+        User user = getCurrentUser();
+        if (user == null) {
+            throw new ApiException("Chưa đăng nhập", "UNAUTHORIZED");
+        }
+
+        // validate input
+        if (!StringUtils.hasText(request.getOldPassword())) {
+            throw new ApiException("Mật khẩu cũ không được để trống", "OLD_PASSWORD_REQUIRED");
+        }
+
+        if (!StringUtils.hasText(request.getNewPassword())) {
+            throw new ApiException("Mật khẩu mới không được để trống", "NEW_PASSWORD_REQUIRED");
+        }
+
+        if (request.getNewPassword().length() < 6) {
+            throw new ApiException("Mật khẩu mới phải có ít nhất 6 ký tự", "PASSWORD_TOO_SHORT");
+        }
+
+        // check mật khẩu cũ
+        if (!passwordEncoder.matches(request.getOldPassword(), user.getPassword())) {
+            throw new ApiException("Mật khẩu cũ không đúng", "OLD_PASSWORD_INCORRECT");
+        }
+
+        // không cho trùng mật khẩu cũ
+        if (passwordEncoder.matches(request.getNewPassword(), user.getPassword())) {
+            throw new ApiException("Mật khẩu mới không được trùng mật khẩu cũ", "PASSWORD_DUPLICATE");
+        }
+
+        // update
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+    }
 }

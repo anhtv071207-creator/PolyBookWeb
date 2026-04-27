@@ -1,5 +1,6 @@
 package com.example.polybookbe.controller;
 
+import com.example.polybookbe.dto.ChangePasswordRequest;
 import com.example.polybookbe.dto.UpdateProfileRequest;
 import com.example.polybookbe.dto.UserDetailResponse;
 import com.example.polybookbe.dto.UserInfo;
@@ -27,6 +28,11 @@ public class UserController {
         UserDetailResponse response =
                 userService.getUserDetail(user.getId());
         return ResponseEntity.ok(response);
+    }
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ResponseEntity.ok("Đổi mật khẩu thành công");
     }
 }
 

@@ -31,4 +31,5 @@ public interface UserService {
 
     List<UserResponse> searchUsers(String keyword, String role, String status);
 
+    void changePassword(ChangePasswordRequest request);
 }

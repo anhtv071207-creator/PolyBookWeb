@@ -1,158 +1,188 @@
-  <template>
-    <div class="login-wrapper">
-      <div class="login-card">
-        <div class="breadcrumb">
-          <router-link to="/">Trang chủ</router-link> 
-          <span class="divider">></span> 
-          <span class="current">Đăng ký</span>
+<template>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="breadcrumb">
+        <router-link to="/">Trang chủ</router-link>
+        <span class="divider">></span>
+        <span class="current">Đăng ký</span>
+      </div>
+
+      <div class="tabs">
+        <router-link to="/login" class="tab tab-link">Đăng nhập</router-link>
+        <button class="tab active">Đăng ký</button>
+      </div>
+
+      <form @submit.prevent="register" class="register-form">
+        <div class="form-group">
+          <label>Họ tên</label>
+          <input
+            type="text"
+            placeholder="Nhập họ và tên"
+            v-model="hoTen"
+            :class="{ 'input-error': errors.hoTen }"
+          />
+          <p v-if="errors.hoTen" class="error-text">{{ errors.hoTen }}</p>
         </div>
 
-        <div class="tabs">
-          <router-link to="/login" class="tab tab-link">Đăng nhập</router-link>
-          <button class="tab active">Đăng ký</button>
+        <div class="form-group">
+          <label>Email</label>
+          <input
+            type="email"
+            placeholder="example@gmail.com"
+            v-model="email"
+            :class="{ 'input-error': errors.email }"
+          />
+          <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
         </div>
 
-        <form @submit.prevent="register" class="register-form">
-          <div class="form-group">
-            <label>Họ tên</label>
-            <input
-              type="text"
-              placeholder="Nhập họ và tên"
-              v-model="hoTen"
-              :class="{ 'input-error': errors.hoTen }"
-            />
-            <p v-if="errors.hoTen" class="error-text">{{ errors.hoTen }}</p>
-          </div>
+        <div class="form-group">
+          <label>Số điện thoại</label>
+          <input
+            type="tel"
+            placeholder="Nhập số điện thoại"
+            v-model="phone"
+            :class="{ 'input-error': errors.phone }"
+          />
+          <p v-if="errors.phone" class="error-text">{{ errors.phone }}</p>
+        </div>
+        <div class="form-group">
+          <label>Mật khẩu</label>
 
-          <div class="form-group">
-            <label>Email</label>
+          <div class="password-wrapper">
             <input
-              type="email"
-              placeholder="example@gmail.com"
-              v-model="email"
-              :class="{ 'input-error': errors.email }"
-            />
-            <p v-if="errors.email" class="error-text">{{ errors.email }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>Số điện thoại</label>
-            <input
-              type="tel"
-              placeholder="Nhập số điện thoại"
-              v-model="phone"
-              :class="{ 'input-error': errors.phone }"
-            />
-            <p v-if="errors.phone" class="error-text">{{ errors.phone }}</p>
-          </div>
-
-          <div class="form-group">
-            <label>Mật khẩu</label>
-            <input
-              type="password"
+              :type="showPassword ? 'text' : 'password'"
               placeholder="Tối thiểu 6 ký tự"
               v-model="password"
               :class="{ 'input-error': errors.password }"
             />
-            <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
+
+            <button
+              type="button"
+              class="btn-eye"
+              @mousedown="showPassword = true"
+              @mouseup="showPassword = false"
+              @mouseleave="showPassword = false"
+            >
+              👁
+            </button>
           </div>
 
-          <div class="form-group">
-            <label>Nhập lại mật khẩu</label>
+          <p v-if="errors.password" class="error-text">{{ errors.password }}</p>
+        </div>
+
+        <
+        <div class="form-group">
+          <label>Nhập lại mật khẩu</label>
+
+          <div class="password-wrapper">
             <input
-              type="password"
+              :type="showConfirmPassword ? 'text' : 'password'"
               placeholder="Xác nhận lại mật khẩu"
               v-model="confirmPassword"
               :class="{ 'input-error': errors.confirmPassword }"
             />
-            <p v-if="errors.confirmPassword" class="error-text">
-              {{ errors.confirmPassword }}
-            </p>
+
+            <button
+              type="button"
+              class="btn-eye"
+              @mousedown="showConfirmPassword = true"
+              @mouseup="showConfirmPassword = false"
+              @mouseleave="showConfirmPassword = false"
+            >
+              👁
+            </button>
           </div>
 
-          <p v-if="serverError" class="server-error">
-            {{ serverError }}
+          <p v-if="errors.confirmPassword" class="error-text">
+            {{ errors.confirmPassword }}
           </p>
+        </div>
 
-          <button class="btn-submit" type="submit">Đăng ký ngay</button>
-        </form>
-      </div>
+        <p v-if="serverError" class="server-error">
+          {{ serverError }}
+        </p>
+
+        <button class="btn-submit" type="submit">Đăng ký ngay</button>
+      </form>
     </div>
-  </template>
+  </div>
+</template>
 
-  <script setup>
-  import { ref } from "vue";
-  import { useRouter } from "vue-router";
-  import api from "@/services/api";
-  import { useThemeStore } from "@/stores/theme";
+<script setup>
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import api from "@/services/api";
+import { useThemeStore } from "@/stores/theme";
 
-  const theme = useThemeStore();
-  const router = useRouter();
+const theme = useThemeStore();
+const router = useRouter();
 
-  const hoTen = ref("");
-  const email = ref("");
-  const phone = ref("");
-  const password = ref("");
-  const confirmPassword = ref("");
-  const errors = ref({});
-  const serverError = ref("");
+const hoTen = ref("");
+const email = ref("");
+const phone = ref("");
+const password = ref("");
+const confirmPassword = ref("");
+const errors = ref({});
+const serverError = ref("");
+const showPassword = ref(false);
+const showConfirmPassword = ref(false);
+const validate = () => {
+  errors.value = {};
+  serverError.value = "";
 
-  const validate = () => {
-    errors.value = {};
-    serverError.value = "";
+  if (!hoTen.value) {
+    errors.value.hoTen = "Họ tên không được để trống";
+  }
 
-    if (!hoTen.value) {
-      errors.value.hoTen = "Họ tên không được để trống";
+  if (!email.value) {
+    errors.value.email = "Email không được để trống";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+    errors.value.email = "Email không hợp lệ";
+  }
+
+  if (!phone.value) {
+    errors.value.phone = "Số điện thoại không được để trống";
+  }
+
+  if (!password.value) {
+    errors.value.password = "Mật khẩu không được để trống";
+  } else if (password.value.length < 6) {
+    errors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
+  }
+
+  if (!confirmPassword.value) {
+    errors.value.confirmPassword = "Vui lòng nhập lại mật khẩu";
+  } else if (password.value !== confirmPassword.value) {
+    errors.value.confirmPassword = "Mật khẩu không khớp";
+  }
+
+  return Object.keys(errors.value).length === 0;
+};
+
+const register = async () => {
+  if (!validate()) return;
+
+  try {
+    await api.post("/auth/register", {
+      hoTen: hoTen.value,
+      email: email.value,
+      phone: phone.value,
+      password: password.value,
+    });
+
+    alert("Đăng ký thành công, mời bạn đăng nhập");
+    router.push("/login");
+  } catch (err) {
+    const code = err.response?.data?.code;
+    if (code === "EMAIL_EXISTS") {
+      errors.value.email = "Email này đã được sử dụng";
+      return;
     }
-
-    if (!email.value) {
-      errors.value.email = "Email không được để trống";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-      errors.value.email = "Email không hợp lệ";
-    }
-
-    if (!phone.value) {
-      errors.value.phone = "Số điện thoại không được để trống";
-    }
-
-    if (!password.value) {
-      errors.value.password = "Mật khẩu không được để trống";
-    } else if (password.value.length < 6) {
-      errors.value.password = "Mật khẩu phải ít nhất 6 ký tự";
-    }
-
-    if (!confirmPassword.value) {
-      errors.value.confirmPassword = "Vui lòng nhập lại mật khẩu";
-    } else if (password.value !== confirmPassword.value) {
-      errors.value.confirmPassword = "Mật khẩu không khớp";
-    }
-
-    return Object.keys(errors.value).length === 0;
-  };
-
-  const register = async () => {
-    if (!validate()) return;
-
-    try {
-      await api.post("/auth/register", {
-        hoTen: hoTen.value,
-        email: email.value,
-        phone: phone.value,
-        password: password.value,
-      });
-
-      alert("Đăng ký thành công, mời bạn đăng nhập");
-      router.push("/login");
-    } catch (err) {
-      const code = err.response?.data?.code;
-      if (code === "EMAIL_EXISTS") {
-        errors.value.email = "Email này đã được sử dụng";
-        return;
-      }
-      serverError.value = err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
-    }
-  };
-  </script>
+    serverError.value =
+      err.response?.data?.message || "Đăng ký thất bại, vui lòng thử lại";
+  }
+};
+</script>
 
 <style scoped>
 /* Bao phủ toàn bộ màn hình và căn giữa */
@@ -295,7 +325,7 @@
 .dark .login-card {
   background: #1e293b;
   color: #e2e8f0;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
 }
 
 .dark .breadcrumb {
@@ -335,7 +365,7 @@
 
 .dark .form-group input:focus {
   border-color: #60a5fa;
-  box-shadow: 0 0 0 2px rgba(96,165,250,0.25);
+  box-shadow: 0 0 0 2px rgba(96, 165, 250, 0.25);
 }
 
 .dark .btn-submit {
@@ -355,5 +385,28 @@
   background: #3b0d0d;
   border-color: #ef4444;
   color: #fecaca;
+}
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 40px;
+}
+
+.btn-eye {
+  position: absolute;
+  right: 10px;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  opacity: 0.7;
+}
+
+.btn-eye:hover {
+  opacity: 1;
 }
 </style>
