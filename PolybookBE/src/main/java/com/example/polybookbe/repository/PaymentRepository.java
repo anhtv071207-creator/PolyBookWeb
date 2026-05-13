@@ -16,47 +16,73 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
     boolean existsByOrder(Order order);
 
     @Query("""
-        SELECT COALESCE(SUM(p.soTien), 0)
-        FROM Payment p
-        WHERE p.trangThai = true
-    """)
+                SELECT COALESCE(SUM(p.soTien), 0)
+                FROM Payment p
+                WHERE p.trangThai = true
+            """)
     BigDecimal getTotalRevenue();
 
     // Lọc theo khoảng ngày
     @Query("""
-        SELECT p FROM Payment p
-        WHERE p.trangThai = true
-        AND p.createdAt BETWEEN :start AND :end
-    """)
+                SELECT p FROM Payment p
+                WHERE p.trangThai = true
+                AND p.createdAt BETWEEN :start AND :end
+            """)
     List<Payment> findByDateRange(LocalDateTime start, LocalDateTime end);
 
     // Lọc theo tháng
     @Query("""
-        SELECT p FROM Payment p
-        WHERE p.trangThai = true
-        AND MONTH(p.createdAt) = :month
-        AND YEAR(p.createdAt) = :year
-    """)
+                SELECT p FROM Payment p
+                WHERE p.trangThai = true
+                AND MONTH(p.createdAt) = :month
+                AND YEAR(p.createdAt) = :year
+            """)
     List<Payment> findByMonth(int month, int year);
 
     @Query(value = """
-    SELECT CAST(p.created_at AS DATE) AS ngay, SUM(p.so_tien) AS tong
-    FROM payment p
-    WHERE p.trang_thai = 1
-    AND p.created_at BETWEEN :start AND :end
-    GROUP BY CAST(p.created_at AS DATE)
-    ORDER BY CAST(p.created_at AS DATE)
-""", nativeQuery = true)
+                SELECT CAST(p.created_at AS DATE) AS ngay, SUM(p.so_tien) AS tong
+                FROM payment p
+                WHERE p.trang_thai = 1
+                AND p.created_at BETWEEN :start AND :end
+                GROUP BY CAST(p.created_at AS DATE)
+                ORDER BY CAST(p.created_at AS DATE)
+            """, nativeQuery = true)
     List<Object[]> getRevenueByDate(LocalDateTime start, LocalDateTime end);
 
     // Doanh thu theo tháng
     @Query("""
-        SELECT MONTH(p.createdAt), SUM(p.soTien)
-        FROM Payment p
-        WHERE p.trangThai = true
-        AND YEAR(p.createdAt) = :year
-        GROUP BY MONTH(p.createdAt)
-        ORDER BY MONTH(p.createdAt)
-    """)
+                SELECT MONTH(p.createdAt), SUM(p.soTien)
+                FROM Payment p
+                WHERE p.trangThai = true
+                AND YEAR(p.createdAt) = :year
+                GROUP BY MONTH(p.createdAt)
+                ORDER BY MONTH(p.createdAt)
+            """)
     List<Object[]> getRevenueByMonth(int year);
+
+    @Query("""
+    SELECT b.id, b.tieuDe, SUM(od.soLuong) as totalSold
+    FROM Payment p
+    JOIN p.order o
+    JOIN o.items od
+    JOIN od.book b
+    WHERE p.trangThai = true
+    GROUP BY b.id, b.tieuDe
+    ORDER BY totalSold DESC
+""")
+    List<Object[]> getTopBooksByQuantity();
+
+    @Query("""
+    SELECT b.id, b.tieuDe, SUM(od.soLuong * od.donGia) as revenue
+    FROM Payment p
+    JOIN p.order o
+    JOIN o.items od
+    JOIN od.book b
+    WHERE p.trangThai = true
+      AND MONTH(p.createdAt) = MONTH(CURRENT_DATE)
+      AND YEAR(p.createdAt) = YEAR(CURRENT_DATE)
+    GROUP BY b.id, b.tieuDe
+    ORDER BY revenue DESC
+""")
+    List<Object[]> getTopBooksByRevenue();
 }

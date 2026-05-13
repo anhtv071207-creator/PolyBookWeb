@@ -33,7 +33,19 @@ const router = useRouter();
 const goBackManagement = () => {
   router.push("/managements");
 };
+const topByQuantity = ref([]);
+const topByRevenue = ref([]);
+const fetchTopProducts = async () => {
+  try {
+  const res1 = await api.get("/management/payments/top-quantity");
+  const res2 = await api.get("/management/payments/top-revenue");
 
+    topByQuantity.value = res1.data;
+    topByRevenue.value = res2.data;
+  } catch (err) {
+    console.error(err);
+  }
+};
 // ===== TAB =====
 const currentMode = ref("add");
 const setMode = (mode) => {
@@ -48,6 +60,9 @@ const setMode = (mode) => {
     if (!revenueByDate.value.length) {
       applyQuickRange("7d");
     }
+  }
+  if (mode === "top") {
+    fetchTopProducts();
   }
 };
 
@@ -72,6 +87,16 @@ const lineChartData = computed(() => ({
     {
       label: "Doanh thu",
       data: revenueByDate.value.map((i) => i.total),
+
+      borderColor: "#3b82f6",
+      backgroundColor: "rgba(59,130,246,0.2)",
+      fill: true,
+
+      tension: 0.4, // làm mượt line
+      pointRadius: 3,
+      pointBackgroundColor: "#3b82f6",
+      pointHoverRadius: 6,
+      borderWidth: 2,
     },
   ],
 }));
@@ -82,19 +107,65 @@ const barChartData = computed(() => ({
     {
       label: "Doanh thu",
       data: revenueByMonth.value.map((i) => i.total),
+
+      backgroundColor: "#6366f1",
+      borderRadius: 6,
+      barThickness: 30,
     },
   ],
 }));
 
 const chartOptions = {
   responsive: true,
+  maintainAspectRatio: false,
+
   plugins: {
     legend: {
       display: true,
+      labels: {
+        color: "#64748b",
+        font: {
+          size: 13,
+          weight: "500",
+        },
+      },
+    },
+    tooltip: {
+      backgroundColor: "#111827",
+      titleColor: "#fff",
+      bodyColor: "#e5e7eb",
+      borderColor: "#374151",
+      borderWidth: 1,
+      padding: 10,
+      cornerRadius: 8,
+      callbacks: {
+        label: (ctx) => {
+          return " " + formatMoney(ctx.raw);
+        },
+      },
+    },
+  },
+
+  scales: {
+    x: {
+      ticks: {
+        color: "#94a3b8",
+      },
+      grid: {
+        display: false,
+      },
+    },
+    y: {
+      ticks: {
+        color: "#94a3b8",
+        callback: (value) => formatMoney(value),
+      },
+      grid: {
+        color: "rgba(148,163,184,0.2)",
+      },
     },
   },
 };
-
 const isAuto = ref(false);
 const applyQuickRange = (type) => {
   isAuto.value = true;
@@ -208,6 +279,13 @@ onMounted(() => {
         >
           Tra cứu doanh thu
         </div>
+        <div
+          class="tab-item"
+          :class="{ 'active-edit': currentMode === 'top' }"
+          @click="setMode('top')"
+        >
+          Sản phẩm bán chạy
+        </div>
       </div>
 
       <!-- CONTENT -->
@@ -276,6 +354,42 @@ onMounted(() => {
             <div class="chart-box">
               <h3>Biểu đồ doanh thu</h3>
               <Line :data="lineChartData" :options="chartOptions" />
+            </div>
+          </div>
+        </div>
+        <!-- TAB 3 -->
+        <div v-if="currentMode === 'top'">
+          <div class="card">
+            <h2>Sản phẩm bán chạy</h2>
+
+            <div class="top-grid">
+              <!-- Bảng 1 -->
+              <div class="top-box">
+                <h3>Theo số lượng</h3>
+
+                <div
+                  class="top-item"
+                  v-for="item in topByQuantity"
+                  :key="item.id"
+                >
+                  <span class="name">{{ item.name }}</span>
+                  <span class="value">{{ item.totalSold }}</span>
+                </div>
+              </div>
+
+              <!-- Bảng 2 -->
+              <div class="top-box">
+                <h3>Theo doanh thu (tháng)</h3>
+
+                <div
+                  class="top-item"
+                  v-for="item in topByRevenue"
+                  :key="item.id"
+                >
+                  <span class="name">{{ item.name }}</span>
+                  <span class="value">{{ formatMoney(item.revenue) }}</span>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -909,6 +1023,7 @@ textarea {
 
 .chart-box {
   margin-top: 20px;
+  height: 320px;
 }
 .dark .quick-filter button {
   background: #1e293b;
@@ -958,5 +1073,39 @@ textarea {
 .tab-item {
   transition: all 0.2s ease;
 }
+.top-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
 
+.top-box {
+  background: #f8fafc;
+  padding: 15px;
+  border-radius: 10px;
+}
+
+.top-box h3 {
+  margin-bottom: 10px;
+  font-size: 16px;
+}
+
+.top-item {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.top-item:last-child {
+  border-bottom: none;
+}
+
+.name {
+  font-weight: 500;
+}
+
+.value {
+  font-weight: 600;
+}
 </style>

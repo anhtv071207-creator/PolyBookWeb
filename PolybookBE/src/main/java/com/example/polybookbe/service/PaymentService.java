@@ -18,4 +18,8 @@ public interface PaymentService {
     List<Map<String, Object>> getRevenueByMonth(int year);
 
     BigDecimal getTotalRevenue();
+
+    List<Map<String, Object>> getTopBooksByQuantity();
+
+    List<Map<String, Object>> getTopBooksByRevenue();
 }

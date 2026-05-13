@@ -2,7 +2,7 @@
 GO
 USE BookStoreDB
 GO
-
+SELECT id, created_at FROM payment;
 CREATE TABLE Users (
     id INT IDENTITY PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,

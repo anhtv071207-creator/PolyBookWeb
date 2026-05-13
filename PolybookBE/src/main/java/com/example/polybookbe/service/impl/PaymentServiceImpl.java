@@ -63,4 +63,34 @@ public class PaymentServiceImpl implements PaymentService {
     public BigDecimal getTotalRevenue() {
         return paymentRepository.getTotalRevenue();
     }
+    @Override
+    public List<Map<String, Object>> getTopBooksByQuantity() {
+        List<Object[]> raw = paymentRepository.getTopBooksByQuantity();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Object[] row : raw) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", row[0]);
+            map.put("name", row[1]);
+            map.put("totalSold", row[2]);
+            result.add(map);
+        }
+
+        return result;
+    }
+    @Override
+    public List<Map<String, Object>> getTopBooksByRevenue() {
+        List<Object[]> raw = paymentRepository.getTopBooksByRevenue();
+        List<Map<String, Object>> result = new ArrayList<>();
+
+        for (Object[] row : raw) {
+            Map<String, Object> map = new HashMap<>();
+            map.put("id", row[0]);
+            map.put("name", row[1]);
+            map.put("revenue", row[2]);
+            result.add(map);
+        }
+
+        return result;
+    }
 }

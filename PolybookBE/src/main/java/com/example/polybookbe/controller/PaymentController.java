@@ -69,4 +69,13 @@ public class PaymentController {
     public BigDecimal getTotalRevenue() {
         return paymentService.getTotalRevenue();
     }
+    @GetMapping("/top-quantity")
+    public List<Map<String, Object>> topQuantity() {
+        return paymentService.getTopBooksByQuantity();
+    }
+
+    @GetMapping("/top-revenue")
+    public List<Map<String, Object>> topRevenue() {
+        return paymentService.getTopBooksByRevenue();
+    }
 }

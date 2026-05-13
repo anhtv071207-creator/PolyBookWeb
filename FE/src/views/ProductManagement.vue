@@ -952,10 +952,18 @@ const submitForm = async () => {
     resetAddForm(form);
     await fetchBooks();
   } catch (err) {
-    showToastMsg("error", "Thêm sách thất bại");
+    const msg = getErrorMessage(err);
+    showToastMsg("error", msg);
   }
 };
-
+const getErrorMessage = (err) => {
+  return (
+    err?.response?.data?.message ||
+    err?.response?.data?.error ||
+    err?.message ||
+    "Có lỗi xảy ra"
+  );
+};
 const startEdit = async (book) => {
   try {
     currentMode.value = "edit";
@@ -1071,8 +1079,8 @@ const updateBook = async () => {
     resetEditForm(editForm);
     fetchBooks();
   } catch (err) {
-    showToastMsg("error", "Cập nhật thất bại");
-    console.error(err);
+    const msg = getErrorMessage(err);
+    showToastMsg("error", msg);
   }
 };
 
@@ -1091,7 +1099,8 @@ const confirmDeleteBook = async () => {
 
     await fetchBooks();
   } catch (err) {
-    showToastMsg("error", "Xóa thất bại");
+    const msg = getErrorMessage(err);
+    showToastMsg("error", msg);
   } finally {
     showDeleteConfirm.value = false;
     deleteTargetId.value = null;

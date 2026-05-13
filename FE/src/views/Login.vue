@@ -102,21 +102,44 @@ const validate = () => {
   errors.value = {};
   serverError.value = "";
 
-  if (!email.value) {
-    errors.value.email = "Email không được để trống";
-  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
-    errors.value.email = "Email không hợp lệ";
-  }
+  // ===== EMAIL =====
+  let emailVal = email.value?.trim();
 
-  if (!password.value) {
+  if (!emailVal) {
+    errors.value.email = "Email không được để trống";
+  } else if (emailVal.length > 100) {
+    errors.value.email = "Email quá dài";
+  } else if (/[^\x00-\x7F]/.test(emailVal)) {
+    errors.value.email = "Email không được chứa ký tự đặc biệt";
+  } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailVal)) {
+    errors.value.email = "Email không hợp lệ";
+  } else {
+    email.value = emailVal.toLowerCase();
+  }
+const isLoading = ref(false);
+  // ===== PASSWORD =====
+  let passVal = password.value;
+
+  if (!passVal) {
     errors.value.password = "Mật khẩu không được để trống";
+  } else if (passVal.trim().length === 0) {
+    errors.value.password = "Mật khẩu không hợp lệ";
+  } else if (passVal.length < 6) {
+    errors.value.password = "Mật khẩu phải ≥ 6 ký tự";
+  } else if (passVal.length > 50) {
+    errors.value.password = "Mật khẩu quá dài";
+  } else if (/[\u200B-\u200D\uFEFF]/.test(passVal)) {
+    errors.value.password = "Mật khẩu chứa ký tự ẩn";
   }
 
   return Object.keys(errors.value).length === 0;
 };
 
 const login = async () => {
+  if (isLoading.value) return;
   if (!validate()) return;
+
+  isLoading.value = true;
 
   try {
     const res = await api.post("/auth/login", {
@@ -130,6 +153,7 @@ const login = async () => {
       role: res.data.role,
       hoTen: res.data.hoTen,
     });
+
     api.defaults.headers.common.Authorization = `Bearer ${res.data.token}`;
 
     router.push("/");
@@ -144,6 +168,8 @@ const login = async () => {
     serverError.value =
       err.response?.data?.message ||
       "Đăng nhập thất bại. Vui lòng kiểm tra lại.";
+  } finally {
+    isLoading.value = false;
   }
 };
 </script>

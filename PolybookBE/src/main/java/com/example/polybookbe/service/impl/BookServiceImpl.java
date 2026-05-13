@@ -2,6 +2,7 @@ package com.example.polybookbe.service.impl;
 
 import com.example.polybookbe.dto.*;
 import com.example.polybookbe.entity.*;
+import com.example.polybookbe.exception.ApiException;
 import com.example.polybookbe.repository.*;
 import com.example.polybookbe.service.BookImageService;
 import com.example.polybookbe.service.BookService;
@@ -66,7 +67,7 @@ public class BookServiceImpl implements BookService {
     @Override
     @Transactional
     public BookResponse createBook(CreateBookRequest request) {
-
+        validateCreateBook(request);
         Book book = new Book();
         book.setTieuDe(request.getTieuDe());
         book.setTacGia(request.getTacGia());
@@ -130,8 +131,15 @@ public class BookServiceImpl implements BookService {
     @Transactional
     public BookResponse updateBook(Integer id, CreateBookRequest request) {
 
+
+        if (id == null || id <= 0) {
+            throw new ApiException("ID không hợp lệ", "INVALID_ID");
+        }
+
+        validateCreateBook(request);
+
         Book book = bookRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Book not found"));
+                .orElseThrow(() -> new ApiException("Không tìm thấy sách", "BOOK_NOT_FOUND"));
 
         book.setTieuDe(request.getTieuDe());
         book.setTacGia(request.getTacGia());
@@ -486,5 +494,78 @@ public class BookServiceImpl implements BookService {
                 bookPage.getTotalPages(),
                 bookPage.isLast()
         );
+    }
+    private void validateCreateBook(CreateBookRequest request) {
+
+        if (request == null) {
+            throw new ApiException("Dữ liệu không hợp lệ", "INVALID_REQUEST");
+        }
+
+        // ===== TITLE =====
+        if (request.getTieuDe() == null || request.getTieuDe().trim().isEmpty()) {
+            throw new ApiException("Tiêu đề không được để trống", "TITLE_REQUIRED");
+        }
+
+        if (request.getTieuDe().length() > 255) {
+            throw new ApiException("Tiêu đề quá dài", "TITLE_TOO_LONG");
+        }
+
+        // ===== AUTHOR =====
+        if (request.getTacGia() == null || request.getTacGia().trim().isEmpty()) {
+            throw new ApiException("Tác giả không được để trống", "AUTHOR_REQUIRED");
+        }
+
+        // ===== PRICE =====
+        if (request.getGia() == null) {
+            throw new ApiException("Giá không được để trống", "PRICE_REQUIRED");
+        }
+
+        if (request.getGia().compareTo(BigDecimal.ZERO) < 0) {
+            throw new ApiException("Giá không hợp lệ", "INVALID_PRICE");
+        }
+
+        // ===== STOCK =====
+        if (request.getHangTon() == null || request.getHangTon() < 0) {
+            throw new ApiException("Số lượng tồn không hợp lệ", "INVALID_STOCK");
+        }
+
+        // ===== ISBN =====
+        if (request.getIsbn() != null && request.getIsbn().length() > 20) {
+            throw new ApiException("ISBN quá dài", "INVALID_ISBN");
+        }
+
+        // ===== PAGE =====
+        if (request.getSoTrang() != null && request.getSoTrang() <= 0) {
+            throw new ApiException("Số trang không hợp lệ", "INVALID_PAGE");
+        }
+
+        // ===== YEAR =====
+        if (request.getNamXuatBan() != null) {
+            int year = request.getNamXuatBan();
+            int currentYear = LocalDateTime.now().getYear();
+
+            if (year < 1000 || year > currentYear) {
+                throw new ApiException("Năm xuất bản không hợp lệ", "INVALID_YEAR");
+            }
+        }
+
+        // ===== WEIGHT =====
+        if (request.getTrongLuong() != null && request.getTrongLuong() <= 0) {
+            throw new ApiException("Trọng lượng không hợp lệ", "INVALID_WEIGHT");
+        }
+
+        // ===== IMAGE =====
+        if (request.getCoverImageUrl() == null || request.getCoverImageUrl().trim().isEmpty()) {
+            throw new ApiException("Ảnh bìa không được để trống", "IMAGE_REQUIRED");
+        }
+
+        if (!request.getCoverImageUrl().startsWith("http")) {
+            throw new ApiException("URL ảnh không hợp lệ", "INVALID_IMAGE_URL");
+        }
+
+        // ===== CATEGORY =====
+        if (request.getCategoryIds() == null || request.getCategoryIds().isEmpty()) {
+            throw new ApiException("Phải chọn ít nhất 1 danh mục", "CATEGORY_REQUIRED");
+        }
     }
 }

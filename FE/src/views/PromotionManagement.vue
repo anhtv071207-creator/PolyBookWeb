@@ -59,16 +59,16 @@
       </tbody>
     </table>
     <div v-if="showDeleteConfirm" class="delete-overlay">
-  <div class="delete-box">
-    <h3>Xác nhận xoá</h3>
-    <p>Bạn chắc chắn muốn xoá khuyến mãi này?</p>
+      <div class="delete-box">
+        <h3>Xác nhận xoá</h3>
+        <p>Bạn chắc chắn muốn xoá khuyến mãi này?</p>
 
-    <div class="delete-actions">
-      <button class="btn-cancel" @click="cancelDelete">Hủy</button>
-      <button class="btn-danger" @click="confirmDelete">Xóa</button>
+        <div class="delete-actions">
+          <button class="btn-cancel" @click="cancelDelete">Hủy</button>
+          <button class="btn-danger" @click="confirmDelete">Xóa</button>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
   </div>
   <div v-if="showToast" class="toast-overlay">
     <div class="toast-box" :class="toastType">
@@ -121,10 +121,28 @@ async function loadPromotions() {
     const res = await api.get("/promotions");
     promotions.value = res.data;
   } catch (error) {
-    console.error("Lỗi khi tải danh sách khuyến mãi:", error);
+    showToastMsg("error", getErrorMessage(error));
   }
 }
+const getErrorMessage = (error) => {
+  const data = error?.response?.data;
 
+  if (!data) return "Lỗi kết nối server";
+
+  // Case: BE trả string
+  if (typeof data === "string") return data;
+
+  // Case: { message: "..." }
+  if (data.message) return data.message;
+
+  // Case: validation errors array
+  if (Array.isArray(data.errors)) {
+    return data.errors.join(", ");
+  }
+
+  // fallback
+  return "Có lỗi xảy ra";
+};
 async function loadBooks() {
   try {
     const res = await api.get("/books", {
@@ -132,7 +150,7 @@ async function loadBooks() {
     });
     books.value = res.data.content;
   } catch (error) {
-    console.error("Lỗi khi tải danh sách sách:", error);
+    showToastMsg("error", getErrorMessage(error));
   }
 }
 
@@ -160,8 +178,6 @@ async function savePromotion() {
   };
 
   try {
-    let res;
-
     if (editing.value) {
       await api.put(`/promotions/${form.value.id}`, payload);
       showToastMsg("success", "Cập nhật thành công");
@@ -173,10 +189,7 @@ async function savePromotion() {
     await loadPromotions();
     resetForm();
   } catch (error) {
-    const msg =
-      error.response?.data?.message || error.response?.data || "Có lỗi xảy ra";
-
-    showToastMsg("error", msg);
+    showToastMsg("error", getErrorMessage(error));
   }
 }
 
@@ -209,12 +222,7 @@ async function confirmDelete() {
 
     await loadPromotions();
   } catch (error) {
-    const msg =
-      error.response?.data?.message ||
-      error.response?.data ||
-      "Xóa thất bại";
-
-    showToastMsg("error", msg);
+    showToastMsg("error", getErrorMessage(error));
   } finally {
     showDeleteConfirm.value = false;
     deleteTargetId.value = null;
